@@ -374,4 +374,86 @@ describe('useTtsPlaybackController', () => {
       expect(audio.play).not.toHaveBeenCalled()
     })
   })
+
+  describe('play() rejection handling (s2_t4 Task 2)', () => {
+    /** Play chunk 0 with play() rejecting `err`, fire oncanplay, flush the rejection microtask. */
+    const startWithRejectingPlay = async (err: Error) => {
+      const hook = renderHook(() => useTtsPlaybackController(baseOptions))
+      mockDownloadChunk.mockImplementation((_chunkId: number, cb: (url: string) => void) => {
+        cb('http://example.com/audio.mp3')
+      })
+
+      await act(async () => {
+        hook.result.current.playChunk(0, true)
+      })
+      await Promise.resolve() // flush the resolveAudioSrc microtask
+
+      const audio = hook.result.current.audioRef.current
+      expect(audio).not.toBeNull()
+
+      ;(audio!.play as jest.Mock).mockImplementation(() => Promise.reject(err))
+
+      act(() => {
+        audio!.oncanplay!(new Event('canplay'))
+      })
+      await act(async () => { /* let the rejected play() promise settle */ })
+
+      return { hook, audio: audio! }
+    }
+
+    it('NotAllowedError → PAUSED + setIsPlaying(false) + log BLOCKED, no retry scheduled', async () => {
+      const blocked = Object.assign(new Error('play() not allowed'), { name: 'NotAllowedError' })
+      const { hook, audio } = await startWithRejectingPlay(blocked)
+
+      expect(hook.result.current.state).toBe(TtsState.PAUSED)
+      expect(mockSetIsPlaying).toHaveBeenLastCalledWith(false)
+      expect(mockLog).toHaveBeenCalledWith(expect.stringContaining('BLOCKED'))
+
+      // a gesture requirement cannot be fixed by a timer/listener: the initial
+      // play() is the only call, and a later canplay stays silent
+      expect(audio.play).toHaveBeenCalledTimes(1)
+      act(() => {
+        ;(audio as any).dispatch('canplay')
+      })
+      expect(audio.play).toHaveBeenCalledTimes(1)
+    })
+
+    it('other rejection → state stays PLAYING, one canplay retry, then silence (no loop)', async () => {
+      const other = Object.assign(new Error('element not ready'), { name: 'AbortError' })
+      const { hook, audio } = await startWithRejectingPlay(other)
+
+      // only NotAllowedError surfaces a pause
+      expect(hook.result.current.state).toBe(TtsState.PLAYING)
+      expect(mockSetIsPlaying).not.toHaveBeenCalledWith(false)
+      expect(mockLog).toHaveBeenCalledWith(expect.stringContaining('retrying on canplay'))
+
+      // first canplay → the one-shot retry plays (this attempt succeeds)
+      ;(audio.play as jest.Mock).mockImplementation(() => Promise.resolve())
+      act(() => {
+        ;(audio as any).dispatch('canplay')
+      })
+      expect(audio.play).toHaveBeenCalledTimes(2)
+
+      // listener removed after firing — a second canplay stays silent
+      act(() => {
+        ;(audio as any).dispatch('canplay')
+      })
+      expect(audio.play).toHaveBeenCalledTimes(2)
+    })
+
+    it('generation change (pause) → pending canplay retry never fires', async () => {
+      const other = Object.assign(new Error('element not ready'), { name: 'AbortError' })
+      const { hook, audio } = await startWithRejectingPlay(other)
+
+      act(() => {
+        hook.result.current.pause()
+      })
+
+      act(() => {
+        ;(audio as any).dispatch('canplay')
+      })
+      // only the original (rejected) play() call — the retry went with the generation
+      expect(audio.play).toHaveBeenCalledTimes(1)
+    })
+  })
 })

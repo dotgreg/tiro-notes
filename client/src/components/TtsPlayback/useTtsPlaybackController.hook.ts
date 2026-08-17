@@ -82,6 +82,9 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
   const firstLoadstartRef = useRef(false)
   const isPopupClosedRef = useRef<boolean>(false)
   const startTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // One-shot canplay retry pending after a non-NotAllowed play() rejection
+  // (s2_t4 Task 2) — removed on fire or on every generation change (stopAudio)
+  const canplayRetryRef = useRef<(() => void) | null>(null)
 
   // The race guard: generation token (unchanged since 0.52.7 — proven by logs)
   const playIdRef = useRef(0)
@@ -313,7 +316,25 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
         audio.playbackRate = playbackRateRef.current
         log(`${pre}: ▶️ audio#${aid}.play() called (chunk ${chunkNb})`)
         audio.play().catch(e => {
-          if (id === playIdRef.current) log(`${pre}: ❌ audio#${aid} play() rejected: ${e.message}`)
+          if (id !== playIdRef.current) return
+          if (e.name === 'NotAllowedError') {
+            // Autoplay blocked (mobile: play() fired after async download, outside the
+            // user-gesture window). Surface a REAL pause — the user's tap on ▶ is a
+            // gesture; with the priming call in togglePlay the element is unlocked.
+            log(`${pre}: ⛔ audio#${aid} play() BLOCKED by browser policy — tap ▶ to start`)
+            setState(TtsState.PAUSED)
+            setIsPlaying(false)
+            return
+          }
+          log(`${pre}: ⚠️ audio#${aid} play() rejected: ${e.message} — retrying on canplay`)
+          const retry = () => {
+            if (id !== playIdRef.current || isPopupClosedRef.current) return
+            audio.removeEventListener('canplay', retry)
+            canplayRetryRef.current = null
+            audio.play().catch(() => { /* give up — Task 1 + poll cover the rest */ })
+          }
+          audio.addEventListener('canplay', retry)
+          canplayRetryRef.current = retry
         })
         preloadNext(chunkNb)
       }
@@ -362,6 +383,11 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
       audio.oncanplay = null
       audio.onerror = null
       audio.onended = null
+      // Generation change: kill any pending one-shot canplay retry (s2_t4 Task 2)
+      if (canplayRetryRef.current) {
+        audio.removeEventListener('canplay', canplayRetryRef.current)
+        canplayRetryRef.current = null
+      }
       audio.pause()
       log(`${pre}: 🛑 audio#${(audio as any).__ttsId} stopped`)
     }

@@ -14,6 +14,10 @@ global.Audio = class {
   src = ''
   load = jest.fn()
   remove = jest.fn()
+  removeEventListener = jest.fn(function (type, fn) {
+    // one listener per type (matches addEventListener) — remove only if it is the current one
+    if (this.__listeners[type] === fn) delete this.__listeners[type]
+  })
   // Capture event listeners so tests can fire them (e.g. 'pause' for
   // underrun-recovery tests). One listener per type is the only real usage.
   __listeners = {}
