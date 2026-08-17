@@ -14,7 +14,7 @@ import { useDebounce } from '../hooks/lodash.hooks';
 import { startScreenWakeLock, stopScreenWakeLock } from '../managers/wakeLock.manager';
 import { deviceType } from '../managers/device.manager';
 import { isNumber } from 'lodash-es';
-import { useTtsPlaybackController, useChunkDownloader, getTtsTabId, onVisibilityChange } from './TtsPlayback';
+import { useTtsPlaybackController, useChunkDownloader, getTtsTabId, onVisibilityChange, TtsState } from './TtsPlayback';
 
 const pre = "[TtsCustomPopup] "
 
@@ -306,6 +306,15 @@ export const TtsCustomPopup = (p: {
     if (audio.readyState < 2) {
       problemCounterRef.current = 0
       return
+    }
+
+    // Missed `ended` fallback (rare on Android): the element is at the end but we
+    // never advanced. Only when state is still PLAYING — a normal onended sets
+    // ENDED + isPlaying=false, and next() moves state to LOADING, so this fires
+    // at most once.
+    if (isPlayingRef.current && audio.ended && controller.state === TtsState.PLAYING) {
+      log(`${pre}: ⚠️ ended not fired — advancing manually`)
+      next()
     }
 
     // Reset detection (only while playing with a loaded src)
