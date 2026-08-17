@@ -273,6 +273,24 @@ export const TtsCustomPopup = (p: {
   // Underrun recovery is event-driven in the controller (pause listener,
   // s2_t4 Task 1) — the poll only keeps the checks that need a cadence.
   useInterval(() => {
+    // Cross-tab claim (s2_t4 Task 6): the winner heartbeats so its claim stays
+    // fresh; a tab paused by the lock takes over once the claim is stale
+    // (>60s = winner tab closed or its JS suspended). Runs before the audio
+    // checks: takeover may resume() on a tab whose element is already gone.
+    if (claimKey) {
+      if (!lockPausedRef.current) {
+        writeClaim()
+      } else {
+        const cur = readClaim()
+        if (cur && cur.tabId !== getTtsTabId() && Date.now() - cur.ts > 60000) {
+          lockPausedRef.current = false
+          writeClaim()
+          controllerRef.current.resume()
+          log(`${pre}🔓 TTS claim stale — re-claimed and resuming`)
+        }
+      }
+    }
+
     const audio = controller.audioRef.current
     if (!audio) return
 
