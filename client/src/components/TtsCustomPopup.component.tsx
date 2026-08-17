@@ -14,7 +14,7 @@ import { useDebounce } from '../hooks/lodash.hooks';
 import { startScreenWakeLock, stopScreenWakeLock } from '../managers/wakeLock.manager';
 import { deviceType } from '../managers/device.manager';
 import { isNumber } from 'lodash-es';
-import { useTtsPlaybackController, useChunkDownloader, getTtsTabId } from './TtsPlayback';
+import { useTtsPlaybackController, useChunkDownloader, getTtsTabId, onVisibilityChange } from './TtsPlayback';
 
 const pre = "[TtsCustomPopup] "
 
@@ -247,6 +247,10 @@ export const TtsCustomPopup = (p: {
       controller.pause()
       log(`${pre}: ⏸️ paused`)
     } else {
+      // Prime the iOS autoplay unlock inside the user gesture (first play() attempt
+      // must happen in the gesture stack; resume()'s play() arrives after async src
+      // handling). No-op if already playing/unlocked.
+      controller.audioRef.current?.play().catch(() => { })
       controller.resume()
       log(`${pre}: ▶️ resumed`)
     }
@@ -381,6 +385,27 @@ export const TtsCustomPopup = (p: {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [claimKey])
+
+  // ── Page-visibility lifecycle (s2_t4 Task 3) ─────────────────────────────
+  // The OS releases the wake lock when the page hides (Wake Lock API spec) and
+  // may pause audio (or queue the pause event until resume). On visible:
+  // re-acquire the lock if the user had it on, and re-assert playback if we
+  // were playing but the element is now paused. isPlayingRef guards against
+  // intentional pauses (the controller sets it false before pausing the element).
+  useEffect(() => {
+    const onVis = () => {
+      onVisibilityChange(
+        document.visibilityState === 'visible',
+        bgLock,
+        startScreenWakeLock,
+        controllerRef.current.audioRef.current,
+        isPlayingRef.current,
+        (m) => log(`${pre}: ${m}`),
+      )
+    }
+    document.addEventListener('visibilitychange', onVis)
+    return () => document.removeEventListener('visibilitychange', onVis)
+  }, [bgLock])
 
   const [estimatedTime, setEstimatedTime] = useState<string>("")
   useEffect(() => {
