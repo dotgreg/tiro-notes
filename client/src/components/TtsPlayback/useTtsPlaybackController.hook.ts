@@ -90,6 +90,21 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
   const playIdRef = useRef(0)
   // true after destroy(): in-flight blob fetches must not repopulate the cache
   const destroyedRef = useRef(false)
+  // Per-chunk retry budget (s2_t4 Task 4): a flaky mobile network / media load
+  // error should not kill the session — retry twice (2s, then 5s) before
+  // giving up. Reset per generation in playChunk() and once playback actually
+  // starts (startPlay). The setTimeout is generation-guarded like every other
+  // async boundary (captured playId + destroyed check).
+  const retryRef = useRef(0)
+  const MAX_RETRIES = 2
+  const scheduleRetry = (fn: () => void, attempt: number) => {
+    const id = playIdRef.current
+    const delay = attempt === 1 ? 2000 : 5000
+    log(`${pre}: 🔁 retry ${attempt}/${MAX_RETRIES} in ${delay / 1000}s`)
+    setTimeout(() => {
+      if (id === playIdRef.current && !destroyedRef.current) fn()
+    }, delay)
+  }
 
   // Refs for changing options — closures always read .current (live value)
   const playbackRateRef = useRef(playbackRate)
@@ -307,6 +322,7 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
       const startPlay = () => {
         if (started || id !== playIdRef.current || isPopupClosedRef.current) return
         started = true
+        retryRef.current = 0 // canplay = chunk loaded, playback starting → budget spent (s2_t4 Task 4)
         if (startTimeoutRef.current) {
           clearTimeout(startTimeoutRef.current)
           startTimeoutRef.current = null
@@ -344,6 +360,18 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
 
       audio.onerror = () => {
         if (id !== playIdRef.current) return
+        // The load failed: kill the 3s canplay-fallback so a dead src can never
+        // flip the state back to PLAYING (startPlay would otherwise still fire)
+        if (startTimeoutRef.current) {
+          clearTimeout(startTimeoutRef.current)
+          startTimeoutRef.current = null
+        }
+        if (retryRef.current < MAX_RETRIES) {
+          retryRef.current += 1
+          log(`${pre}: ⚠️ audio LOAD ERROR for ${urlAudio} — retry ${retryRef.current}/${MAX_RETRIES}`)
+          scheduleRetry(() => startAudio(urlAudio, chunkNb, id), retryRef.current)
+          return
+        }
         log(`${pre}: ❌ audio LOAD ERROR for ${urlAudio}`)
         setState(TtsState.ERROR)
         setIsPlaying(false)
@@ -399,6 +427,7 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
     const id = playIdRef.current
     cancelledRef.current = false
     destroyedRef.current = false
+    retryRef.current = 0 // new generation = fresh retry budget (s2_t4 Task 4)
 
     stopAudio()
     pauseAllAudioWindow(false)
@@ -415,9 +444,15 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
     }
 
     log(`${pre}: ⏳ downloading chunk ${chunkNb}`)
-    downloadChunk(chunkNb, (urlAudio) => {
+    const onDownloaded = (urlAudio: string) => {
       if (id !== playIdRef.current) return // superseded (pause / new chunk / close)
       if (!urlAudio || urlAudio.includes('ERROR')) {
+        if (retryRef.current < MAX_RETRIES) {
+          retryRef.current += 1
+          log(`${pre}: ⚠️ chunk ${chunkNb} download failed: ${urlAudio} — retry ${retryRef.current}/${MAX_RETRIES}`)
+          scheduleRetry(() => downloadChunk(chunkNb, onDownloaded), retryRef.current)
+          return
+        }
         log(`${pre}: ❌ chunk ${chunkNb} download failed: ${urlAudio}`)
         setState(TtsState.ERROR)
         setIsPlaying(false)
@@ -425,7 +460,8 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
       }
       log(`${pre}: ▶️ playing chunk ${chunkNb}`)
       startAudio(urlAudio, chunkNb, id)
-    })
+    }
+    downloadChunk(chunkNb, onDownloaded)
   }, [log])
 
   /** Pause current playback. Bumps the generation: kills all in-flight work. */

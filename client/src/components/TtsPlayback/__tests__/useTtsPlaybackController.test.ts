@@ -456,4 +456,97 @@ describe('useTtsPlaybackController', () => {
       expect(audio.play).toHaveBeenCalledTimes(1)
     })
   })
+
+  describe('retry budget for download + media errors (s2_t4 Task 4)', () => {
+    beforeEach(() => { jest.useFakeTimers() })
+    afterEach(() => { jest.useRealTimers() })
+
+    it('download ERROR ×2 then success → chunk plays after 2s + 5s', async () => {
+      const { result } = renderHook(() => useTtsPlaybackController(baseOptions))
+      let calls = 0
+      mockDownloadChunk.mockImplementation((_c: number, cb: (url: string) => void) => {
+        calls += 1
+        cb(calls < 3 ? 'ERROR: API' : 'http://example.com/audio.mp3')
+      })
+
+      act(() => { result.current.playChunk(0, true) })
+      expect(mockDownloadChunk).toHaveBeenCalledTimes(1)
+      expect(result.current.state).toBe(TtsState.LOADING) // retrying, not ERROR yet
+
+      await act(async () => { jest.advanceTimersByTime(2000) })
+      expect(mockDownloadChunk).toHaveBeenCalledTimes(2)
+
+      await act(async () => { jest.advanceTimersByTime(5000) })
+      expect(mockDownloadChunk).toHaveBeenCalledTimes(3)
+
+      // 3rd download returned a URL → startAudio ran → canplay starts playback
+      const audio = result.current.audioRef.current
+      expect(audio).not.toBeNull()
+      act(() => { audio!.oncanplay!(new Event('canplay')) })
+      expect(result.current.state).toBe(TtsState.PLAYING)
+    })
+
+    it('download ERROR ×3 → ERROR state, isPlaying false, no further retries or timers', async () => {
+      const { result } = renderHook(() => useTtsPlaybackController(baseOptions))
+      mockDownloadChunk.mockImplementation((_c: number, cb: (url: string) => void) => cb('ERROR: API'))
+
+      act(() => { result.current.playChunk(0, true) })
+      await act(async () => { jest.advanceTimersByTime(2000) }) // retry 1 fails
+      await act(async () => { jest.advanceTimersByTime(5000) }) // retry 2 fails → budget exhausted
+
+      expect(mockDownloadChunk).toHaveBeenCalledTimes(3)
+      expect(result.current.state).toBe(TtsState.ERROR)
+      expect(mockSetIsPlaying).toHaveBeenLastCalledWith(false)
+
+      await act(async () => { jest.advanceTimersByTime(120000) })
+      expect(mockDownloadChunk).toHaveBeenCalledTimes(3) // no 4th attempt
+      expect(jest.getTimerCount()).toBe(0) // nothing left scheduled
+    })
+
+    it('pause during a pending retry → retry cancelled (generation guard)', async () => {
+      const { result } = renderHook(() => useTtsPlaybackController(baseOptions))
+      mockDownloadChunk.mockImplementation((_c: number, cb: (url: string) => void) => cb('ERROR: API'))
+
+      act(() => { result.current.playChunk(0, true) })
+      expect(mockDownloadChunk).toHaveBeenCalledTimes(1)
+
+      act(() => { result.current.pause() })
+      expect(result.current.state).toBe(TtsState.PAUSED)
+
+      await act(async () => { jest.advanceTimersByTime(120000) })
+      expect(mockDownloadChunk).toHaveBeenCalledTimes(1) // retry never ran
+      expect(result.current.state).toBe(TtsState.PAUSED)
+    })
+
+    it('onerror → startAudio re-runs until budget exhausted, then ERROR', async () => {
+      const { result } = renderHook(() => useTtsPlaybackController(baseOptions))
+      mockDownloadChunk.mockImplementation((_c: number, cb: (url: string) => void) => {
+        cb('http://example.com/audio.mp3')
+      })
+
+      await act(async () => { result.current.playChunk(0, true) })
+      await Promise.resolve() // flush the resolveAudioSrc microtask
+      const audio = result.current.audioRef.current
+      expect(audio).not.toBeNull()
+
+      // onerror #1 → retry 1 (state stays LOADING, not ERROR yet)
+      act(() => { audio!.onerror!(new Event('error')) })
+      expect(result.current.state).toBe(TtsState.LOADING)
+      await act(async () => { jest.advanceTimersByTime(2000) })
+      expect(audio!.load).toHaveBeenCalledTimes(1) // startAudio re-ran (same src → load())
+
+      // onerror #2 → retry 2
+      act(() => { audio!.onerror!(new Event('error')) })
+      expect(result.current.state).toBe(TtsState.LOADING)
+      await act(async () => { jest.advanceTimersByTime(5000) })
+      expect(audio!.load).toHaveBeenCalledTimes(2)
+
+      // onerror #3 → budget exhausted → ERROR, no further re-runs
+      act(() => { audio!.onerror!(new Event('error')) })
+      expect(result.current.state).toBe(TtsState.ERROR)
+      expect(mockSetIsPlaying).toHaveBeenLastCalledWith(false)
+      await act(async () => { jest.advanceTimersByTime(120000) })
+      expect(audio!.load).toHaveBeenCalledTimes(2)
+    })
+  })
 })
