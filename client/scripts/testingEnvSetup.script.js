@@ -11,6 +11,7 @@ global.Audio = class {
   paused = false
   preload = ''
   src = ''
+  load = jest.fn()
   remove = jest.fn()
   addEventListener = jest.fn()
 }

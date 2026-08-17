@@ -181,8 +181,8 @@ describe('useTtsPlaybackController', () => {
     })
   })
 
-  describe('stale closure race (double-play fix)', () => {
-    it('playChunk with isUserAction aborts old audio (nulls handlers + calls remove)', async () => {
+  describe('stale closure race (double-play fix) — Solution C (0.52.10): one session element', () => {
+    it('playChunk reuses the single session element (no second element is ever created)', async () => {
       const { result } = renderHook(() => useTtsPlaybackController(baseOptions))
 
       mockDownloadChunk.mockImplementation((_chunkId: number, cb: (url: string) => void) => {
@@ -198,18 +198,18 @@ describe('useTtsPlaybackController', () => {
       const firstAudio = result.current.audioRef.current
       expect(firstAudio).not.toBeNull()
 
-      // Play chunk 1 — should abort old audio
+      // Play chunk 1 — same element is reused, old generation is killed by
+      // the playId token (not by destroying the element)
       await act(async () => {
         result.current.playChunk(1, true)
       })
 
-      // Old audio's handlers should be nulled (abortAudio does this)
-      expect(firstAudio!.oncanplay).toBeNull()
-      expect(firstAudio!.onended).toBeNull()
-      expect(firstAudio!.onerror).toBeNull()
+      expect(result.current.audioRef.current).toBe(firstAudio)
+      // @ts-ignore
+      expect(window.tiro_tts_allAudiosRef.length).toBe(1)
     })
 
-    it('pause aborts current audio', async () => {
+    it('pause keeps the element alive but nulls its handlers', async () => {
       const { result } = renderHook(() => useTtsPlaybackController(baseOptions))
 
       mockDownloadChunk.mockImplementation((_chunkId: number, cb: (url: string) => void) => {
@@ -221,12 +221,18 @@ describe('useTtsPlaybackController', () => {
       })
       await Promise.resolve()
 
+      const audio = result.current.audioRef.current
+      expect(audio).not.toBeNull()
+
       act(() => {
         result.current.pause()
       })
 
-      // audioRef should be null after pause (abortAudio + null assignment)
-      expect(result.current.audioRef.current).toBeNull()
+      // Solution C: the element survives pause — only destroy() kills it
+      expect(result.current.audioRef.current).toBe(audio)
+      expect(audio!.oncanplay).toBeNull()
+      expect(audio!.onended).toBeNull()
+      expect(audio!.onerror).toBeNull()
     })
   })
 

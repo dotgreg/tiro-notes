@@ -7,6 +7,13 @@ const pre = '[TtsCustomPopup]'
  * TTS playback controller — rewritten 0.52.9 from the findings in
  * _specs/_tts_double_play.md (0.52.6 → 0.52.8).
  *
+ * 0.52.10 (Solution C — _specs/_tts_single_audio.md): one Audio element for
+ * the whole session. ensureAudio() creates it lazily once; startAudio() swaps
+ * audio.src per chunk (pause + load() when the src is unchanged, since a
+ * same-value src assignment does not reload). onended / stopAudio no longer
+ * destroy the element — only destroy() does. No per-chunk element
+ * create/destroy → there is never a second element to race.
+ *
  * What changed vs 0.52.8 (the in-tab race logic was already proven sound by
  * the 16:32 log — report §2 — so it is kept, not re-invented):
  * 1. In-flight fetch dedup (§8.1): resolveAudioSrc and preloadNext share one
@@ -69,6 +76,10 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
   const stateRef = useRef<TtsState>(TtsState.IDLE)
   const cancelledRef = useRef<boolean>(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  // Solution C: last src assigned to the single session element (null = none yet)
+  const currentSrcRef = useRef<string | null>(null)
+  // First loadstart after each src swap is the normal initial load — suppress (§8.3)
+  const firstLoadstartRef = useRef(false)
   const isPopupClosedRef = useRef<boolean>(false)
   const startTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -196,53 +207,83 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
     }
   }
 
-  /** Create and start an Audio element for a URL. `id` kills every stale version. */
+  /** Lazily create the single Audio element for this session (Solution C).
+   *  Created once, never destroyed until destroy() — there is never a second
+   *  element to race. */
+  const ensureAudio = (): HTMLAudioElement => {
+    const existing = audioRef.current
+    if (existing) return existing
+
+    // Cross-instance guard: at most ONE live TTS audio in this tab.
+    // A stale element (second component instance, missed teardown) is
+    // structurally a double play — kill it before adopting.
+    const prevLive = (window as any).__tts_live_audio
+    if (prevLive) {
+      log(`${pre}: ⚠️ DOUBLE-AUDIO GUARD: killing stale audio#${(prevLive as any).__ttsId} (chunk ${(prevLive as any).__ttsChunk})`)
+      try {
+        prevLive.oncanplay = null
+        prevLive.onerror = null
+        prevLive.onended = null
+        prevLive.pause()
+        prevLive.remove()
+      } catch { /* ignore */ }
+      removeAudioWindow(prevLive)
+    }
+
+    const audio = new Audio()
+    const aid = ++audioSeq
+    ;(audio as any).__ttsId = aid
+    if (!stackMissingLogged && typeof (new Error().stack) === 'undefined') {
+      stackMissingLogged = true
+      log(`${pre}: ⚠️ Error.stack is undefined on this device — creation logs carry explicit context (no stack)`)
+    }
+    log(`${pre}: 🆕 audio#${aid} created | ${tabInfo()}`)
+
+    audio.preload = 'auto'
+    audioRef.current = audio
+    currentSrcRef.current = null
+    firstLoadstartRef.current = false
+    addAudioWindow(audio)
+    ;(window as any).__tts_live_audio = audio
+
+    // Debug: catch the browser silently resetting the element
+    // (0s + readyState=1 = a reset). Attached once per session, not per chunk.
+    // The first loadstart after each src swap is the normal initial load —
+    // suppress it (§8.3), log subsequent ones.
+    audio.addEventListener('emptied', () => log(`${pre}: ⚠️ audio#${aid} EMPTIED (reset) pos=${Math.round(audio.currentTime)}s rs=${audio.readyState}`))
+    audio.addEventListener('loadstart', () => {
+      if (firstLoadstartRef.current) { firstLoadstartRef.current = false; return }
+      log(`${pre}: ⚠️ audio#${aid} loadstart (RE-LOAD) pos=${Math.round(audio.currentTime)}s`)
+    })
+    audio.addEventListener('stalled', () => log(`${pre}: ⚠️ audio#${aid} stalled pos=${Math.round(audio.currentTime)}s rs=${audio.readyState}`))
+
+    return audio
+  }
+
+  /** Start a chunk on the session's single element: swap src (or
+   *  pause + load() when the src is unchanged — a same-value src assignment
+   *  does NOT reload, and resume must restart the chunk from 0). `id` kills
+   *  every stale version. */
   const startAudio = (urlAudio: string, chunkNb: number, id: number) => {
     resolveAudioSrc(urlAudio).then(src => {
       if (id !== playIdRef.current) return // superseded while resolving
 
-      const audio = new Audio(src)
-      const aid = ++audioSeq
-      ;(audio as any).__ttsId = aid
+      const audio = ensureAudio()
+      const aid = (audio as any).__ttsId
       ;(audio as any).__ttsChunk = chunkNb
-      if (!stackMissingLogged && typeof (new Error().stack) === 'undefined') {
-        stackMissingLogged = true
-        log(`${pre}: ⚠️ Error.stack is undefined on this device — creation logs carry explicit context (no stack)`)
-      }
-      log(`${pre}: 🆕 audio#${aid} created chunk ${chunkNb} | ${tabInfo()}`)
 
-      // Cross-instance guard: at most ONE live TTS audio in this tab.
-      // A stale element (second component instance, missed teardown) is
-      // structurally a double play — kill it.
-      const prevLive = (window as any).__tts_live_audio
-      if (prevLive && prevLive !== audio) {
-        log(`${pre}: ⚠️ DOUBLE-AUDIO GUARD: killing stale audio#${(prevLive as any).__ttsId} (chunk ${(prevLive as any).__ttsChunk})`)
-        try {
-          prevLive.oncanplay = null
-          prevLive.onerror = null
-          prevLive.onended = null
-          prevLive.pause()
-          prevLive.remove()
-        } catch { /* ignore */ }
-        removeAudioWindow(prevLive)
+      firstLoadstartRef.current = true // first loadstart after this swap = normal load
+      log(`${pre}: v2 singleton audio — chunk ${chunkNb}`)
+      if (src !== currentSrcRef.current) {
+        audio.src = src // browser auto-loads
+        currentSrcRef.current = src
+      } else {
+        // Resume-after-pause: restart the chunk from 0 (old destroy-and-replay semantics)
+        audio.pause()
+        audio.currentTime = 0
+        audio.load()
       }
-      ;(window as any).__tts_live_audio = audio
-
-      audioRef.current = audio
-      audio.preload = 'auto'
       log(`${pre}: 🎵 starting audio load for chunk ${chunkNb}`)
-      addAudioWindow(audio)
-
-      // Debug: catch the browser silently resetting the element
-      // (0s + readyState=1 = a reset). The first loadstart is the normal
-      // initial load — suppress it (§8.3), log subsequent ones.
-      let firstLoadstart = true
-      audio.addEventListener('emptied', () => log(`${pre}: ⚠️ audio#${aid} EMPTIED (reset) pos=${Math.round(audio.currentTime)}s rs=${audio.readyState}`))
-      audio.addEventListener('loadstart', () => {
-        if (firstLoadstart) { firstLoadstart = false; return }
-        log(`${pre}: ⚠️ audio#${aid} loadstart (RE-LOAD) pos=${Math.round(audio.currentTime)}s`)
-      })
-      audio.addEventListener('stalled', () => log(`${pre}: ⚠️ audio#${aid} stalled pos=${Math.round(audio.currentTime)}s rs=${audio.readyState}`))
 
       let started = false
       const startPlay = () => {
@@ -287,13 +328,6 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
         }
         evictBlobs()
 
-        // Remove from window array (memory leak fix) + destroy element
-        if ((window as any).__tts_live_audio === audio) (window as any).__tts_live_audio = null
-        removeAudioWindow(audio)
-        audio.remove()
-        audioRef.current = null
-        log(`${pre}: 🗑️ audio#${(audio as any).__ttsId} chunk ${chunkNb} destroyed (memory freed)`)
-
         setState(TtsState.ENDED)
         setIsPlaying(false)
         onChunkEnd()
@@ -301,7 +335,7 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
     })
   }
 
-  /** Central teardown: kills the current audio and any pending start */
+  /** Pause the session audio (the element survives until destroy()). */
   const stopAudio = () => {
     if (startTimeoutRef.current) {
       clearTimeout(startTimeoutRef.current)
@@ -314,10 +348,6 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
       audio.onerror = null
       audio.onended = null
       audio.pause()
-      audio.remove()
-      if ((window as any).__tts_live_audio === audio) (window as any).__tts_live_audio = null
-      removeAudioWindow(audio)
-      audioRef.current = null
       log(`${pre}: 🛑 audio#${(audio as any).__ttsId} stopped`)
     }
   }
@@ -373,17 +403,26 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
     playChunk(currentChunk, false)
   }, [currentChunk, playChunk])
 
-  /** Destroy ALL state, reset refs, cleanup resources */
+  /** Destroy ALL state, reset refs, cleanup resources.
+   *  The ONLY place the session's Audio element is killed. */
   const destroy = useCallback(() => {
     playIdRef.current += 1
     destroyedRef.current = true
     cancelledRef.current = false
     isPopupClosedRef.current = false
-    stopAudio()
-    pauseAllAudioWindow(true)
+    stopAudio() // null handlers + pause — handlers nulled before remove: no destroy-time events
+    const audio = audioRef.current
+    if (audio) {
+      audio.remove()
+      removeAudioWindow(audio)
+    }
+    audioRef.current = null
+    ;(window as any).__tts_live_audio = null
+    currentSrcRef.current = null
     blobUrlsRef.current.forEach(objUrl => URL.revokeObjectURL(objUrl))
     blobUrlsRef.current.clear()
     inflightRef.current.clear()
+    pauseAllAudioWindow(true)
     setState(TtsState.IDLE)
     setIsPlaying(false)
     log(`${pre}: audio DESTROYED`)
