@@ -385,6 +385,7 @@ export const TtsCustomPopup = (p: {
       const iLose = other.ts > claimRef.current.ts ||
         (other.ts === claimRef.current.ts && other.tabId > myTab)
       if (iLose) {
+        if (lockPausedRef.current) return // already locked out (heartbeat re-fire) — idempotent
         const wasPlaying = isPlayingRef.current
         controllerRef.current.pause()
         lockPausedRef.current = wasPlaying
