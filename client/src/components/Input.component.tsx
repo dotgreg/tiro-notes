@@ -125,6 +125,9 @@ export const Input = (p: {
 		p.onLoad && p.onLoad(lastValue)
 	}, [lastValue])
 	const [valueInt, setValueInt] = useState<InputValue>(value)
+	useEffect(() => {
+		if (document.activeElement !== inputRef.current) setValueInt(value)
+	}, [value])
 
 
 	/////////////////////////////////

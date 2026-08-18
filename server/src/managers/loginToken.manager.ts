@@ -16,14 +16,16 @@ import { verifyPassword } from "./password.manager"
 // USER/PASSWORD CHECK SYSTEM
 //
 export const checkUserPassword = async (user: string, password: string): Promise<boolean> => {
+	const cfg = backConfig.jsonConfig
+	if (!cfg) return false
 	if (user === "viewer") {
-		const isUserGood = backConfig.jsonConfig.users_viewer_user_enable === "true"
-		const isPasswordGood = backConfig.jsonConfig.users_viewer_user_password === password
+		const isUserGood = cfg.users_viewer_user_enable === "true"
+		const isPasswordGood = cfg.users_viewer_user_password === password && !!password
 		return isPasswordGood && isUserGood
-	} else  {
+	} else {
 		// user is editor 
-		const isUserGood = user === backConfig.jsonConfig.user
-		const isPasswordGood = await verifyPassword(password, backConfig.jsonConfig.password)
+		const isUserGood = !!cfg.user && user === cfg.user
+		const isPasswordGood = await verifyPassword(password, cfg.password)
 		return isPasswordGood && isUserGood
 	}
 }
@@ -38,6 +40,10 @@ export const generateNewToken = () => {
 	let newToken = makeRandomString(60)
 	log(`[LOGIN TOKEN] generate new token ${newToken}`);
 	return newToken
+}
+export const getOrCreateUserToken = (user: string): string => {
+	if (!memoryTokens[user]) memoryTokens[user] = generateNewToken()
+	return memoryTokens[user]
 }
 export const regenerateTokensInMemory = () => {
 	if (!backConfig || !backConfig.jsonConfig || !backConfig.jsonConfig.user) return

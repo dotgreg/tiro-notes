@@ -10,7 +10,7 @@ import { iFile, iFolder, iPlugin } from "../../shared/types.shared";
 import { getFilesPreviewLogic } from "./managers/filePreview.manager";
 import { processClientSetup, updateSetupJsonParam } from "./managers/configSetup.manager";
 import { restartTiroServer } from "./managers/serverRestart.manager";
-import { checkUserPassword, getUserToken } from "./managers/loginToken.manager";
+import { checkUserPassword, getOrCreateUserToken } from "./managers/loginToken.manager";
 import { ServerSocketManager } from './managers/socket.manager'
 import { log } from "./managers/log.manager";
 import { getFolderPath, p } from "./managers/path.manager";
@@ -59,23 +59,28 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 	serverSocket2.on('sendLoginInfos', async data => {
 		let endPerf = perf('sendLoginInfos ')
-		const areClientInfosCorrect = await checkUserPassword(data.user, data.password)
+		try {
+			const areClientInfosCorrect = await checkUserPassword(data.user, data.password)
 
-		security.log(`LOGIN : ${areClientInfosCorrect ? "OK" : `UNSUCCESSFULL!!! => ${JSON.stringify(data)}`} [${getSocketClientInfos(serverSocket2, "small")}]`)
-		logActivity(`LOGIN:${areClientInfosCorrect ? "OK" : "UNSUCCESSFULL"} ${data.user}`, `SECURITY:LOGIN`, serverSocket2)
+			security.log(`LOGIN : ${areClientInfosCorrect ? "OK" : `UNSUCCESSFULL!!! => ${JSON.stringify(data)}`} [${getSocketClientInfos(serverSocket2, "small")}]`)
+			logActivity(`LOGIN:${areClientInfosCorrect ? "OK" : "UNSUCCESSFULL"} ${data.user}`, `SECURITY:LOGIN`, serverSocket2)
 
-		if (!areClientInfosCorrect) {
+			if (!areClientInfosCorrect) {
+				serverSocket2.emit('getLoginInfos', { code: 'WRONG_USER_PASSWORD' })
+
+			} else {
+				serverSocket2.emit('getLoginInfos', { code: 'SUCCESS', token: getOrCreateUserToken(data.user) })
+
+				// // do also a root scan for first time
+				// let folders = [scanDirForFolders('/')]
+				// serverSocket2.emit('getFoldersScan', {
+				// 	folders,
+				// 	pathBase: backConfig.dataFolder
+				// })
+			}
+		} catch (e) {
+			log(`[LOGIN] sendLoginInfos handler error: ${e}`, { e })
 			serverSocket2.emit('getLoginInfos', { code: 'WRONG_USER_PASSWORD' })
-
-		} else {
-			serverSocket2.emit('getLoginInfos', { code: 'SUCCESS', token: getUserToken(data.user) })
-
-			// // do also a root scan for first time
-			// let folders = [scanDirForFolders('/')]
-			// serverSocket2.emit('getFoldersScan', {
-			// 	folders,
-			// 	pathBase: backConfig.dataFolder
-			// })
 		}
 		endPerf()
 	}, { bypassLoginTokenCheck: true, disableDataLog: true, checkRole: "none" })

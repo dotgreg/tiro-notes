@@ -5,7 +5,7 @@ import { sharedConfig } from '../../../../shared/shared.config';
 import { Input } from '../../components/Input.component';
 import { Popup } from '../../components/Popup.component';
 import { getCookie, setCookie } from '../../managers/cookie.manager';
-import { clientSocket2 } from '../../managers/sockets/socket.manager';
+import { initSocketConnexion } from '../../managers/sockets/socket.manager';
 import { strings } from '../../managers/strings.manager';
 import { getUrlRawParams } from '../../managers/url.manager';
 import { getApi } from '../api/api.hook';
@@ -42,45 +42,53 @@ export const useLoginToken = (p: {
 	const listenerId = useRef<number>(0)
 
 	useEffect(() => {
-		listenerId.current = clientSocket2.on('getLoginInfos', data => {
-			switch (data.code) {
-				case 'SUCCESS':
-					// register token here
-					if (!data.token) return
-					setLoginToken(data.token)
-					setDisplayLoginPopup(false)
-
-					// custom logic after login success event
-					p.onLoginSuccess()
-					break;
-				case 'WRONG_TOKEN':
-					setDisplayLoginPopup(true)
-					setFormMessage(['error', strings.loginForm.wrongToken])
-
-					// DEMO PREFILL MODE
-					let infos = data.loginInfos
-					if (infos?.demo_mode) {
-						setUser("viewer")
-						setPassword(infos.viewer_password)
-					}
-
-					// custom logic after LoginAsked
-					p.onLoginAsked()
-					break;
-				case 'WRONG_USER_PASSWORD':
-					setFormMessage(['error', strings.loginForm.wrongUserPassword])
-					setDisplayLoginPopup(true)
-					break;
-
-				default:
-					break;
+		let cancelled = false
+		initSocketConnexion().then(conn => {
+			if (cancelled) {
+				conn.socketManager.off(listenerId.current)
+				return
 			}
+			listenerId.current = conn.socketManager.on('getLoginInfos', data => {
+				switch (data.code) {
+					case 'SUCCESS':
+						// register token here
+						if (!data.token) {
+							setFormMessage(['error', 'server returned no token — reload the page'])
+							break
+						}
+						setLoginToken(data.token)
+						setDisplayLoginPopup(false)
+
+						// custom logic after login success event
+						p.onLoginSuccess()
+						break;
+					case 'WRONG_TOKEN':
+						setDisplayLoginPopup(true)
+						setFormMessage(['error', strings.loginForm.wrongToken])
+
+						// DEMO PREFILL MODE
+						let infos = data.loginInfos
+						if (infos?.demo_mode) {
+							setUser("viewer")
+							setPassword(infos.viewer_password)
+						}
+
+						// custom logic after LoginAsked
+						p.onLoginAsked()
+						break;
+					case 'WRONG_USER_PASSWORD':
+						setFormMessage(['error', strings.loginForm.wrongUserPassword])
+						setDisplayLoginPopup(true)
+						break;
+
+					default:
+						break;
+				}
+			})
 		})
-
-
-
 		return () => {
-			clientSocket2.off(listenerId.current)
+			cancelled = true
+			initSocketConnexion().then(conn => conn.socketManager.off(listenerId.current))
 		}
 	}, [])
 
@@ -119,7 +127,9 @@ export const useLoginToken = (p: {
 						setPassword(pass)
 						setTimeout(() => {
 							console.log("success login url, submitting it")
-							clientSocket2.emit('sendLoginInfos', { user: usr, password: pass, token: getLoginToken() })
+							initSocketConnexion().then(conn => {
+								conn.socketManager.emit('sendLoginInfos', { user: usr, password: pass, token: getLoginToken() })
+							})
 						}, 1000)
 					}
 				})
@@ -130,7 +140,13 @@ export const useLoginToken = (p: {
 
 	const submitForm = () => {
 		setFormMessage(undefined)
-		clientSocket2.emit('sendLoginInfos', { user, password, token: getLoginToken() })
+		if (!user || !password) {
+			setFormMessage(['error', 'enter user and password'])
+			return
+		}
+		initSocketConnexion().then(conn => {
+			conn.socketManager.emit('sendLoginInfos', { user, password, token: getLoginToken() })
+		})
 	}
 
 	const [inputFocus, setInputFocus] = useState(1)

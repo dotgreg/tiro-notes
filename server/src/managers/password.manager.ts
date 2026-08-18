@@ -54,6 +54,7 @@ export const hashPassword = async (password):Promise<string> => {
 
 export const verifyPassword = (password, hash):Promise<boolean> => {
     return new Promise((resolve, reject) => {
+        if (!hash || !String(hash).includes(":")) return resolve(false)
         const [salt, key] = hash.split(":")
         crypto.scrypt(password, salt, 64, (err, derivedKey) => {
             if (err) reject(err);

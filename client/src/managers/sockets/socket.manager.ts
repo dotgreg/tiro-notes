@@ -13,6 +13,7 @@ import { startRipgrepInstallerProcess } from '../ripgrepInstaller.manager';
 export let clientSocket: SocketIOClient.Socket
 let cs2: any = { on: () => { }, off: () => { } }
 export let clientSocket2: ClientSocketManager<iApiDictionary> = cs2
+let initSocketConnexionPromise: Promise<iServerSocketConfig>
 
 
 
@@ -38,8 +39,8 @@ export interface iServerSocketConfig {
 	socketManager: ClientSocketManager<iApiDictionary>
 }
 export const initSocketConnexion = (): Promise<iServerSocketConfig> => {
-	return new Promise((resolve, reject) => {
-		if (clientSocket) return
+	if (initSocketConnexionPromise) return initSocketConnexionPromise
+	initSocketConnexionPromise = new Promise((resolve, reject) => {
 		let ioWrapper = io ? io.default : () => { }
 
 		//@ts-ignore
@@ -67,6 +68,7 @@ export const initSocketConnexion = (): Promise<iServerSocketConfig> => {
 			})
 		})
 	})
+	return initSocketConnexionPromise
 }
 
 
