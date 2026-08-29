@@ -48,6 +48,9 @@ export interface TtsPlaybackController {
 
   /** Start playing a specific chunk */
   playChunk: (chunkNb: number, isUserAction?: boolean) => void
+  /** Seek to a fraction (0..1) of the current chunk's audio. Returns true if
+   *  applied immediately, false if deferred until the audio is loaded. */
+  seek: (frac: number) => boolean
   /** Pause current playback */
   pause: () => void
   /** Resume paused playback */

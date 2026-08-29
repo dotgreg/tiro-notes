@@ -1,11 +1,11 @@
 import styled from '@emotion/styled';
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { iTtsStatus } from '../hooks/app/useTtsPopup.hook';
 import { useLocalStorage } from '../hooks/useLocalStorage.hook';
 import { strings } from "../managers/strings.manager";
 import { Icon } from './Icon.component';
 import { Popup } from './Popup.component';
-import { chunkTextInSentences2, cleanText2Speech, extractToChunkPos } from '../managers/tts.manager';
+import { chunkTextInSentences2, cleanText2Speech, extractToChunkPos, parseTtsEngines, TtsEngine } from '../managers/tts.manager';
 import { userSettingsSync } from '../hooks/useUserSettings.hook';
 import { getApi } from '../hooks/api/api.hook';
 import { useInterval } from '../hooks/interval.hook';
@@ -17,6 +17,17 @@ import { isNumber } from 'lodash-es';
 import { useTtsPlaybackController, useChunkDownloader, getTtsTabId, onVisibilityChange, TtsState } from './TtsPlayback';
 
 const pre = "[TtsCustomPopup] "
+
+// log lines are rendered with dangerouslySetInnerHTML — escape first
+const escapeHtml = (s: string) => s
+	.replace(/&/g, '&amp;')
+	.replace(/</g, '&lt;')
+	.replace(/>/g, '&gt;')
+	.replace(/"/g, '&quot;')
+
+// make audio file urls in log lines clickable (feature: clickable mp3 in log)
+const linkifyAudioUrls = (s: string) => s.replace(/(https?:\/\/[^\s<]+?\.(?:mp3|wav|ogg|m4a)(?:\?[^\s<]*)?)/gi,
+	'<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>')
 
 export const TtsCustomPopup = (p: {
   // allows to retain tracking 
@@ -82,7 +93,8 @@ export const TtsCustomPopup = (p: {
 
     // prepend HH:SS + chunk number
     const timeStr = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
-    messageText2 = `${timeStr} ${currChunkRef.current} ${messageText2}`
+    messageText2 = `${timeStr} ${currChunkRef.current} ${escapeHtml(messageText2)}`
+    messageText2 = linkifyAudioUrls(messageText2)
 
     const limitLines = (log: string) => {
       // limit to 200 lines, cut the last ones (processus keeps the beginning, text keeps the end)
@@ -110,36 +122,21 @@ export const TtsCustomPopup = (p: {
     }
   }
 
-  const [textChunks, setTextChunks] = useState<string[]>([])
-
-  useEffect(() => {
-    let currentText = textChunks[currChunk]
-    if (currentText) currentText = currentText.split(/[.?!:]/)[0]
-    p.onUpdate({ totalChunks: textChunks.length, currentChunk: currChunk, isPlaying, currentText })
-  }, [textChunks, currChunk, isPlaying])
-
-  useEffect(() => {
-    // split p.fileContent into sentences
-    let cleanedText = cleanText2Speech(p.fileContent)
-    let sentencesPerPart = userSettingsSync.curr.tts_sentences_per_part
-    let maxWordsPerSentence = userSettingsSync.curr.tts_max_words_per_sentence
-    let chunkedText2 = chunkTextInSentences2(cleanedText, sentencesPerPart, maxWordsPerSentence)
-
-    setTextChunks(chunkedText2)
-    console.log(`${pre}: loading and chunking text in ${chunkedText2.length} parts`)
-
-    // Search for start position synchronously BEFORE auto-play fires
-    if (p.startString) {
-      let startStringCleaned = cleanText2Speech(p.startString)
-      let chunkPos = extractToChunkPos(startStringCleaned, chunkedText2, 1000)
-      if (chunkPos !== -1) {
-        setCurrChunk(chunkPos)
-        log(`${pre} 🔎 found at chunk ${chunkPos}`)
-      } else {
-        log(`${pre} 🔎 NOT FOUND`)
-      }
-    }
-  }, [p.fileContent])
+  // ── TTS engine backends (setting `tts_custom_engine_command`) ────────────
+  // one engine per line: "name | max words per sentence (-1 = whole text) | command"
+  // a line without " | " = legacy single command (one engine, global max words)
+  const engines = useMemo(
+    () => parseTtsEngines(userSettingsSync.curr.tts_custom_engine_command, userSettingsSync.curr.tts_max_words_per_sentence),
+    [userSettingsSync.curr.tts_custom_engine_command, userSettingsSync.curr.tts_max_words_per_sentence],
+  )
+  const [selEngineName, setSelEngineName] = useLocalStorage<string>('tts-engine', '')
+  const selectedEngine: TtsEngine | undefined = engines.find(e => e.name === selEngineName) || engines[0]
+  const selectedEngineRef = useRef(selectedEngine)
+  selectedEngineRef.current = selectedEngine
+  const selMaxWords = selectedEngine ? selectedEngine.maxWords : userSettingsSync.curr.tts_max_words_per_sentence
+  // stable getters reading refs → live values even from stale closures
+  const getEngineCommand = useCallback(() => selectedEngineRef.current?.command || userSettingsSync.curr.tts_custom_engine_command || '', [])
+  const getRate = useCallback(() => currRateRef.current, [])
 
   // Extract TTS headers from the engine command (-H "Key: Value" pairs)
   const extractTtsHeaders = (cmd: string): Record<string, string> => {
@@ -156,20 +153,18 @@ export const TtsCustomPopup = (p: {
     }
     return headers
   }
-  const ttsHeadersRef = useRef<Record<string, string>>({})
-  useEffect(() => {
-    const cmd = userSettingsSync.curr.tts_custom_engine_command || ''
-    ttsHeadersRef.current = extractTtsHeaders(cmd)
-    if (Object.keys(ttsHeadersRef.current).length > 0) {
-      log(`${pre}: 🔑 extracted TTS headers: ${Object.keys(ttsHeadersRef.current).join(', ')}`)
-    }
-  }, [])
+  // headers follow the selected engine (recomputed per render, synced by the controller)
+  const ttsHeaders = extractTtsHeaders(selectedEngine?.command || '')
+
+  const [textChunks, setTextChunks] = useState<string[]>([])
 
   // ── Audio system (rewritten 0.52.9 — see _specs/_tts_double_play.md) ──────
   const downloader = useChunkDownloader({
     textChunks,
     log,
     setWordStat,
+    getEngineCommand,
+    getRate,
   })
 
   const controller = useTtsPlaybackController({
@@ -179,11 +174,89 @@ export const TtsCustomPopup = (p: {
     totalChunks: textChunks.length,
     currentChunk: currChunk,
     playbackRate: currRateRef.current,
-    ttsHeaders: ttsHeadersRef.current,
+    ttsHeaders,
     preloadCount: userSettingsSync.curr.tts_preload_parts || 1,
     setIsPlaying,
     audioUrls: downloader.audioUrls,
   })
+
+  useEffect(() => {
+    let currentText = textChunks[currChunk]
+    if (currentText) currentText = currentText.split(/[.?!:]/)[0]
+    p.onUpdate({ totalChunks: textChunks.length, currentChunk: currChunk, isPlaying, currentText })
+  }, [textChunks, currChunk, isPlaying])
+
+  const startStringAppliedRef = useRef(false)
+  useEffect(() => {
+    // split p.fileContent into sentences
+    let cleanedText = cleanText2Speech(p.fileContent)
+    let sentencesPerPart = userSettingsSync.curr.tts_sentences_per_part
+    let chunkedText2: string[]
+    if (selMaxWords === -1) {
+      // this engine asks for the WHOLE text in a single part
+      chunkedText2 = [cleanedText]
+    } else {
+      chunkedText2 = chunkTextInSentences2(cleanedText, sentencesPerPart, selMaxWords)
+    }
+
+    setTextChunks(chunkedText2)
+    console.log(`${pre}: loading and chunking text in ${chunkedText2.length} parts (engine: ${selectedEngine ? selectedEngine.name : 'fallback'})`)
+    // an engine switch may have shrunk the chunk list — keep the position valid
+    if (currChunkRef.current > Math.max(0, chunkedText2.length - 1)) {
+      setCurrChunk(Math.max(0, chunkedText2.length - 1))
+    }
+
+    // Search for start position synchronously BEFORE auto-play fires.
+    // First run only — on engine switch the user's current position must be kept.
+    if (p.startString && !startStringAppliedRef.current) {
+      startStringAppliedRef.current = true
+      let startStringCleaned = cleanText2Speech(p.startString)
+      let chunkPos = extractToChunkPos(startStringCleaned, chunkedText2, 1000)
+      if (chunkPos !== -1) {
+        setCurrChunk(chunkPos)
+        log(`${pre} 🔎 found at chunk ${chunkPos}`)
+      } else {
+        log(`${pre} 🔎 NOT FOUND`)
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [p.fileContent, selMaxWords])
+  // ── Progress bar (current chunk) — timeupdate-driven, no extra polling ───
+  const [audioProgress, setAudioProgress] = useState(0)
+  const draggingRef = useRef(false)
+  useEffect(() => {
+    const audio = controller.audioRef.current
+    if (!audio) return
+    const onTime = () => {
+      if (draggingRef.current) return
+      if (!isFinite(audio.duration) || audio.duration <= 0) return
+      setAudioProgress(Math.min(1, audio.currentTime / audio.duration))
+    }
+    // new src on the same element → bar starts at 0
+    const onCanplay = () => { if (!draggingRef.current) setAudioProgress(0) }
+    audio.addEventListener('timeupdate', onTime)
+    audio.addEventListener('canplay', onCanplay)
+    return () => {
+      audio.removeEventListener('timeupdate', onTime)
+      audio.removeEventListener('canplay', onCanplay)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [controller.audioRef.current])
+
+  // Engine switch: drop audio cached/downloaded by the previous engine, pause
+  // so the auto-play effect restarts the (re-chunked) text with the new engine
+  const onEngineChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const name = e.target.value
+    setSelEngineName(name)
+    const en = engines.find(x => x.name === name)
+    log(`${pre}: 🔊 engine → ${name}${en ? ` (max ${en.maxWords === -1 ? 'whole text' : `${en.maxWords} words/sentence`})` : ''}`)
+    downloader.cleanup()
+    if (isPlayingRef.current) {
+      setIsPlaying(false)
+      controller.pause()
+    }
+  }
+
   // Latest controller for stable listeners (storage lock, unmount cleanup)
   const controllerRef = useRef(controller)
   controllerRef.current = controller
@@ -261,12 +334,14 @@ export const TtsCustomPopup = (p: {
     controller.audioRef.current?.playbackRate && (controller.audioRef.current!.playbackRate = speed)
   }, [controller])
 
-  // Auto-play on textChunks load (use refs, not stale state)
+  // Auto-play on textChunks load (use refs, not stale state). Also re-fires
+  // on engine switch (see onEngineChange) to restart with the new engine.
   useEffect(() => {
     if (textChunks.length > 0 && !isPlayingRef.current && !downloadInProgress.current.has(currChunkRef.current)) {
       controller.playChunk(currChunkRef.current, false)
     }
-  }, [textChunks])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [textChunks, selectedEngine ? selectedEngine.name : ''])
 
   // ── 5s audio monitor: status log + reset detection + NaN counter.
   // (merged from two same-cadence intervals — same checks, one timer).
@@ -347,6 +422,8 @@ export const TtsCustomPopup = (p: {
   // START BY PLAYING
   useEffect(() => {
     log("=====================================================================")
+    log(`${pre}: 🔊 engines: ${engines.length > 0 ? engines.map(x => x.name).join(', ') : 'NONE — set “Custom Text to Speech command” in settings'}`)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // ── Cross-tab session lock (report §9.4) ───────────────────────────────────
@@ -446,7 +523,6 @@ export const TtsCustomPopup = (p: {
       }
       return res
     }
-    let maxWordsPerSentence = userSettingsSync.curr.tts_max_words_per_sentence
     let sentencesPerPart = userSettingsSync.curr.tts_sentences_per_part
     let sentencesLength = textChunks.length * sentencesPerPart
     let left = formatTime((6 * (sentencesLength - currChunk)) / (currRate * 60))
@@ -471,6 +547,22 @@ export const TtsCustomPopup = (p: {
           p.onClose()
         }}
       >
+        {
+          engines.length > 0 &&
+          <>
+            <span> ENGINE : </span>
+            <select className="engine-select" value={selectedEngine ? selectedEngine.name : ''} onChange={onEngineChange}>
+              {
+                engines.map(en => (
+                  <option key={en.name} value={en.name}>
+                    {en.name} ({en.maxWords === -1 ? 'whole text' : `${en.maxWords} w/sentence`})
+                  </option>
+                ))
+              }
+            </select>
+            <br /><br />
+          </>
+        }
         <span> SPEED : </span>
         <br />
         <input className="speed-range" type="range" value={currRate} min="0.5" max="3" step="0.1"
@@ -498,6 +590,24 @@ export const TtsCustomPopup = (p: {
           }}>
         </input>
         <div className="estimated-time"><b>Reading Time</b> :{estimatedTime}</div>
+
+        <div className="audio-progress">
+          <span>PROGRESS : </span>
+          <input type="range" className="progress-range" min="0" max="1" step="0.01" value={audioProgress}
+            onPointerDown={() => { draggingRef.current = true }}
+            onPointerUp={() => { draggingRef.current = false }}
+            onChange={e => {
+              const frac = parseFloat(e.target.value)
+              setAudioProgress(frac)
+              if (controller.seek(frac)) {
+                log(`${pre}: 🔍 seeked to ${Math.round(frac * 100)}%`)
+              } else {
+                log(`${pre}: 🔍 seek to ${Math.round(frac * 100)}% (applies when the audio is loaded)`)
+              }
+            }}>
+          </input> ({Math.round(audioProgress * 100)}%)
+          <br />
+        </div>
 
 
 
@@ -637,6 +747,15 @@ export const StyledDiv = styled.div`
 				position: relative;
 				top: 8px;
 				width: 90%;
+		}
+		.progress-range {
+				position: relative;
+				top: 8px;
+				width: 70%;
+		}
+		.engine-select {
+				font-size: 12px;
+				max-width: 60%;
 		}
 		.range-pos {
 				width: 100%;

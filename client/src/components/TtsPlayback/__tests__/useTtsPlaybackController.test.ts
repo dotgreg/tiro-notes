@@ -457,6 +457,67 @@ describe('useTtsPlaybackController', () => {
     })
   })
 
+  describe('seek (0.52.12 — seekable progress bar)', () => {
+    it('applies the seek immediately when the audio is ready', async () => {
+      const { result } = renderHook(() => useTtsPlaybackController(baseOptions))
+
+      mockDownloadChunk.mockImplementation((_chunkId: number, cb: (url: string) => void) => {
+        cb('http://example.com/audio.mp3')
+      })
+
+      await act(async () => {
+        result.current.playChunk(0, true)
+      })
+      await Promise.resolve()
+      const audio = result.current.audioRef.current
+      expect(audio).not.toBeNull()
+      // global Audio mock: readyState=4, duration=10
+
+      let applied = false
+      act(() => {
+        applied = result.current.seek(0.5)
+      })
+      expect(applied).toBe(true)
+      expect(audio!.currentTime).toBe(5)
+      // immediate path: no deferred-seek bookkeeping
+      expect(mockLog).not.toHaveBeenCalledWith(expect.stringContaining('deferred'))
+    })
+
+    it('defers the seek until the audio is ready (applied on canplay)', async () => {
+      const { result } = renderHook(() => useTtsPlaybackController(baseOptions))
+
+      mockDownloadChunk.mockImplementation((_chunkId: number, cb: (url: string) => void) => {
+        cb('http://example.com/audio.mp3')
+      })
+
+      await act(async () => {
+        result.current.playChunk(0, true)
+      })
+      await Promise.resolve()
+      const audio = result.current.audioRef.current
+      expect(audio).not.toBeNull()
+
+      // simulate a freshly set src that is not ready yet
+      // @ts-ignore the test Audio mock allows assignment (DOM type is read-only)
+      audio!.readyState = 0
+      let applied = false
+      act(() => {
+        applied = result.current.seek(0.25)
+      })
+      expect(applied).toBe(false)
+      expect(audio!.currentTime).toBe(0)
+
+      // audio becomes ready → deferred seek is applied in the oncanplay handler
+      // @ts-ignore the test Audio mock allows assignment (DOM type is read-only)
+      audio!.readyState = 4
+      act(() => {
+        audio!.oncanplay!(new Event('canplay'))
+      })
+      expect(audio!.currentTime).toBe(2.5) // 0.25 × duration 10
+      expect(mockLog).toHaveBeenCalledWith(expect.stringContaining('deferred'))
+    })
+  })
+
   describe('retry budget for download + media errors (s2_t4 Task 4)', () => {
     beforeEach(() => { jest.useFakeTimers() })
     afterEach(() => { jest.useRealTimers() })

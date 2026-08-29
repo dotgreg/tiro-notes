@@ -96,6 +96,9 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
   // starts (startPlay). The setTimeout is generation-guarded like every other
   // async boundary (captured playId + destroyed check).
   const retryRef = useRef(0)
+  // Deferred seek: the user moved the progress bar before the current chunk's
+  // audio was loaded (readyState < 2) — applied in startPlay (canplay).
+  const pendingSeekRef = useRef<number | null>(null)
   const MAX_RETRIES = 2
   const scheduleRetry = (fn: () => void, attempt: number) => {
     const id = playIdRef.current
@@ -329,6 +332,12 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
         }
         log(`${pre}: ✅ mp3 ready for chunk ${chunkNb}, starting playback`)
         setState(TtsState.PLAYING)
+        if (pendingSeekRef.current !== null) {
+          const f = pendingSeekRef.current
+          audio.currentTime = f * audio.duration
+          log(`${pre}: 🔍 applying deferred seek to ${Math.round(f * 100)}%`)
+          pendingSeekRef.current = null
+        }
         audio.playbackRate = playbackRateRef.current
         log(`${pre}: ▶️ audio#${aid}.play() called (chunk ${chunkNb})`)
         audio.play().catch(e => {
@@ -399,6 +408,19 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
     })
   }
 
+  /** Seek to a fraction (0..1) of the current chunk's audio. Applied directly
+   *  when the element is ready, otherwise deferred to the next canplay. */
+  const seek = useCallback((frac: number): boolean => {
+    const f = Math.max(0, Math.min(1, frac))
+    const audio = audioRef.current
+    if (audio && audio.readyState >= 2 && isFinite(audio.duration) && audio.duration > 0) {
+      audio.currentTime = f * audio.duration
+      return true
+    }
+    pendingSeekRef.current = f
+    return false
+  }, [])
+
   /** Pause the session audio (the element survives until destroy()). */
   const stopAudio = () => {
     if (startTimeoutRef.current) {
@@ -428,6 +450,7 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
     cancelledRef.current = false
     destroyedRef.current = false
     retryRef.current = 0 // new generation = fresh retry budget (s2_t4 Task 4)
+    pendingSeekRef.current = null // a new chunk never inherits a stale seek
 
     stopAudio()
     pauseAllAudioWindow(false)
@@ -518,6 +541,7 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
     playChunk,
     pause,
     resume,
+    seek,
     destroy,
   }
 }

@@ -30,6 +30,41 @@ export const cleanText2Speech = (rawText: string) => {
 	return text2read
 }
 
+/** One TTS engine backend: name | maxWordsPerSentence | command.
+ *  maxWords = -1 → send the WHOLE text as a single part. */
+export interface TtsEngine {
+	name: string
+	maxWords: number
+	command: string
+}
+
+/** Parse the `tts_custom_engine_command` setting: one engine per line
+ *  `name | maxWordsPerSentence (-1 = whole text) | command`. The command part
+ *  may itself contain " | " (the parts are joined back). Lines without a
+ *  " | " separator are a legacy single command → one engine, global max words. */
+export const parseTtsEngines = (raw: string | undefined, fallbackMaxWords: number): TtsEngine[] => {
+	const res: TtsEngine[] = []
+	const lines = (raw || '').split('\n').map(l => l.trim()).filter(l => l.length > 0)
+	for (let i = 0; i < lines.length; i++) {
+		const parts = lines[i].split(' | ')
+		if (parts.length >= 3) {
+			const maxWords = parseInt(parts[1])
+			res.push({
+				name: parts[0].trim() || (res.length === 0 ? 'default' : `engine ${i + 1}`),
+				maxWords: isNaN(maxWords) ? fallbackMaxWords : maxWords,
+				command: parts.slice(2).join(' | ').trim(),
+			})
+		} else {
+			res.push({
+				name: res.length === 0 ? 'default' : `engine ${i + 1}`,
+				maxWords: fallbackMaxWords,
+				command: lines[i],
+			})
+		}
+	}
+	return res
+}
+
 export const removeTextLineJumps = (raw: string): string => {
 	return raw.replace(/(\r\n\r\n|\n\n|\r\r|\n)/gm, ".");
 }

@@ -1,6 +1,5 @@
 import { useRef, useCallback } from 'react'
 import { getApi } from '../../hooks/api/api.hook'
-import { userSettingsSync } from '../../hooks/useUserSettings.hook'
 import { transformString } from '../../managers/string.manager'
 import { DownloadCallback } from './types'
 
@@ -25,6 +24,11 @@ export interface ChunkDownloaderOptions {
   log: (message: string, category?: string) => void
   /** Word stat setter */
   setWordStat: (value: number) => void
+  /** Live getter for the selected engine's command template
+   *  ({{input}}, {{input_simple}}, {{speed}} placeholders) */
+  getEngineCommand: () => string
+  /** Live getter for the playback rate ({{speed}} placeholder) */
+  getRate?: () => number
 }
 
 export interface ChunkDownloader {
@@ -39,7 +43,7 @@ export interface ChunkDownloader {
 }
 
 export function useChunkDownloader(options: ChunkDownloaderOptions): ChunkDownloader {
-  const { textChunks, log, setWordStat } = options
+  const { textChunks, log, setWordStat, getEngineCommand, getRate } = options
 
   // In-flight guard (one API request per chunk)
   const downloadInProgress = useRef<Set<number>>(new Set())
@@ -76,8 +80,8 @@ export function useChunkDownloader(options: ChunkDownloaderOptions): ChunkDownlo
       return
     }
 
-    // Build the engine command
-    const stringCmd = userSettingsSync.curr.tts_custom_engine_command
+    // Build the engine command (live getter: the selected engine can change mid-session)
+    const stringCmd = getEngineCommand()
     // Simplify text for {{input_simple}}
     const textToSentSimple = transformString(textToSent, {
       accents: true,
@@ -86,6 +90,7 @@ export function useChunkDownloader(options: ChunkDownloaderOptions): ChunkDownlo
     })
     let stringCmdProcessed = stringCmd.replace('{{input}}', textToSent)
     stringCmdProcessed = stringCmdProcessed.replace('{{input_simple}}', textToSentSimple)
+    stringCmdProcessed = stringCmdProcessed.replace('{{speed}}', String(getRate ? getRate() : 1))
 
     // Word count — only on the fresh download
     const wordsNb = textToSent.split(' ').length || 0
@@ -129,7 +134,7 @@ export function useChunkDownloader(options: ChunkDownloaderOptions): ChunkDownlo
         if (url && url.length > 0) {
           const timeLog = `[${Date.now() - start}ms]`
           log(`${pre}: 📥 [ok] API done for chunk ${chunkId} ${wordLog} ${timeLog}`)
-          log(`${pre}: ✅ chunk ${chunkId} download FINISHED ${timeLog}`)
+          log(`${pre}: 🔗 chunk ${chunkId} audio: ${url}`)
           audioUrls.current[chunkId] = url
         } else {
           let message = apiAnswer
@@ -152,7 +157,7 @@ export function useChunkDownloader(options: ChunkDownloaderOptions): ChunkDownlo
         cbOnce(url)
       })
     })
-  }, [textChunks, log, setWordStat])
+  }, [textChunks, log, setWordStat, getEngineCommand, getRate])
 
   /** Cleanup: clear in-flight state and URL cache */
   const cleanup = useCallback(() => {

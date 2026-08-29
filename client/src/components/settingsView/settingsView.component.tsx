@@ -380,10 +380,12 @@ export const SettingsPopup = (p: {
 						type: 'textarea',
 						title: "Custom Text to Speech command",
 						expl: `
-						Command to run to get the mp3 file. 
+						One TTS engine per line, format: <b>name | max words per sentence | command</b>
+						<br>- max words = -1 → the WHOLE text is sent in a single request
 						<br>- The text to be spoken is replaced by {{input}} or {{input_simple}} for accents and complex char to be removed
 						<br>- The speech speed is replaced by {{speed}}.
-						<br> It should return a JSON including an absolute path of an audio file (mp3/wav).
+						<br> The command should return a JSON including an absolute path of an audio file (mp3/wav).
+						<br> A line without " | " is a legacy single command (one engine, global max words).
 						<br>
 						<br> Example with Koroko-82m on replicate (make sure to have CURL installed + replace with your API key) <br>
 						<br/><code>${defaultValsUserSettings.tts_custom_engine_command}</code>	
@@ -423,7 +425,7 @@ export const SettingsPopup = (p: {
 					{
 						type: 'number',
 						title: "Max words per sentence",
-						expl: "If the sentence exceeds this limit, it will be split into multiple parts, if audio cuts in a sentence, reduce that number",
+						expl: "Fallback used when an engine line does not define its own max words. If the sentence exceeds the limit, it will be split into multiple parts, if audio cuts in a sentence, reduce that number",
 						var: us.get('tts_max_words_per_sentence'),
 						modifier: val => { 
 							us.set('tts_max_words_per_sentence', val) 

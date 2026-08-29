@@ -1,26 +1,21 @@
 import { renderHook, act } from '@testing-library/react'
+import { getApi } from '../../../hooks/api/api.hook'
 import { useChunkDownloader } from '../useChunkDownloader.hook'
 
 // Mock dependencies
+let mockLastApi: { command: { exec: jest.Mock } } | null = null
 jest.mock('../../../hooks/api/api.hook', () => ({
-  getApi: jest.fn((cb) => {
-    cb({
+  getApi: jest.fn((cb: (api: any) => void) => {
+    mockLastApi = {
       command: {
-        exec: jest.fn((cmd, callback) => {
+        exec: jest.fn((_cmd: string, callback: (r: string) => void) => {
           // Simulate API response with URL
           callback(JSON.stringify({ output: 'http://example.com/chunk.mp3' }))
         }),
       },
-    })
+    }
+    cb(mockLastApi)
   }),
-}))
-
-jest.mock('../../../hooks/useUserSettings.hook', () => ({
-  userSettingsSync: {
-    curr: {
-      tts_custom_engine_command: 'curl -X POST {{input}}',
-    },
-  },
 }))
 
 jest.mock('../../../managers/string.manager', () => ({
@@ -35,6 +30,8 @@ describe('useChunkDownloader', () => {
     textChunks: ['Hello world this is chunk one', 'Second chunk text here', 'Third chunk text'],
     log: mockLog,
     setWordStat: mockSetWordStat,
+    getEngineCommand: () => 'curl -X POST {{input}} --speed {{speed}}',
+    getRate: () => 1.5,
   }
 
   beforeEach(() => {
@@ -63,6 +60,29 @@ describe('useChunkDownloader', () => {
       })
 
       expect(mockLog).toHaveBeenCalledWith('[TtsCustomPopup]: 📥 starting download for chunk 0')
+    })
+
+    it('substitutes {{input}} and {{speed}} from the engine command getter', () => {
+      mockLastApi = null
+      const { result } = renderHook(() => useChunkDownloader(baseOptions))
+
+      act(() => {
+        result.current.downloadChunk(0, () => { })
+      })
+
+      const cmd = mockLastApi!.command.exec.mock.calls[0][0]
+      expect(cmd).toContain('Hello world this is chunk one')
+      expect(cmd).toContain('--speed 1.5')
+    })
+
+    it('logs the audio url (clickable mp3 in the popup log)', () => {
+      const { result } = renderHook(() => useChunkDownloader(baseOptions))
+
+      act(() => {
+        result.current.downloadChunk(0, () => { })
+      })
+
+      expect(mockLog).toHaveBeenCalledWith('[TtsCustomPopup]: 🔗 chunk 0 audio: http://example.com/chunk.mp3')
     })
   })
 
