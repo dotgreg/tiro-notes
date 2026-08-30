@@ -53,6 +53,9 @@ export function useChunkDownloader(options: ChunkDownloaderOptions): ChunkDownlo
   const audioUrls = useRef<string[]>([])
   // Word stat tracking
   const wordStatRef = useRef<number>(0)
+  // Generation: bumped on cleanup() (engine switch). In-flight responses from
+  // a previous engine must not fire callbacks or repopulate the URL cache.
+  const epochRef = useRef<number>(0)
 
   const downloadChunk = useCallback((chunkId: number, cb: DownloadCallback) => {
     const textToSent = textChunks[chunkId]
@@ -101,6 +104,7 @@ export function useChunkDownloader(options: ChunkDownloaderOptions): ChunkDownlo
     const start = Date.now()
     downloadInProgress.current.add(chunkId)
     log(`${pre}: 🚀 requesting chunk ${chunkId} ${wordLog}`)
+    const epoch = epochRef.current
 
     let isCbCalled = false // guard: the API callback must fire at most once
     const cbOnce = (res: string) => {
@@ -111,6 +115,12 @@ export function useChunkDownloader(options: ChunkDownloaderOptions): ChunkDownlo
 
     getApi(api => {
       api.command.exec(stringCmdProcessed, (apiAnswer: string) => {
+        if (epoch !== epochRef.current) {
+          // Engine switched while this request was in flight: discard the
+          // response so the previous engine's URL cannot poison the cache.
+          log(`${pre}: 🗑️ stale response for chunk ${chunkId} discarded (engine switched)`)
+          return
+        }
         log(`${pre}: 📨 API response received for chunk ${chunkId} [${apiAnswer.substring(0, 80)}${apiAnswer.length > 80 ? '...' : ''}]`)
         if (isCbCalled) return
 
@@ -159,8 +169,9 @@ export function useChunkDownloader(options: ChunkDownloaderOptions): ChunkDownlo
     })
   }, [textChunks, log, setWordStat, getEngineCommand, getRate])
 
-  /** Cleanup: clear in-flight state and URL cache */
+  /** Cleanup: clear in-flight state and URL cache (engine switch) */
   const cleanup = useCallback(() => {
+    epochRef.current += 1 // invalidate in-flight responses from the previous engine
     downloadInProgress.current.clear()
     pendingCallbacks.current.clear()
     audioUrls.current = []

@@ -4,11 +4,15 @@ import { useChunkDownloader } from '../useChunkDownloader.hook'
 
 // Mock dependencies
 let mockLastApi: { command: { exec: jest.Mock } } | null = null
+// When set, the exec mock uses this instead of the default (immediate URL) response —
+// lets a test keep a response in flight (e.g. across an engine switch).
+let mockExecImpl: ((cmd: string, cb: (r: string) => void) => void) | null = null
 jest.mock('../../../hooks/api/api.hook', () => ({
   getApi: jest.fn((cb: (api: any) => void) => {
     mockLastApi = {
       command: {
         exec: jest.fn((_cmd: string, callback: (r: string) => void) => {
+          if (mockExecImpl) { mockExecImpl(_cmd, callback); return }
           // Simulate API response with URL
           callback(JSON.stringify({ output: 'http://example.com/chunk.mp3' }))
         }),
@@ -73,6 +77,47 @@ describe('useChunkDownloader', () => {
       const cmd = mockLastApi!.command.exec.mock.calls[0][0]
       expect(cmd).toContain('Hello world this is chunk one')
       expect(cmd).toContain('--speed 1.5')
+    })
+
+    it('discards in-flight responses after an engine switch — no stale URL cached (0.52.13)', (done) => {
+      let engineCmd = 'cmd-A {{input}}'
+      baseOptions.getEngineCommand = () => engineCmd
+      const cmds: string[] = []
+      let pendingCb: ((s: string) => void) | null = null
+      let respond = false
+      mockExecImpl = (cmd: string, cb: (r: string) => void) => {
+        cmds.push(cmd)
+        if (respond) cb('http://new-b/0.mp3')
+        else pendingCb = cb // hang: engine A's response is withheld
+      }
+      const { result } = renderHook(() => useChunkDownloader(baseOptions))
+
+      // first request (engine A) — response stays in flight
+      act(() => { result.current.downloadChunk(0, () => { }) })
+      expect(cmds.length).toBe(1)
+      expect(cmds[0]).toContain('cmd-A')
+
+      // engine switches before the response arrives
+      act(() => { result.current.cleanup() })
+      engineCmd = 'cmd-B {{input}}'
+
+      // the stale response (engine A) arrives — must be discarded, cache stays empty
+      act(() => { pendingCb!('http://stale-a/0.mp3') })
+      expect(result.current.audioUrls.current[0]).toBeUndefined()
+
+      // next request goes to the NEW engine and caches the new URL
+      respond = true
+      act(() => {
+        result.current.downloadChunk(0, (url) => {
+          expect(url).toBe('http://new-b/0.mp3')
+          expect(result.current.audioUrls.current[0]).toBe('http://new-b/0.mp3')
+          expect(cmds.length).toBe(2)
+          expect(cmds[1]).toContain('cmd-B')
+          mockExecImpl = null
+          baseOptions.getEngineCommand = () => 'curl -X POST {{input}} --speed {{speed}}'
+          done()
+        })
+      })
     })
 
     it('logs the audio url (clickable mp3 in the popup log)', () => {

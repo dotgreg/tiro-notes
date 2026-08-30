@@ -206,7 +206,7 @@ export const TtsCustomPopup = (p: {
       setCurrChunk(Math.max(0, chunkedText2.length - 1))
     }
 
-    // Search for start position synchronously BEFORE auto-play fires.
+    // Search for start position on first run.
     // First run only — on engine switch the user's current position must be kept.
     if (p.startString && !startStringAppliedRef.current) {
       startStringAppliedRef.current = true
@@ -219,8 +219,10 @@ export const TtsCustomPopup = (p: {
         log(`${pre} 🔎 NOT FOUND`)
       }
     }
+    // Re-runs on engine switch too (fresh re-chunked array). No auto-play:
+    // the TTS API is only sent when the user presses play.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [p.fileContent, selMaxWords])
+  }, [p.fileContent, selMaxWords, selectedEngine ? selectedEngine.name : ''])
   // ── Progress bar (current chunk) — timeupdate-driven, no extra polling ───
   const [audioProgress, setAudioProgress] = useState(0)
   const draggingRef = useRef(false)
@@ -243,8 +245,9 @@ export const TtsCustomPopup = (p: {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [controller.audioRef.current])
 
-  // Engine switch: drop audio cached/downloaded by the previous engine, pause
-  // so the auto-play effect restarts the (re-chunked) text with the new engine
+  // Engine switch: bump the downloader generation (in-flight responses of the
+  // previous engine are discarded) and clear its URL cache. If playing, pause —
+  // the user must press play again to restart with the new engine (fresh request).
   const onEngineChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const name = e.target.value
     setSelEngineName(name)
@@ -322,7 +325,8 @@ export const TtsCustomPopup = (p: {
     } else {
       // Prime the iOS autoplay unlock inside the user gesture (first play() attempt
       // must happen in the gesture stack; resume()'s play() arrives after async src
-      // handling). No-op if already playing/unlocked.
+      // handling). No-op on the very first play (the element is created during the
+      // download) — a blocked start then surfaces "tap ▶" and the second tap unlocks.
       controller.audioRef.current?.play().catch(() => { })
       controller.resume()
       log(`${pre}: ▶️ resumed`)
@@ -333,15 +337,6 @@ export const TtsCustomPopup = (p: {
   const updateSpeedAudio = useCallback((speed: number) => {
     controller.audioRef.current?.playbackRate && (controller.audioRef.current!.playbackRate = speed)
   }, [controller])
-
-  // Auto-play on textChunks load (use refs, not stale state). Also re-fires
-  // on engine switch (see onEngineChange) to restart with the new engine.
-  useEffect(() => {
-    if (textChunks.length > 0 && !isPlayingRef.current && !downloadInProgress.current.has(currChunkRef.current)) {
-      controller.playChunk(currChunkRef.current, false)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [textChunks, selectedEngine ? selectedEngine.name : ''])
 
   // ── 5s audio monitor: status log + reset detection + NaN counter.
   // (merged from two same-cadence intervals — same checks, one timer).
@@ -419,10 +414,11 @@ export const TtsCustomPopup = (p: {
     }
   }, 5000)
 
-  // START BY PLAYING
+  // No auto-play (0.52.15): the TTS API is only sent when the user presses play
   useEffect(() => {
     log("=====================================================================")
     log(`${pre}: 🔊 engines: ${engines.length > 0 ? engines.map(x => x.name).join(', ') : 'NONE — set “Custom Text to Speech command” in settings'}`)
+    log(`${pre}: 🚶 idle — press ▶ to start (no TTS API is sent until then)`)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
