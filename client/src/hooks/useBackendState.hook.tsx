@@ -1,9 +1,8 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { sharedConfig } from "../../../shared/shared.config";
-import { getApi, getClientApi2 } from "./api/api.hook";
-import { cloneDeep } from "lodash-es";
+import { getApi } from "./api/api.hook";
+import { cloneDeep, each } from "lodash-es";
 import { useDebounce } from "./lodash.hooks";
-import { tryCatch } from "../managers/tryCatch.manager";
 
 const h = `[BACKEND STATE]`
 type iFunctionRefresh = (cb?: (initVal:any) => void) => void
@@ -26,6 +25,8 @@ export function useBackendState<T>(
 
 	// const [hasBackendLoaded, setHasBackendLoaded] = useState(false)
 	const hasBackendLoadedRef = useRef<boolean>(false)
+	// writes made before the initial backend read lands: key -> value, flushed on load
+	const pendingWritesRef = useRef<Record<string, any>>({})
 	const [storedValue, setStoredValue] = useState(initialValue)
 
 	// during hook load, fetch, if it exists the note content
@@ -49,17 +50,24 @@ export function useBackendState<T>(
 
 	// persistence logic 
 	const setValue = value => {
-		if (!hasBackendLoadedRef.current && opts?.editIfNotLoaded !== true) return console.error(`BACKEND VAR: var ${key} not loaded yet` )
 		const nval = cloneDeep(value)
 		setStoredValue(cloneDeep(nval))
 		if(opts?.debug === true) console.log(`[BACKEND STATE] setValue: ${key} => `, nval);
 		let nvalStr =  JSON.stringify(nval)
 		const debounced = opts?.debouncedSave ? opts?.debouncedSave : false
 		const withThrottle = opts?.debouncedSaveWithThrottle === true ? true : false
-		getApi(api => {
-			api.file.saveContent(pathToNote, nvalStr, {debounced, withThrottle})
-		})
-		if (opts?.history === true) saveHistoryDebounced(nvalStr)
+		if (hasBackendLoadedRef.current) {
+			getApi(api => {
+				api.file.saveContent(pathToNote, nvalStr, {debounced, withThrottle})
+			})
+			if (opts?.history === true) saveHistoryDebounced(nvalStr)
+		} else if (!Array.isArray(nval)) {
+			// initial read not done yet: writing the full object would clobber data not loaded yet.
+			// remember the changed keys only, they are merged + saved when the read lands (see refreshValFromBackend)
+			each(nval as any, (v, k) => {
+				if ((storedValue as any)[k] !== v) pendingWritesRef.current[k] = v
+			})
+		}
 	}
 
 
@@ -80,11 +88,23 @@ export function useBackendState<T>(
 					try {
 						obj = JSON.parse(raw)
 					} catch (error) {
-						console.error(`[BACKEND STATE] Error parsing JSON for ${key}`, error);
+						// unreadable file: fall back to initial value so the store is writable again
+						// (next save rewrites the file), instead of staying read-only for the whole session
+						console.error(`[BACKEND STATE] Error parsing JSON for ${key}, falling back to initial value`, error);
+						obj = initialValue
 					}
 				}
 				
 				if (obj !== undefined) {
+					// merge + persist writes that happened before the read landed (they were not saved yet)
+					if (Object.keys(pendingWritesRef.current).length && !Array.isArray(obj)) {
+						obj = { ...obj, ...pendingWritesRef.current }
+						pendingWritesRef.current = {}
+						getApi(api => {
+							api.file.saveContent(pathToNote, JSON.stringify(obj), {debounced: false, withThrottle: false})
+						})
+						if (opts?.history === true) saveHistoryDebounced(JSON.stringify(obj))
+					}
 					if(opts?.debug === true) console.log(`[BACKEND STATE] refreshValFromBackend: ${key} => `, obj);
 					setStoredValue(obj);
 					hasBackendLoadedRef.current = true

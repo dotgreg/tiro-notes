@@ -365,13 +365,15 @@ export const TtsCustomPopup = (p: {
     if (!audio) return
 
     const aid = (audio as any).__ttsId ?? '?'
+    // minutes once the value reaches a minute, seconds below (3319s → 55m, 7s → 7s)
+    const fmtTime = (s: number) => (s >= 60 ? `${Math.round(s / 60)}m` : `${s}s`)
     let positionAudio = Math.round(audio.currentTime)
     let timeAudio = audio.duration
     let roundTimeAudio = Math.round(timeAudio)
-    let durationStr = (!isNumber(timeAudio) || isNaN(roundTimeAudio)) ? "loading" : `${roundTimeAudio}s`
+    let durationStr = (!isNumber(timeAudio) || isNaN(roundTimeAudio)) ? "loading" : fmtTime(roundTimeAudio)
     // @ts-ignore
     let winAudios = (window.tiro_tts_allAudiosRef || []).length
-    log(`${pre}: audio status: #${aid} ${positionAudio}s/${durationStr} ${audio.paused ? "paused" : "playing"} ${isPlayingRef.current ? "isPlaying" : "isNotPlaying"} readyState=${audio.readyState} winAudios=${winAudios}`)
+    log(`${pre}: audio status: #${aid} ${fmtTime(positionAudio)}/${durationStr} ${audio.paused ? "paused" : "playing"} ${isPlayingRef.current ? "isPlaying" : "isNotPlaying"} readyState=${audio.readyState} winAudios=${winAudios}`)
 
     if (audio.readyState < 2) {
       problemCounterRef.current = 0
