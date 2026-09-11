@@ -17,9 +17,9 @@ module.exports = {
 		snapshotSerializers: [],
 		// REQUIRED TO PROCESS STUFFS W window.
 		testEnvironment: 'jest-environment-jsdom',
-		// NEEDED FOR IFRAME LOADING => but still doesnt work
+		// hermetic tests: jsdom must not fetch <script src> (child-logic tests drive script.onload/onerror manually)
 		testEnvironmentOptions: {
-				resources: "usable"
+				resources: undefined
 		}
 };
 

@@ -9,7 +9,6 @@ import { chunkTextInSentences2, cleanText2Speech, extractToChunkPos, parseTtsEng
 import { userSettingsSync } from '../hooks/useUserSettings.hook';
 import { getApi } from '../hooks/api/api.hook';
 import { useInterval } from '../hooks/interval.hook';
-import { useBackendState } from '../hooks/useBackendState.hook';
 import { useDebounce } from '../hooks/lodash.hooks';
 import { startScreenWakeLock, stopScreenWakeLock } from '../managers/wakeLock.manager';
 import { deviceType } from '../managers/device.manager';
@@ -34,6 +33,7 @@ export const TtsCustomPopup = (p: {
   id: string | null,
   fileContent: string
   startString: string | null
+  startPercent?: number | null
 
   onUpdate: (status: iTtsStatus) => void
   onClose: Function
@@ -51,14 +51,6 @@ export const TtsCustomPopup = (p: {
     setCurrRateInt(rate)
     currRateRef.current = rate
   }
-  const [wordStat, setWordStat, refreshBackendWordStat] = useBackendState<number>('tts-word-stats', 0, { debug: false })
-  const wordStatRef = useRef<number>(0)
-  useEffect(() => {
-    refreshBackendWordStat(res => {
-      if (typeof res === "number") wordStatRef.current = res
-    })
-  }, [])
-
   const [bgLock, setBgLock] = useState(false)
   const lockBgScreen = (status: boolean) => {
     status === true ? startScreenWakeLock() : stopScreenWakeLock()
@@ -71,6 +63,10 @@ export const TtsCustomPopup = (p: {
     setCurrChunkInt(chunkNb)
     currChunkRef.current = chunkNb
   }
+  // ponytail: book % (5 decimals, chunk-index ratio) instead of a raw chunk index that went
+  // stale whenever chunking changed. New key — old `tts-pos-*` indexes deliberately abandoned.
+  const round5 = (x: number) => Math.round(x * 100000) / 100000
+  const [posPct, setPosPct] = useLocalStorage<number>(`tts-pos-pct-${p.id}`, -1)
 
   const [logTxtProcess, setLogTxtProcess] = useState<string>("")
   const [logTxtSaid, setLogTxtSaid] = useState<string>("")
@@ -162,7 +158,7 @@ export const TtsCustomPopup = (p: {
   const downloader = useChunkDownloader({
     textChunks,
     log,
-    setWordStat,
+    setWordStat: () => { }, // ponytail: stats display removed — no-op keeps the downloader contract
     getEngineCommand,
     getRate,
   })
@@ -183,7 +179,9 @@ export const TtsCustomPopup = (p: {
   useEffect(() => {
     let currentText = textChunks[currChunk]
     if (currentText) currentText = currentText.split(/[.?!:]/)[0]
-    p.onUpdate({ totalChunks: textChunks.length, currentChunk: currChunk, isPlaying, currentText })
+    const progress = textChunks.length > 1 ? round5(currChunk / (textChunks.length - 1)) : 0
+    if (textChunks.length > 1) setPosPct(progress)
+    p.onUpdate({ totalChunks: textChunks.length, currentChunk: currChunk, isPlaying, currentText, progress })
   }, [textChunks, currChunk, isPlaying])
 
   const startStringAppliedRef = useRef(false)
@@ -201,14 +199,20 @@ export const TtsCustomPopup = (p: {
 
     setTextChunks(chunkedText2)
     console.log(`${pre}: loading and chunking text in ${chunkedText2.length} parts (engine: ${selectedEngine ? selectedEngine.name : 'fallback'})`)
-    // an engine switch may have shrunk the chunk list — keep the position valid
-    if (currChunkRef.current > Math.max(0, chunkedText2.length - 1)) {
-      setCurrChunk(Math.max(0, chunkedText2.length - 1))
+    // position priority: reader startPercent > remembered book % > old clamp
+    // (a re-chunk may shrink/grow the list — re-anchor proportionally instead of truncating)
+    const len = chunkedText2.length - 1
+    if (len > 0) {
+      if (p.startPercent != null) setCurrChunk(Math.round(p.startPercent * len))
+      else if (posPct >= 0) setCurrChunk(Math.round(posPct * len))
+      else if (currChunkRef.current > len) setCurrChunk(len)
+    } else if (currChunkRef.current > 0) {
+      setCurrChunk(0) // old clamp, single-chunk engines (whole text)
     }
 
     // Search for start position on first run.
     // First run only — on engine switch the user's current position must be kept.
-    if (p.startString && !startStringAppliedRef.current) {
+    if (p.startPercent == null && p.startString && !startStringAppliedRef.current) {
       startStringAppliedRef.current = true
       let startStringCleaned = cleanText2Speech(p.startString)
       let chunkPos = extractToChunkPos(startStringCleaned, chunkedText2, 1000)
@@ -271,6 +275,20 @@ export const TtsCustomPopup = (p: {
     controller.playChunk(chunkNb, true)
   }, 300)
 
+  // Jump without autoplay (prev/next/±10 buttons): pause if playing, land on the
+  // target chunk, NO new TTS request. Next play press resumes from there
+  // (togglePlay → resume → currentChunk).
+  const seekChunk = useCallback((chunkNb: number) => {
+    if (isPlayingRef.current) {
+      setIsPlaying(false)
+      controller.pause()
+    }
+    setCurrChunk(chunkNb)
+    log(`${pre}: ⏯ seek chunk ${chunkNb} (no autoplay)`) // ponytail: no TTS request on jump — user presses play
+  }, [log, controller])
+  const jumpChunks = (delta: number) =>
+    seekChunk(Math.max(0, Math.min(textChunks.length - 1, currChunkRef.current + delta)))
+
   // Problem counter for audio error recovery
   const problemCounterRef = useRef<number>(0)
 
@@ -296,25 +314,26 @@ export const TtsCustomPopup = (p: {
     return false
   }
 
-  // Auto-advance to next chunk
+  // Auto-advance to next chunk (keeps playing); user button = seek without autoplay
   const next = useCallback((isUserAction: boolean = false) => {
     if (currChunkRef.current < textChunks.length - 1) {
       let nChunk = currChunkRef.current + 1
-      log(`${pre}: ️⏭ next chunk ${nChunk}`)
-      setCurrChunk(nChunk)
-      controller.playChunk(nChunk, true)
+      if (isUserAction) {
+        seekChunk(nChunk)
+      } else {
+        log(`${pre}: ️⏭ next chunk ${nChunk}`)
+        setCurrChunk(nChunk)
+        controller.playChunk(nChunk, true)
+      }
     }
-  }, [textChunks.length, log, controller])
+  }, [textChunks.length, log, controller, seekChunk])
 
-  // Prev chunk (debounced for user action)
+  // Prev chunk (user action = seek without autoplay)
   const prev = useCallback(() => {
     if (currChunkRef.current !== 0) {
-      let nChunk = currChunkRef.current - 1
-      log(`${pre}:️⏮ prev chunk ${nChunk}`)
-      setCurrChunk(nChunk)
-      controller.playChunk(nChunk, true)
+      seekChunk(currChunkRef.current - 1)
     }
-  }, [log, controller])
+  }, [seekChunk])
 
   // Toggle play/pause
   const togglePlay = useCallback(() => {
@@ -541,7 +560,7 @@ export const TtsCustomPopup = (p: {
           controller.destroy()
           let currentText = textChunks[currChunk]
           if (currentText) currentText = currentText.split(/[.?!:]/)[0]
-          p.onUpdate({ totalChunks: textChunks.length, currentChunk: currChunk, isPlaying: false, currentText })
+          p.onUpdate({ totalChunks: textChunks.length, currentChunk: currChunk, isPlaying: false, currentText, progress: textChunks.length > 1 ? round5(currChunk / (textChunks.length - 1)) : 0 })
           p.onClose()
         }}
       >
@@ -573,6 +592,7 @@ export const TtsCustomPopup = (p: {
         <br />
 
         <br />
+        <div className="book-percent">Book : {textChunks.length > 1 ? Math.round(100 * currChunk / (textChunks.length - 1)) : 0}%</div>
         <b> PARTS : </b>
         <input type="number" className="text-pos" value={currChunk} min="0" max={textChunks.length}
           onChange={e => {
@@ -621,6 +641,12 @@ export const TtsCustomPopup = (p: {
           <button onClick={e => { next(true) }}>
             <Icon name="faFastForward" color="black" />
           </button>
+          <button onClick={e => { jumpChunks(-10) }}>
+            « 10
+          </button>
+          <button onClick={e => { jumpChunks(10) }}>
+            10 »
+          </button>
 
           {
             deviceType() !== "desktop" && <button onClick={e => { lockBgScreen(true) }}>
@@ -631,16 +657,6 @@ export const TtsCustomPopup = (p: {
         <div
           onClick={e => setShowLog(!showLog)}
           className='log-button'> details </div>
-        {
-          showLog && typeof wordStat === 'number' &&
-          <div className='stats'>
-            API Words sent: {wordStat}<br />
-            Estimated time spoken: {wordStat / 10 / 60 / 2 < 60 ?
-              `${Math.round(wordStat / 10 / 60 / 2)} minutes` :
-              `${Math.round(wordStat / 10 / 60 / 2 / 60 * 10) / 10} hours (${Math.round(wordStat / 10 / 60 / 2)} mins)`}<br />
-            Estimated price : {Math.round(wordStat * userSettingsSync.curr.tts_price_per_word * 100000) / 100000}<br />
-          </div>
-        }
         {
           showLog &&
           // one checkbox to toggle between categories log "text log"
@@ -698,6 +714,10 @@ export const StyledDiv = styled.div`
 .log-toggler {
 	font-size: 10px;
 	margin-right: 10px;
+}
+.book-percent {
+	font-size: 11px;
+	color: #666;
 }
 .stats {
 	font-size: 10px;

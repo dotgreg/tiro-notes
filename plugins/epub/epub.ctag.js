@@ -586,6 +586,7 @@ const epubV2App = (innerTagStr, opts) => {
     //
     //
     window.isTts = false
+    window.lastTtsJumpPct = -1
 
     // Check every 5s IF tts is working
     // if it is, check tts position, search the read text
@@ -600,9 +601,20 @@ const epubV2App = (innerTagStr, opts) => {
         console.log(h, ` TTS position back to ebook reader pos > the text is ${fullText.length} characters long, checking tts every ${secondsIntervalCheck} seconds`)
         setInterval(() => {
           if (!window.isTts) return
-          // api.call("ui.textToSpeechPopup.getStatus", ['hello'], (ttsInfos) => {
           api.call("ui.textToSpeechPopup.getStatus", [], (ttsInfos) => {
             if (!ttsInfos.isPlaying) return
+            let pct = ttsInfos.progress
+            if (pct != null && pct > 0) {
+              // voie % : aucun search foliate
+              if (Math.abs(pct - (window.lastTtsJumpPct || -1)) < 0.002) return  // garde anti-spam
+              window.lastTtsJumpPct = pct
+              // ponytail: mapping linéaire idx de section ≈ fraction de book ; imprécis si sections très inégales, upgrader vers un mapping CFI si le décalage pique
+              let n = Math.max(1, readerApi.view.getSectionFractions().length - 1)
+              let pos = pct * n
+              tiroReaderApi.goTo(Math.min(n, Math.floor(pos)), Math.min(1, pos - Math.floor(pos)), true)
+              return
+            }
+            // voie ancienne (inchangée) : search de la phrase + goToCFI — fallback feed/ancien client
             let textRead = ttsInfos.currentText
             if (window.isSearchingForTTS) return
             window.isSearchingForTTS = true
@@ -620,11 +632,11 @@ const epubV2App = (innerTagStr, opts) => {
     window.tiro_tts = () => {
       tiroReaderApi.getAllText(fullText => {
         let pagetext = tiroReaderApi.getCurrentPageText()
-        console.log({ pagetext, fullText })
         window.isTts = true
-        let file = api.utils.getInfos().file;
-        console.log(h, "TTS fullText", fullText.length, "pagetext", pagetext.length, "file", file.name, "fileId", file.id)
-        api.call("ui.textToSpeechPopup.open", [fullText, { id: epubName, startString: pagetext }], () => { })
+        console.log(h, "TTS fullText", fullText.length, "progress", tiroReaderApi._storage.progress)
+        api.call("ui.textToSpeechPopup.open",
+          [fullText, { id: epubName, startPercent: tiroReaderApi._storage.progress ?? 0, startString: pagetext }],
+          () => { })
       })
     }
 
@@ -1119,6 +1131,7 @@ const epubV2App = (innerTagStr, opts) => {
     readerApi.view.renderer.addEventListener('relocate', e => {
       let chapter = e.detail.index
       let fractionChapter = e.detail.fraction
+      // ponytail: known edge — chapter===0/fraction===0 short-circuit this listener, so _storage.progress can stay stale at the very start of the book
       if (chapter === 0) return
       if (fractionChapter === 0) return
       // ponytail: cache page text while DOM is alive — stale range breaks after page turn
@@ -1141,6 +1154,9 @@ const epubV2App = (innerTagStr, opts) => {
         setCache(cacheIdPos, bookPosition)
       }
       tiroReaderApi._storage.currentPage = { ...e.detail }
+      // ponytail: % of sections (foliate) ≠ % of chars (TTS chunks) — monotone, sufficient; exact mapping = upgrade path
+      let n = Math.max(1, readerApi.view.getSectionFractions().length - 1)
+      tiroReaderApi._storage.progress = Math.round(((e.detail.index + (e.detail.fraction || 0)) / n) * 100000) / 100000
       // console.log(1111, tiroReaderApi.getCurrentPageText())
     })
 

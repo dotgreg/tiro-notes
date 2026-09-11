@@ -27,6 +27,10 @@ let pinStore = {}
 let pinStoreFullscreen = {}
 
 const reservedTagNames = ["latex", "l"]
+// CTAG handshake: kill the iframe and reload it if the child never answers within this window
+const CTAG_HANDSHAKE_TIMEOUT_MS = 5000
+// bounded reload attempts, then show the error instead of looping forever
+const CTAG_HANDSHAKE_MAX_RETRIES = 3
 export type onIframeMouseWheelFn = (e: WheelEvent) => void
 
 export const ContentBlockInt = (p: {
@@ -54,6 +58,7 @@ export const ContentBlockInt = (p: {
 	useEffect(() => {
 		if (!isTag) return
 		setCtagStatus("loading")
+		console.log(`[CTAG BOOT] 1. tag block: "${p.block.tagName}" (content len=${(p.block.content || '').length})`)
 		if (p.block.tagName === 'script') {
 			// if script, inject it inside iframe wrapping it with '[[script]]'
 			setNoteTagContent(`\n[[script]]${p.block.content}[[script]]`)
@@ -64,13 +69,16 @@ export const ContentBlockInt = (p: {
 			p.block.content = ''
 		} else if (p.block.tagName) {
 			// if custom tag, look for its content and insert that one in the iframe
+			console.log(`[CTAG BOOT] 2. fetching ctag content for "${p.block.tagName}" (plugins → /.tiro/tags/${p.block.tagName}.md → base)`) 
 			getCtagContent(p.block.tagName, ctagContent => {
 				if (ctagContent) {
+					console.log(`[CTAG BOOT] 3. ctag content OK for "${p.block.tagName}" (len=${ctagContent.length}, has [[script]]=${ctagContent.includes('[[script]]')})`)
 					setNoteTagContent(ctagContent)
 					setTimeout(() => {
 						setCtagStatus("loaded")
 					}, 100)
 				} else {
+					console.warn(`[CTAG BOOT] 3. NO CTAG CONTENT for "${p.block.tagName}" (null) — tag will stay EMPTY`)
 					setNoteTagContent(null)
 				}
 			})
@@ -161,6 +169,11 @@ export const ContentBlockTagView = (p: {
 	const [iframeId, setIframeId] = useState('')
 	const [canShow, setCanShow] = useState(false)
 	const [iframeError, setIframeError] = useState<string | null>(null)
+	const initRetryTimersRef = useRef<any[]>([])
+	const childSpokeRef = useRef(false)
+	const handshakeTimerRef = useRef<any>(null)
+	const handshakeRetriesRef = useRef(0)
+	const lastHandshakeKeyRef = useRef('')
 
 	// IFRAME SCROLLING
 	const [canScrollIframe, setCanScrollIframe] = useState(false)
@@ -259,6 +272,8 @@ export const ContentBlockTagView = (p: {
 		updateScroll();
 		setIframeId(nid)
 		setIframeError(null)
+		let childSpoke = false
+		console.log('[CTAG BOOT] 5. debounce fired, starting iframe logic')
 
 
 		// listen to parent resize ONLY if resizeType is realtiveToParent
@@ -270,6 +285,26 @@ export const ContentBlockTagView = (p: {
 		// listen to iframe calls
 		iframeParentManager.subscribe(nid, m => {
 
+			// HANDSHAKE OK: any message proves the child's srcdoc window is alive → stop the 5s watchdog
+			if (!childSpoke) {
+				childSpoke = true
+				childSpokeRef.current = true
+				if (handshakeTimerRef.current) { clearTimeout(handshakeTimerRef.current); handshakeTimerRef.current = null }
+				handshakeRetriesRef.current = 0
+			}
+			console.log('[CTAG BOOT] 6. message from child:', m.action)
+
+			// the child's window is up: re-send init (forced). The original inits may have been lost
+			// while the srcdoc was still navigating; the child ignores duplicate inits (guarded there).
+			if (m.action === 'childReady') {
+				sendInit(true)
+				return
+			}
+
+			if (m.action === 'iframeLog') {
+				console.log('[CTAG BOOT] child >', m.data.msg)
+				return
+			}
 
 			// RESIZE AND CTAG HEIGHT MANAGEMENT
 			if (m.action === 'resize') {
@@ -317,30 +352,35 @@ export const ContentBlockTagView = (p: {
 		})
 
 		// send an init message with all datas
-		setTimeout(() => {
-			const data: iIframeData['init'] = {
-				file: p.file,
-				innerTag: p.block.content,
-				windowId: p.windowId,
-				frameId: nid,
-				reloadCounter: reload,
-				tagContent: noteTagContent,
-				tagName: p.block.tagName || '',
-				loginToken: getLoginToken(),
-				backendUrl: getBackendUrl(),
-				ressCacheId: ressCacheIdSync.curr
-			}
-
+		// RETRY: if the srcdoc is still loading when the first init arrives, the message is lost and the
+		// frame stays blank forever. init is idempotent ([[script]] markers are consumed on first run).
+		const data: iIframeData['init'] = {
+			file: p.file,
+			innerTag: p.block.content,
+			windowId: p.windowId,
+			frameId: nid,
+			reloadCounter: reload,
+			tagContent: noteTagContent,
+			tagName: p.block.tagName || '',
+			loginToken: getLoginToken(),
+			backendUrl: getBackendUrl(),
+			ressCacheId: ressCacheIdSync.curr
+		}
+		let initAttempt = 0
+		const sendInit = (force?: boolean) => {
+			// init is idempotent on the child side, so a forced re-send (childReady handshake) is safe
+			if (childSpoke && !force) return
+			initAttempt++
+			console.log(`[CTAG BOOT] 5a. sending init #${initAttempt} to ${nid} (el=${!!iframeRef.current}, contentWindow=${!!(iframeRef.current && iframeRef.current.contentWindow)})`)
 			iframeParentManager.send(iframeRef.current, { action: 'init', data })
-
-			// setTimeout(() => {
-			// }, 3000)
-		}, 100)
+		}
+		initRetryTimersRef.current.forEach(t => clearTimeout(t))
+		initRetryTimersRef.current = [100, 1200, 2700].map(ms => setTimeout(() => sendInit(), ms))
 
 	}, 500)
 
 
-	const updateIframeHtml = () => {
+	const updateIframeHtml = (nid: string) => {
 		// format tag content
 		const formatedNoteTagContent = noteApiFuncs.render({
 			raw: noteTagContent,
@@ -350,7 +390,7 @@ export const ContentBlockTagView = (p: {
 
 
 		// generate html content
-		const iframeHtml = generateIframeHtml(formatedNoteTagContent)
+		const iframeHtml = generateIframeHtml(formatedNoteTagContent, nid)
 		//iframeHtml.innerTag
 		let fullHtml = `
 			<html>
@@ -384,13 +424,42 @@ export const ContentBlockTagView = (p: {
 	useEffect(() => {
 		// console.log("===== CHANGING CONTENT CTAG", p);
 		setCanShow(false)
-		updateIframeHtml()
+		childSpokeRef.current = false // new iframe generation: re-arm the handshake from scratch
 
 		const nid = `iframe-${generateUUID()}`
+		console.log(`[CTAG BOOT] 4. TagView effect: nid=${nid}, noteTagContent len=${(p.noteTagContent || '').length}`)
+		updateIframeHtml(nid)
 		debounceStartIframeLogic(nid)
+
+		// HANDSHAKE: the child must answer (any message — it speaks as soon as its srcdoc window is up)
+		// within 5s of mount. Chrome stalls/aborts srcdoc loads and loses the init race: without this
+		// the frame stays blank. No answer → kill the iframe (remount with a fresh srcdoc) and reload
+		// the ctag. Bounded: after N failed attempts, show the error instead of looping forever.
+		const hKey = `${p.block.tagName}|${p.block.content}|${p.noteTagContent}`
+		if (lastHandshakeKeyRef.current !== hKey) {
+			lastHandshakeKeyRef.current = hKey
+			handshakeRetriesRef.current = 0
+		}
+		if (handshakeTimerRef.current) clearTimeout(handshakeTimerRef.current)
+		handshakeTimerRef.current = setTimeout(() => {
+			if (childSpokeRef.current) return
+			handshakeRetriesRef.current++
+			if (handshakeRetriesRef.current > CTAG_HANDSHAKE_MAX_RETRIES) {
+				console.warn(`[CTAG BOOT] 7. HANDSHAKE: no response from child after ${handshakeRetriesRef.current + 1} load attempts — giving up`)
+				const err = `CTAG "${p.block.tagName || 'tag'}" IFRAME NOT RESPONDING (no message from child in 5s, tried ${handshakeRetriesRef.current + 1} times) — reload the page`
+				setIframeError(err)
+				notifLog(`${err}`)
+				return
+			}
+			console.warn(`[CTAG BOOT] 7. HANDSHAKE: no response from child in 5s — killing iframe + reload #${handshakeRetriesRef.current}`)
+			incrementReload()
+		}, CTAG_HANDSHAKE_TIMEOUT_MS)
+
 		return () => {
 			// cleaning when updating the component
 			iframeParentManager.unsubscribe(nid)
+			initRetryTimersRef.current.forEach(t => clearTimeout(t))
+			if (handshakeTimerRef.current) clearTimeout(handshakeTimerRef.current)
 		}
 	}, [p.windowId, p.block.content, p.block.tagName, p.noteTagContent, reload])
 

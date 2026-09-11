@@ -1,0 +1,2220 @@
+
+> tiro-notes-source-code@1.0.0 cli-dev
+> npm run demo_folder/zip; npm run check-type; npm run publish-cli-dev
+
+
+> tiro-notes-source-code@1.0.0 demo_folder/zip
+> rm -r _demo_folder; mkdir _demo_folder; cp -r demo_folder/.tiro/plugins _demo_folder/plugins; cp -r demo_folder/.tiro/forms.md _demo_folder/forms.md;cp -r demo_folder/.tiro/user_functions.md _demo_folder/user_functions.md; rm -r _demo_folder/plugins/.history; cp -r demo_folder/_demos _demo_folder/_demos; find demo_folder -type d -name '.history' -exec rm -rf {} +; rm -r demos_folder.zip; zip -r demos_folder.zip _demo_folder; rm -r _demo_folder
+
+rm: cannot remove '_demo_folder': No such file or directory
+rm: cannot remove '_demo_folder/plugins/.history': No such file or directory
+  adding: _demo_folder/ (stored 0%)
+  adding: _demo_folder/plugins/ (stored 0%)
+  adding: _demo_folder/plugins/feed-plugin.md (deflated 62%)
+  adding: _demo_folder/plugins/epub-plugin.md (deflated 43%)
+  adding: _demo_folder/plugins/smartlist-plugin.md (deflated 44%)
+  adding: _demo_folder/plugins/calendar-plugin.md (deflated 52%)
+  adding: _demo_folder/plugins/timer-plugin.md (deflated 61%)
+  adding: _demo_folder/user_functions.md (deflated 70%)
+  adding: _demo_folder/forms.md (deflated 55%)
+  adding: _demo_folder/_demos/ (stored 0%)
+  adding: _demo_folder/_demos/notes/ (stored 0%)
+  adding: _demo_folder/_demos/notes/project 1/ (stored 0%)
+  adding: _demo_folder/_demos/notes/project 1/.resources/ (stored 0%)
+  adding: _demo_folder/_demos/notes/project 1/.resources/screenshot_20250605_224736-2026-1-20-23h31m-26s.png (deflated 0%)
+  adding: _demo_folder/_demos/notes/project 1/.resources/800-450fossfjordur-609160681-2026-1-20-23h31m-53s.jpg (deflated 0%)
+  adding: _demo_folder/_demos/notes/project 1/todo.md (deflated 37%)
+  adding: _demo_folder/_demos/notes/events .md (deflated 42%)
+  adding: _demo_folder/_demos/apps/ (stored 0%)
+  adding: _demo_folder/_demos/apps/.resources/ (stored 0%)
+  adding: _demo_folder/_demos/apps/.resources/pg2701-images-3.epub (deflated 0%)
+  adding: _demo_folder/_demos/apps/plugin-rss-example.md (deflated 49%)
+  adding: _demo_folder/_demos/apps/plugin-forms-example.md (deflated 24%)
+  adding: _demo_folder/_demos/apps/plugin-calendar-example.md (deflated 30%)
+  adding: _demo_folder/_demos/apps/DO NOT PUT ANY SECRETS HERE.md (stored 0%)
+  adding: _demo_folder/_demos/apps/epub test.md (deflated 21%)
+  adding: _demo_folder/_demos/apps/1 22-02-26.md (deflated 45%)
+
+> tiro-notes-source-code@1.0.0 check-type
+> npx typedoc --tsconfig ./client/tsconfig.json --json client-api.json ./client/src/hooks/api/api.hook.tsx
+
+[91merror[0m[90m TS5101: [0mOption 'downlevelIteration' is deprecated and will stop functioning in TypeScript 7.0. Specify compilerOption '"ignoreDeprecations": "6.0"' to silence this error.
+
+[91merror[0m[90m TS5107: [0mOption 'moduleResolution=node10' is deprecated and will stop functioning in TypeScript 7.0. Specify compilerOption '"ignoreDeprecations": "6.0"' to silence this error.
+  Visit https://aka.ms/ts6 for migration information.
+
+[91merror[0m[90m TS5107: [0mOption 'target=ES5' is deprecated and will stop functioning in TypeScript 7.0. Specify compilerOption '"ignoreDeprecations": "6.0"' to silence this error.
+
+[96mclient/src/components/windowGrid/DraggableGrid.component.tsx[0m:[93m4[0m:[93m8[0m - [91merror[0m[90m TS2882: [0mCannot find module or type declarations for side-effect import of '../../../node_modules/react-grid-layout/css/styles.css'.
+
+[7m4[0m import '../../../node_modules/react-grid-layout/css/styles.css'
+[7m [0m [91m       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96mclient/src/components/windowGrid/DraggableGrid.component.tsx[0m:[93m5[0m:[93m8[0m - [91merror[0m[90m TS2882: [0mCannot find module or type declarations for side-effect import of '../../../node_modules/react-resizable/css/styles.css'.
+
+[7m5[0m import '../../../node_modules/react-resizable/css/styles.css'
+[7m [0m [91m       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96mclient/src/components/windowGrid/DraggableGrid.component.tsx[0m:[93m7[0m:[93m27[0m - [91merror[0m[90m TS6059: [0mFile '/home/u1/_dev/tiro-notes/shared/helpers/number.helper.ts' is not under 'rootDir' '/home/u1/_dev/tiro-notes/client'. 'rootDir' is expected to contain all source files.
+  The file is in the program because:
+    Imported via '../../../../shared/helpers/number.helper' from file '/home/u1/_dev/tiro-notes/client/src/components/windowGrid/DraggableGrid.component.tsx'
+    Imported via '../../../../shared/helpers/number.helper' from file '/home/u1/_dev/tiro-notes/client/src/hooks/app/tabs.hook.tsx'
+
+[7m7[0m import { increment } from '../../../../shared/helpers/number.helper';
+[7m [0m [91m                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  [96mclient/src/hooks/app/tabs.hook.tsx[0m:[93m4[0m:[93m27[0m
+    [7m4[0m import { increment } from '../../../../shared/helpers/number.helper';
+    [7m [0m [96m                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+
+[96mclient/src/hooks/api/api.hook.tsx[0m:[93m3[0m:[93m30[0m - [91merror[0m[90m TS6059: [0mFile '/home/u1/_dev/tiro-notes/shared/helpers/id.helper.ts' is not under 'rootDir' '/home/u1/_dev/tiro-notes/client'. 'rootDir' is expected to contain all source files.
+  The file is in the program because:
+    Imported via '../../../../shared/helpers/id.helper' from file '/home/u1/_dev/tiro-notes/client/src/hooks/api/api.hook.tsx'
+    Imported via "../../../shared/helpers/id.helper" from file '/home/u1/_dev/tiro-notes/client/src/managers/iframe.manager.ts'
+    Imported via '../../../shared/helpers/id.helper' from file '/home/u1/_dev/tiro-notes/client/src/hooks/useUserSettings.hook.tsx'
+    Imported via '../../../shared/helpers/id.helper' from file '/home/u1/_dev/tiro-notes/client/src/components/ContentBlock.component.tsx'
+    Imported via "../../../shared/helpers/id.helper" from file '/home/u1/_dev/tiro-notes/client/src/managers/previewUrl.manager.ts'
+    Imported via '../../../shared/helpers/id.helper' from file '/home/u1/_dev/tiro-notes/client/src/managers/reactRenderer.manager.ts'
+    Imported via '../../../shared/helpers/id.helper' from file '/home/u1/_dev/tiro-notes/client/src/components/NotePreview.component.tsx'
+    Imported via '../../../../shared/helpers/id.helper' from file '/home/u1/_dev/tiro-notes/client/src/hooks/app/tabs.hook.tsx'
+    Imported via '../../../../shared/helpers/id.helper' from file '/home/u1/_dev/tiro-notes/client/src/hooks/api/note.api.hook.tsx'
+    Imported via '../../../../shared/helpers/id.helper' from file '/home/u1/_dev/tiro-notes/client/src/hooks/api/ressource.api.hook.tsx'
+    Imported via "../../../../shared/helpers/id.helper" from file '/home/u1/_dev/tiro-notes/client/src/hooks/api/notification.api.hook.tsx'
+    Imported via '../../../shared/helpers/id.helper' from file '/home/u1/_dev/tiro-notes/client/src/components/NotePreviewPopup.component.tsx'
+    Imported via '../../../../shared/helpers/id.helper' from file '/home/u1/_dev/tiro-notes/client/src/hooks/api/ai.api.hook.tsx'
+    Imported via '../../../shared/helpers/id.helper' from file '/home/u1/_dev/tiro-notes/client/src/components/OmniBar.component.tsx'
+    Imported via '../../../shared/helpers/id.helper' from file '/home/u1/_dev/tiro-notes/client/src/components/FloatingPanels.component.tsx'
+    Imported via '../../../shared/helpers/id.helper' from file '/home/u1/_dev/tiro-notes/client/src/components/NotificationsCenter.component.tsx'
+    Imported via '../../../shared/helpers/id.helper' from file '/home/u1/_dev/tiro-notes/client/src/managers/iframeChildLogic.helper.ts'
+    Imported via "../../../shared/helpers/id.helper" from file '/home/u1/_dev/tiro-notes/client/src/managers/nodeCache.manager.tsx'
+
+[7m3[0m import { generateUUID } from '../../../../shared/helpers/id.helper';
+[7m [0m [91m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  [96mclient/src/managers/iframe.manager.ts[0m:[93m1[0m:[93m53[0m
+    [7m1[0m import { generateUUID, getRessourceIdFromUrl } from "../../../shared/helpers/id.helper";
+    [7m [0m [96m                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/useUserSettings.hook.tsx[0m:[93m3[0m:[93m30[0m
+    [7m3[0m import { generateUUID } from '../../../shared/helpers/id.helper';
+    [7m [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/components/ContentBlock.component.tsx[0m:[93m2[0m:[93m30[0m
+    [7m2[0m import { generateUUID } from '../../../shared/helpers/id.helper';
+    [7m [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/previewUrl.manager.ts[0m:[93m2[0m:[93m39[0m
+    [7m2[0m import { getRessourceIdFromUrl } from "../../../shared/helpers/id.helper"
+    [7m [0m [96m                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/reactRenderer.manager.ts[0m:[93m4[0m:[93m30[0m
+    [7m4[0m import { generateUUID } from '../../../shared/helpers/id.helper';
+    [7m [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/components/NotePreview.component.tsx[0m:[93m2[0m:[93m30[0m
+    [7m2[0m import { generateUUID } from '../../../shared/helpers/id.helper';
+    [7m [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/app/tabs.hook.tsx[0m:[93m2[0m:[93m30[0m
+    [7m2[0m import { generateUUID } from '../../../../shared/helpers/id.helper';
+    [7m [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/api/note.api.hook.tsx[0m:[93m5[0m:[93m30[0m
+    [7m5[0m import { generateUUID } from '../../../../shared/helpers/id.helper';
+    [7m [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/api/ressource.api.hook.tsx[0m:[93m2[0m:[93m39[0m
+    [7m2[0m import { getRessourceIdFromUrl } from '../../../../shared/helpers/id.helper';
+    [7m [0m [96m                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/api/notification.api.hook.tsx[0m:[93m6[0m:[93m30[0m
+    [7m6[0m import { generateUUID } from "../../../../shared/helpers/id.helper"
+    [7m [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/components/NotePreviewPopup.component.tsx[0m:[93m8[0m:[93m30[0m
+    [7m8[0m import { generateUUID } from '../../../shared/helpers/id.helper';
+    [7m [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/api/ai.api.hook.tsx[0m:[93m8[0m:[93m30[0m
+    [7m8[0m import { generateUUID } from '../../../../shared/helpers/id.helper';
+    [7m [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/components/OmniBar.component.tsx[0m:[93m17[0m:[93m30[0m
+    [7m17[0m import { generateUUID } from '../../../shared/helpers/id.helper';
+    [7m  [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/components/FloatingPanels.component.tsx[0m:[93m18[0m:[93m30[0m
+    [7m18[0m import { generateUUID } from '../../../shared/helpers/id.helper';
+    [7m  [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/components/NotificationsCenter.component.tsx[0m:[93m3[0m:[93m30[0m
+    [7m3[0m import { generateUUID } from '../../../shared/helpers/id.helper';
+    [7m [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/iframeChildLogic.helper.ts[0m:[93m9[0m:[93m53[0m
+    [7m9[0m import { generateUUID, getRessourceIdFromUrl } from '../../../shared/helpers/id.helper'
+    [7m [0m [96m                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/nodeCache.manager.tsx[0m:[93m1[0m:[93m30[0m
+    [7m1[0m import { generateUUID } from "../../../shared/helpers/id.helper"
+    [7m [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+
+[96mclient/src/hooks/api/api.hook.tsx[0m:[93m22[0m:[93m57[0m - [91merror[0m[90m TS6059: [0mFile '/home/u1/_dev/tiro-notes/shared/api/functions.shared.api.ts' is not under 'rootDir' '/home/u1/_dev/tiro-notes/client'. 'rootDir' is expected to contain all source files.
+
+[7m22[0m import { iSharedFunctionsApi, sharedFunctionsApi } from '../../../../shared/api/functions.shared.api';
+[7m  [0m [91m                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96mclient/src/managers/events.manager.ts[0m:[93m2[0m:[93m27[0m - [91merror[0m[90m TS6059: [0mFile '/home/u1/_dev/tiro-notes/shared/helpers/lengthObj.helper.ts' is not under 'rootDir' '/home/u1/_dev/tiro-notes/client'. 'rootDir' is expected to contain all source files.
+
+[7m2[0m import { lengthObj } from "../../../shared/helpers/lengthObj.helper";
+[7m [0m [91m                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96mclient/src/managers/headerMetas.manager.ts[0m:[93m3[0m:[93m37[0m - [91merror[0m[90m TS6059: [0mFile '/home/u1/_dev/tiro-notes/shared/helpers/metas.helper.ts' is not under 'rootDir' '/home/u1/_dev/tiro-notes/client'. 'rootDir' is expected to contain all source files.
+
+[7m3[0m import { processStringToMeta } from "../../../shared/helpers/metas.helper";
+[7m [0m [91m                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96mclient/src/managers/markdown.manager.tsx[0m:[93m2[0m:[93m27[0m - [91merror[0m[90m TS6059: [0mFile '/home/u1/_dev/tiro-notes/shared/helpers/filename.helper.ts' is not under 'rootDir' '/home/u1/_dev/tiro-notes/client'. 'rootDir' is expected to contain all source files.
+  The file is in the program because:
+    Imported via "../../../shared/helpers/filename.helper" from file '/home/u1/_dev/tiro-notes/client/src/managers/markdown.manager.tsx'
+    Imported via "../../../shared/helpers/filename.helper" from file '/home/u1/_dev/tiro-notes/client/src/managers/url.manager.ts'
+    Imported via '../../../shared/helpers/filename.helper' from file '/home/u1/_dev/tiro-notes/client/src/components/RessourcePreview.component.tsx'
+    Imported via "../../../shared/helpers/filename.helper" from file '/home/u1/_dev/tiro-notes/client/src/managers/ai.manager.ts'
+    Imported via "../../../../shared/helpers/filename.helper" from file '/home/u1/_dev/tiro-notes/client/src/managers/codeMirror/ctag.plugin.cm.tsx'
+    Imported via "../../../shared/helpers/filename.helper" from file '/home/u1/_dev/tiro-notes/client/src/managers/dragDrop.manager.ts'
+    Imported via "../../../../shared/helpers/filename.helper" from file '/home/u1/_dev/tiro-notes/client/src/hooks/api/floatingPanel.api.hook.tsx'
+    Imported via "../../../shared/helpers/filename.helper" from file '/home/u1/_dev/tiro-notes/client/src/managers/export.manager.ts'
+    Imported via "../../../shared/helpers/filename.helper" from file '/home/u1/_dev/tiro-notes/client/src/managers/ressource.manager.ts'
+    Imported via '../../../../shared/helpers/filename.helper' from file '/home/u1/_dev/tiro-notes/client/src/components/dualView/EditorArea.component.tsx'
+    Imported via "../../../../shared/helpers/filename.helper" from file '/home/u1/_dev/tiro-notes/client/src/managers/codeMirror/image.plugin.cm.tsx'
+    Imported via '../../../../shared/helpers/filename.helper' from file '/home/u1/_dev/tiro-notes/client/src/hooks/api/file.api.hook.tsx'
+    Imported via '../../../../shared/helpers/filename.helper' from file '/home/u1/_dev/tiro-notes/client/src/hooks/api/browser.api.hook.tsx'
+    Imported via '../../../../shared/helpers/filename.helper' from file '/home/u1/_dev/tiro-notes/client/src/hooks/api/folders.api.hook.tsx'
+    Imported via '../../../../shared/helpers/filename.helper' from file '/home/u1/_dev/tiro-notes/client/src/hooks/api/ressource.api.hook.tsx'
+    Imported via '../../../shared/helpers/filename.helper' from file '/home/u1/_dev/tiro-notes/client/src/components/NotePreviewPopup.component.tsx'
+    Imported via "../../../shared/helpers/filename.helper" from file '/home/u1/_dev/tiro-notes/client/src/managers/ripgrepInstaller.manager.ts'
+    Imported via '../../../shared/helpers/filename.helper' from file '/home/u1/_dev/tiro-notes/client/src/components/TreeView.Component.tsx'
+    Imported via '../../../shared/helpers/filename.helper' from file '/home/u1/_dev/tiro-notes/client/src/components/OmniBar.component.tsx'
+    Imported via "../../../shared/helpers/filename.helper" from file '/home/u1/_dev/tiro-notes/client/src/components/RenderedNote.component.tsx'
+
+[7m2[0m import { cleanPath } from "../../../shared/helpers/filename.helper";
+[7m [0m [91m                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  [96mclient/src/managers/url.manager.ts[0m:[93m2[0m:[93m29[0m
+    [7m2[0m import { pathToIfile } from "../../../shared/helpers/filename.helper";
+    [7m [0m [96m                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/components/RessourcePreview.component.tsx[0m:[93m3[0m:[93m40[0m
+    [7m3[0m import { cleanPath, pathToIfile } from '../../../shared/helpers/filename.helper';
+    [7m [0m [96m                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/ai.manager.ts[0m:[93m5[0m:[93m42[0m
+    [7m5[0m import { cleanString, pathToIfile } from "../../../shared/helpers/filename.helper"
+    [7m [0m [96m                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/codeMirror/ctag.plugin.cm.tsx[0m:[93m1[0m:[93m29[0m
+    [7m1[0m import { pathToIfile } from "../../../../shared/helpers/filename.helper";
+    [7m [0m [96m                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/dragDrop.manager.ts[0m:[93m3[0m:[93m29[0m
+    [7m3[0m import { pathToIfile } from "../../../shared/helpers/filename.helper";
+    [7m [0m [96m                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/api/floatingPanel.api.hook.tsx[0m:[93m11[0m:[93m29[0m
+    [7m11[0m import { pathToIfile } from "../../../../shared/helpers/filename.helper"
+    [7m  [0m [96m                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/export.manager.ts[0m:[93m5[0m:[93m40[0m
+    [7m5[0m import { cleanPath, pathToIfile } from "../../../shared/helpers/filename.helper"
+    [7m [0m [96m                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/ressource.manager.ts[0m:[93m1[0m:[93m27[0m
+    [7m1[0m import { cleanPath } from "../../../shared/helpers/filename.helper"
+    [7m [0m [96m                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/components/dualView/EditorArea.component.tsx[0m:[93m31[0m:[93m42[0m
+    [7m31[0m import { cleanString, pathToIfile } from '../../../../shared/helpers/filename.helper';
+    [7m  [0m [96m                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/codeMirror/image.plugin.cm.tsx[0m:[93m13[0m:[93m29[0m
+    [7m13[0m import { pathToIfile } from "../../../../shared/helpers/filename.helper";
+    [7m  [0m [96m                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/api/file.api.hook.tsx[0m:[93m2[0m:[93m31[0m
+    [7m2[0m import { getFolderPath } from '../../../../shared/helpers/filename.helper';
+    [7m [0m [96m                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/api/browser.api.hook.tsx[0m:[93m3[0m:[93m41[0m
+    [7m3[0m import { areSamePaths, cleanPath } from '../../../../shared/helpers/filename.helper';
+    [7m [0m [96m                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/api/folders.api.hook.tsx[0m:[93m2[0m:[93m27[0m
+    [7m2[0m import { cleanPath } from '../../../../shared/helpers/filename.helper';
+    [7m [0m [96m                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/api/ressource.api.hook.tsx[0m:[93m9[0m:[93m27[0m
+    [7m9[0m import { cleanPath } from '../../../../shared/helpers/filename.helper';
+    [7m [0m [96m                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/components/NotePreviewPopup.component.tsx[0m:[93m2[0m:[93m29[0m
+    [7m2[0m import { pathToIfile } from '../../../shared/helpers/filename.helper';
+    [7m [0m [96m                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/ripgrepInstaller.manager.ts[0m:[93m2[0m:[93m27[0m
+    [7m2[0m import { cleanPath } from "../../../shared/helpers/filename.helper"
+    [7m [0m [96m                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/components/TreeView.Component.tsx[0m:[93m8[0m:[93m30[0m
+    [7m8[0m import { areSamePaths } from '../../../shared/helpers/filename.helper';
+    [7m [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/components/OmniBar.component.tsx[0m:[93m7[0m:[93m40[0m
+    [7m7[0m import { cleanPath, pathToIfile } from '../../../shared/helpers/filename.helper';
+    [7m [0m [96m                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/components/RenderedNote.component.tsx[0m:[93m2[0m:[93m29[0m
+    [7m2[0m import { pathToIfile } from "../../../shared/helpers/filename.helper";
+    [7m [0m [96m                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+
+[96mclient/src/managers/renderNote.manager.ts[0m:[93m2[0m:[93m24[0m - [91merror[0m[90m TS6059: [0mFile '/home/u1/_dev/tiro-notes/shared/helpers/regexs.helper.ts' is not under 'rootDir' '/home/u1/_dev/tiro-notes/client'. 'rootDir' is expected to contain all source files.
+  The file is in the program because:
+    Imported via "../../../shared/helpers/regexs.helper" from file '/home/u1/_dev/tiro-notes/client/src/managers/renderNote.manager.ts'
+    Imported via "../../../../shared/helpers/regexs.helper" from file '/home/u1/_dev/tiro-notes/client/src/managers/codeMirror/image.plugin.cm.tsx'
+    Imported via '../../../shared/helpers/regexs.helper' from file '/home/u1/_dev/tiro-notes/client/src/managers/textProcessor.manager.tsx'
+    Imported via "../../../shared/helpers/regexs.helper" from file '/home/u1/_dev/tiro-notes/client/src/managers/images.manager.ts'
+    Imported via "../../../shared/helpers/regexs.helper" from file '/home/u1/_dev/tiro-notes/client/src/managers/headerMetas.manager.ts'
+    Imported via "../../../shared/helpers/regexs.helper" from file '/home/u1/_dev/tiro-notes/client/src/managers/previewUrl.manager.ts'
+    Imported via "../../../../shared/helpers/regexs.helper" from file '/home/u1/_dev/tiro-notes/client/src/managers/codeMirror/completion.cm.ts'
+    Imported via "../../../../shared/helpers/regexs.helper" from file '/home/u1/_dev/tiro-notes/client/src/managers/codeMirror/urlLink.plugin.cm.tsx'
+    Imported via "../../../../shared/helpers/regexs.helper" from file '/home/u1/_dev/tiro-notes/client/src/managers/codeMirror/replacements.cm.tsx'
+    Imported via "../../../../shared/helpers/regexs.helper" from file '/home/u1/_dev/tiro-notes/client/src/managers/codeMirror/noteLink.plugin.cm.tsx'
+    Imported via "../../../../shared/helpers/regexs.helper" from file '/home/u1/_dev/tiro-notes/client/src/managers/codeMirror/filePreview.plugin.cm.tsx'
+    Imported via "../../../../shared/helpers/regexs.helper" from file '/home/u1/_dev/tiro-notes/client/src/managers/codeMirror/markdownStyling.cm.tsx'
+    Imported via "../../../../shared/helpers/regexs.helper" from file '/home/u1/_dev/tiro-notes/client/src/managers/codeMirror/ctag.plugin.cm.tsx'
+    Imported via "../../../../shared/helpers/regexs.helper" from file '/home/u1/_dev/tiro-notes/client/src/managers/codeMirror/hashtag.plugin.cm.ts'
+    Imported via "../../../../shared/helpers/regexs.helper" from file '/home/u1/_dev/tiro-notes/client/src/managers/codeMirror/datePicker.cm.ts'
+    Imported via "../../../../shared/helpers/regexs.helper" from file '/home/u1/_dev/tiro-notes/client/src/managers/codeMirror/checkboxTodo.cm.tsx'
+    Imported via "../../../../shared/helpers/regexs.helper" from file '/home/u1/_dev/tiro-notes/client/src/managers/codeMirror/markdownSynthax.cm.ts'
+    Imported via "../../../../shared/helpers/regexs.helper" from file '/home/u1/_dev/tiro-notes/client/src/managers/codeMirror/editorUtils.cm.ts'
+    Imported via '../../../../shared/helpers/regexs.helper' from file '/home/u1/_dev/tiro-notes/client/src/hooks/app/usePromptPopup.hook.tsx'
+    Imported via '../../../../shared/helpers/regexs.helper' from file '/home/u1/_dev/tiro-notes/client/src/hooks/api/file.api.hook.tsx'
+    Imported via "../../../shared/helpers/regexs.helper" from file '/home/u1/_dev/tiro-notes/client/src/managers/hashtags.manager.ts'
+    Imported via '../../../shared/helpers/regexs.helper' from file '/home/u1/_dev/tiro-notes/client/src/managers/tts.manager.ts'
+
+[7m2[0m import { regexs } from "../../../shared/helpers/regexs.helper"
+[7m [0m [91m                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  [96mclient/src/managers/codeMirror/image.plugin.cm.tsx[0m:[93m3[0m:[93m24[0m
+    [7m3[0m import { regexs } from "../../../../shared/helpers/regexs.helper";
+    [7m [0m [96m                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/textProcessor.manager.tsx[0m:[93m3[0m:[93m24[0m
+    [7m3[0m import { regexs } from '../../../shared/helpers/regexs.helper';
+    [7m [0m [96m                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/images.manager.ts[0m:[93m2[0m:[93m24[0m
+    [7m2[0m import { regexs } from "../../../shared/helpers/regexs.helper"
+    [7m [0m [96m                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/headerMetas.manager.ts[0m:[93m2[0m:[93m24[0m
+    [7m2[0m import { regexs } from "../../../shared/helpers/regexs.helper";
+    [7m [0m [96m                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/previewUrl.manager.ts[0m:[93m3[0m:[93m24[0m
+    [7m3[0m import { regexs } from "../../../shared/helpers/regexs.helper"
+    [7m [0m [96m                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/codeMirror/completion.cm.ts[0m:[93m9[0m:[93m24[0m
+    [7m9[0m import { regexs } from "../../../../shared/helpers/regexs.helper"
+    [7m [0m [96m                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/codeMirror/urlLink.plugin.cm.tsx[0m:[93m4[0m:[93m24[0m
+    [7m4[0m import { regexs } from "../../../../shared/helpers/regexs.helper";
+    [7m [0m [96m                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/codeMirror/replacements.cm.tsx[0m:[93m16[0m:[93m24[0m
+    [7m16[0m import { regexs } from "../../../../shared/helpers/regexs.helper";
+    [7m  [0m [96m                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/codeMirror/noteLink.plugin.cm.tsx[0m:[93m2[0m:[93m24[0m
+    [7m2[0m import { regexs } from "../../../../shared/helpers/regexs.helper";
+    [7m [0m [96m                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/codeMirror/filePreview.plugin.cm.tsx[0m:[93m3[0m:[93m24[0m
+    [7m3[0m import { regexs } from "../../../../shared/helpers/regexs.helper";
+    [7m [0m [96m                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/codeMirror/markdownStyling.cm.tsx[0m:[93m2[0m:[93m24[0m
+    [7m2[0m import { regexs } from "../../../../shared/helpers/regexs.helper"
+    [7m [0m [96m                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/codeMirror/ctag.plugin.cm.tsx[0m:[93m2[0m:[93m24[0m
+    [7m2[0m import { regexs } from "../../../../shared/helpers/regexs.helper";
+    [7m [0m [96m                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/codeMirror/hashtag.plugin.cm.ts[0m:[93m1[0m:[93m24[0m
+    [7m1[0m import { regexs } from "../../../../shared/helpers/regexs.helper";
+    [7m [0m [96m                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/codeMirror/datePicker.cm.ts[0m:[93m2[0m:[93m24[0m
+    [7m2[0m import { regexs } from "../../../../shared/helpers/regexs.helper";
+    [7m [0m [96m                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/codeMirror/checkboxTodo.cm.tsx[0m:[93m1[0m:[93m24[0m
+    [7m1[0m import { regexs } from "../../../../shared/helpers/regexs.helper";
+    [7m [0m [96m                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/codeMirror/markdownSynthax.cm.ts[0m:[93m2[0m:[93m24[0m
+    [7m2[0m import { regexs } from "../../../../shared/helpers/regexs.helper";
+    [7m [0m [96m                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/codeMirror/editorUtils.cm.ts[0m:[93m13[0m:[93m24[0m
+    [7m13[0m import { regexs } from "../../../../shared/helpers/regexs.helper";
+    [7m  [0m [96m                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/app/usePromptPopup.hook.tsx[0m:[93m2[0m:[93m24[0m
+    [7m2[0m import { regexs } from '../../../../shared/helpers/regexs.helper';
+    [7m [0m [96m                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/api/file.api.hook.tsx[0m:[93m3[0m:[93m24[0m
+    [7m3[0m import { regexs } from '../../../../shared/helpers/regexs.helper';
+    [7m [0m [96m                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/hashtags.manager.ts[0m:[93m2[0m:[93m24[0m
+    [7m2[0m import { regexs } from "../../../shared/helpers/regexs.helper";
+    [7m [0m [96m                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/tts.manager.ts[0m:[93m3[0m:[93m24[0m
+    [7m3[0m import { regexs } from '../../../shared/helpers/regexs.helper';
+    [7m [0m [96m                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+
+[96mclient/src/managers/sockets/socket.manager.ts[0m:[93m4[0m:[93m32[0m - [91merror[0m[90m TS6059: [0mFile '/home/u1/_dev/tiro-notes/shared/apiDictionary.type.ts' is not under 'rootDir' '/home/u1/_dev/tiro-notes/client'. 'rootDir' is expected to contain all source files.
+  The file is in the program because:
+    Imported via '../../../../shared/apiDictionary.type' from file '/home/u1/_dev/tiro-notes/client/src/managers/sockets/socket.manager.ts'
+    Imported via '../../../../shared/apiDictionary.type' from file '/home/u1/_dev/tiro-notes/client/src/components/dualView/EditorArea.component.tsx'
+    Imported via "../../../../shared/apiDictionary.type" from file '/home/u1/_dev/tiro-notes/client/src/hooks/api/socket.api.hook.ts'
+    Imported via "../../../../shared/apiDictionary.type" from file '/home/u1/_dev/tiro-notes/client/src/hooks/app/imagesList.hook.tsx'
+
+[7m4[0m import { iApiDictionary } from '../../../../shared/apiDictionary.type';
+[7m [0m [91m                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  [96mclient/src/components/dualView/EditorArea.component.tsx[0m:[93m48[0m:[93m32[0m
+    [7m48[0m import { iApiDictionary } from '../../../../shared/apiDictionary.type';
+    [7m  [0m [96m                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/api/socket.api.hook.ts[0m:[93m2[0m:[93m32[0m
+    [7m2[0m import { iApiDictionary } from "../../../../shared/apiDictionary.type"
+    [7m [0m [96m                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/app/imagesList.hook.tsx[0m:[93m2[0m:[93m32[0m
+    [7m2[0m import { iApiDictionary } from "../../../../shared/apiDictionary.type";
+    [7m [0m [96m                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+
+[96mclient/src/managers/ssr.manager.ts[0m:[93m1[0m:[93m8[0m - [91merror[0m[90m TS2882: [0mCannot find module or type declarations for side-effect import of '@fortawesome/fontawesome-free/css/all.css'.
+
+[7m1[0m import "@fortawesome/fontawesome-free/css/all.css"
+[7m [0m [91m       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96mclient/src/managers/strings.manager.ts[0m:[93m1[0m:[93m30[0m - [91merror[0m[90m TS6059: [0mFile '/home/u1/_dev/tiro-notes/shared/shared.config.ts' is not under 'rootDir' '/home/u1/_dev/tiro-notes/client'. 'rootDir' is expected to contain all source files.
+  The file is in the program because:
+    Imported via "../../../shared/shared.config" from file '/home/u1/_dev/tiro-notes/client/src/managers/strings.manager.ts'
+    Imported via '../shared.config' from file '/home/u1/_dev/tiro-notes/shared/helpers/regexs.helper.ts'
+    Imported via "../../../../shared/shared.config" from file '/home/u1/_dev/tiro-notes/client/src/managers/codeMirror/editorUtils.cm.ts'
+    Imported via "../../../shared/shared.config" from file '/home/u1/_dev/tiro-notes/client/src/managers/latex.manager.ts'
+    Imported via '../../../shared/shared.config' from file '/home/u1/_dev/tiro-notes/client/src/managers/textProcessor.manager.tsx'
+    Imported via '../../../../shared/shared.config' from file '/home/u1/_dev/tiro-notes/client/src/hooks/app/loginToken.hook.tsx'
+    Imported via '../../../shared/shared.config' from file '/home/u1/_dev/tiro-notes/client/src/hooks/useUserSettings.hook.tsx'
+    Imported via "../../../shared/shared.config" from file '/home/u1/_dev/tiro-notes/client/src/hooks/useBackendState.hook.tsx'
+    Imported via '../../shared/shared.config' from file '/home/u1/_dev/tiro-notes/client/src/config.ts'
+    Imported via "../shared.config" from file '/home/u1/_dev/tiro-notes/shared/helpers/metas.helper.ts'
+    Imported via "../../../shared/shared.config" from file '/home/u1/_dev/tiro-notes/client/src/managers/headerMetas.manager.ts'
+    Imported via "../../../shared/shared.config" from file '/home/u1/_dev/tiro-notes/client/src/managers/localNoteHistory.manager.ts'
+    Imported via '../../../shared/shared.config' from file '/home/u1/_dev/tiro-notes/client/src/hooks/syncScroll.hook.ts'
+    Imported via "../../../../shared/shared.config" from file '/home/u1/_dev/tiro-notes/client/src/managers/codeMirror/completion.cm.ts'
+    Imported via "../../../shared/shared.config" from file '/home/u1/_dev/tiro-notes/client/src/managers/previewUrl.manager.ts'
+    Imported via "../../../../shared/shared.config" from file '/home/u1/_dev/tiro-notes/client/src/components/dualView/CodeMirrorEditor.component.tsx'
+    Imported via "../../../shared/shared.config" from file '/home/u1/_dev/tiro-notes/client/src/managers/export.manager.ts'
+    Imported via "../../../shared/shared.config" from file '/home/u1/_dev/tiro-notes/client/src/managers/ressource.manager.ts'
+    Imported via '../../../shared/shared.config' from file '/home/u1/_dev/tiro-notes/client/src/components/ContentBlock.component.tsx'
+    Imported via "../../../shared/shared.config" from file '/home/u1/_dev/tiro-notes/client/src/managers/ctag.manager.ts'
+    Imported via "../../../shared/shared.config" from file '/home/u1/_dev/tiro-notes/client/src/managers/iframe.manager.ts'
+    Imported via '../../../../shared/shared.config' from file '/home/u1/_dev/tiro-notes/client/src/hooks/api/history.api.hook.tsx'
+    Imported via '../../../../shared/shared.config' from file '/home/u1/_dev/tiro-notes/client/src/hooks/api/browser.api.hook.tsx'
+    Imported via '../../../../shared/shared.config' from file '/home/u1/_dev/tiro-notes/client/src/hooks/api/files.api.hook.tsx'
+    Imported via '../../../../shared/shared.config' from file '/home/u1/_dev/tiro-notes/client/src/hooks/api/folders.api.hook.tsx'
+    Imported via '../../../../shared/shared.config' from file '/home/u1/_dev/tiro-notes/client/src/hooks/api/ressource.api.hook.tsx'
+    Imported via '../../../../shared/shared.config' from file '/home/u1/_dev/tiro-notes/client/src/hooks/api/cache.api.hook.tsx'
+    Imported via '../../../../shared/shared.config' from file '/home/u1/_dev/tiro-notes/client/src/hooks/api/api.hook.tsx'
+    Imported via '../../../../shared/shared.config' from file '/home/u1/_dev/tiro-notes/client/src/hooks/app/lastFilesHistory.hook.tsx'
+    Imported via "../../../../shared/shared.config" from file '/home/u1/_dev/tiro-notes/client/src/hooks/api/plugin.api.hook.tsx'
+    Imported via "../../../shared/shared.config" from file '/home/u1/_dev/tiro-notes/client/src/managers/help.manager.ts'
+    Imported via "../../../shared/shared.config" from file '/home/u1/_dev/tiro-notes/client/src/managers/ripgrepInstaller.manager.ts'
+    Imported via '../../../../shared/shared.config' from file '/home/u1/_dev/tiro-notes/client/src/hooks/app/connectionIndicator.hook.tsx'
+    Imported via '../../../../shared/shared.config' from file '/home/u1/_dev/tiro-notes/client/src/hooks/app/setupConfig.hook.tsx'
+    Imported via '../../../shared/shared.config' from file '/home/u1/_dev/tiro-notes/client/src/components/OmniBar.component.tsx'
+    Imported via "../../../shared/shared.config" from file '/home/u1/_dev/tiro-notes/client/src/managers/pwa.manager.ts'
+    Imported via '../../../../shared/shared.config' from file '/home/u1/_dev/tiro-notes/client/src/hooks/__tests__/useBackendState.test.tsx'
+
+[7m1[0m import { sharedConfig } from "../../../shared/shared.config";
+[7m [0m [91m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  [96mshared/helpers/regexs.helper.ts[0m:[93m2[0m:[93m30[0m
+    [7m2[0m import { sharedConfig } from '../shared.config';
+    [7m [0m [96m                             ~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/codeMirror/editorUtils.cm.ts[0m:[93m3[0m:[93m30[0m
+    [7m3[0m import { sharedConfig } from "../../../../shared/shared.config";
+    [7m [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/latex.manager.ts[0m:[93m2[0m:[93m30[0m
+    [7m2[0m import { sharedConfig } from "../../../shared/shared.config";
+    [7m [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/textProcessor.manager.tsx[0m:[93m2[0m:[93m30[0m
+    [7m2[0m import { sharedConfig } from '../../../shared/shared.config'
+    [7m [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/app/loginToken.hook.tsx[0m:[93m4[0m:[93m30[0m
+    [7m4[0m import { sharedConfig } from '../../../../shared/shared.config';
+    [7m [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/useUserSettings.hook.tsx[0m:[93m4[0m:[93m30[0m
+    [7m4[0m import { sharedConfig } from '../../../shared/shared.config';
+    [7m [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/useBackendState.hook.tsx[0m:[93m2[0m:[93m30[0m
+    [7m2[0m import { sharedConfig } from "../../../shared/shared.config";
+    [7m [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/config.ts[0m:[93m1[0m:[93m30[0m
+    [7m1[0m import { sharedConfig } from '../../shared/shared.config';
+    [7m [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mshared/helpers/metas.helper.ts[0m:[93m1[0m:[93m30[0m
+    [7m1[0m import { sharedConfig } from "../shared.config"
+    [7m [0m [96m                             ~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/headerMetas.manager.ts[0m:[93m4[0m:[93m30[0m
+    [7m4[0m import { sharedConfig } from "../../../shared/shared.config";
+    [7m [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/localNoteHistory.manager.ts[0m:[93m2[0m:[93m30[0m
+    [7m2[0m import { sharedConfig } from "../../../shared/shared.config"
+    [7m [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/syncScroll.hook.ts[0m:[93m2[0m:[93m30[0m
+    [7m2[0m import { sharedConfig } from '../../../shared/shared.config';
+    [7m [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/codeMirror/completion.cm.ts[0m:[93m3[0m:[93m30[0m
+    [7m3[0m import { sharedConfig } from "../../../../shared/shared.config"
+    [7m [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/previewUrl.manager.ts[0m:[93m4[0m:[93m30[0m
+    [7m4[0m import { sharedConfig } from "../../../shared/shared.config"
+    [7m [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/components/dualView/CodeMirrorEditor.component.tsx[0m:[93m17[0m:[93m30[0m
+    [7m17[0m import { sharedConfig } from "../../../../shared/shared.config";
+    [7m  [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/export.manager.ts[0m:[93m6[0m:[93m30[0m
+    [7m6[0m import { sharedConfig } from "../../../shared/shared.config"
+    [7m [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/ressource.manager.ts[0m:[93m2[0m:[93m30[0m
+    [7m2[0m import { sharedConfig } from "../../../shared/shared.config"
+    [7m [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/components/ContentBlock.component.tsx[0m:[93m14[0m:[93m30[0m
+    [7m14[0m import { sharedConfig } from '../../../shared/shared.config';
+    [7m  [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/ctag.manager.ts[0m:[93m1[0m:[93m30[0m
+    [7m1[0m import { sharedConfig } from "../../../shared/shared.config"
+    [7m [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/iframe.manager.ts[0m:[93m9[0m:[93m30[0m
+    [7m9[0m import { sharedConfig } from "../../../shared/shared.config";
+    [7m [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/api/history.api.hook.tsx[0m:[93m2[0m:[93m30[0m
+    [7m2[0m import { sharedConfig } from '../../../../shared/shared.config';
+    [7m [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/api/browser.api.hook.tsx[0m:[93m4[0m:[93m30[0m
+    [7m4[0m import { sharedConfig } from '../../../../shared/shared.config';
+    [7m [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/api/files.api.hook.tsx[0m:[93m2[0m:[93m30[0m
+    [7m2[0m import { sharedConfig } from '../../../../shared/shared.config';
+    [7m [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/api/folders.api.hook.tsx[0m:[93m3[0m:[93m30[0m
+    [7m3[0m import { sharedConfig } from '../../../../shared/shared.config';
+    [7m [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/api/ressource.api.hook.tsx[0m:[93m3[0m:[93m30[0m
+    [7m3[0m import { sharedConfig } from '../../../../shared/shared.config';
+    [7m [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/api/cache.api.hook.tsx[0m:[93m3[0m:[93m30[0m
+    [7m3[0m import { sharedConfig } from '../../../../shared/shared.config';
+    [7m [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/api/api.hook.tsx[0m:[93m21[0m:[93m30[0m
+    [7m21[0m import { sharedConfig } from '../../../../shared/shared.config';
+    [7m  [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/app/lastFilesHistory.hook.tsx[0m:[93m3[0m:[93m30[0m
+    [7m3[0m import { sharedConfig } from '../../../../shared/shared.config';
+    [7m [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/api/plugin.api.hook.tsx[0m:[93m3[0m:[93m30[0m
+    [7m3[0m import { sharedConfig } from "../../../../shared/shared.config"
+    [7m [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/help.manager.ts[0m:[93m1[0m:[93m30[0m
+    [7m1[0m import { sharedConfig } from "../../../shared/shared.config"
+    [7m [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/ripgrepInstaller.manager.ts[0m:[93m3[0m:[93m30[0m
+    [7m3[0m import { sharedConfig } from "../../../shared/shared.config"
+    [7m [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/app/connectionIndicator.hook.tsx[0m:[93m2[0m:[93m30[0m
+    [7m2[0m import { sharedConfig } from '../../../../shared/shared.config';
+    [7m [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/app/setupConfig.hook.tsx[0m:[93m2[0m:[93m30[0m
+    [7m2[0m import { sharedConfig } from '../../../../shared/shared.config';
+    [7m [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/components/OmniBar.component.tsx[0m:[93m10[0m:[93m30[0m
+    [7m10[0m import { sharedConfig } from '../../../shared/shared.config';
+    [7m  [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/pwa.manager.ts[0m:[93m1[0m:[93m30[0m
+    [7m1[0m import { sharedConfig } from "../../../shared/shared.config";
+    [7m [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/__tests__/useBackendState.test.tsx[0m:[93m8[0m:[93m30[0m
+    [7m8[0m import { sharedConfig } from '../../../../shared/shared.config'
+    [7m [0m [96m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+
+[96mclient/src/managers/style/vars.style.manager.ts[0m:[93m1[0m:[93m8[0m - [91merror[0m[90m TS2882: [0mCannot find module or type declarations for side-effect import of '@fontsource/open-sans/index.css'.
+
+[7m1[0m import "@fontsource/open-sans/index.css"
+[7m [0m [91m       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96mclient/src/managers/style/vars.style.manager.ts[0m:[93m2[0m:[93m8[0m - [91merror[0m[90m TS2882: [0mCannot find module or type declarations for side-effect import of '@fontsource/open-sans/800.css'.
+
+[7m2[0m import "@fontsource/open-sans/800.css"
+[7m [0m [91m       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96mclient/src/managers/style/vars.style.manager.ts[0m:[93m3[0m:[93m8[0m - [91merror[0m[90m TS2882: [0mCannot find module or type declarations for side-effect import of '@fontsource/open-sans/700.css'.
+
+[7m3[0m import "@fontsource/open-sans/700.css"
+[7m [0m [91m       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96mclient/src/managers/style/vars.style.manager.ts[0m:[93m4[0m:[93m8[0m - [91merror[0m[90m TS2882: [0mCannot find module or type declarations for side-effect import of '@fontsource/open-sans/400.css'.
+
+[7m4[0m import "@fontsource/open-sans/400.css"
+[7m [0m [91m       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96mshared/api/functions.shared.api.ts[0m:[93m1[0m:[93m58[0m - [91merror[0m[90m TS6059: [0mFile '/home/u1/_dev/tiro-notes/shared/managers/smartTable.manager.ts' is not under 'rootDir' '/home/u1/_dev/tiro-notes/client'. 'rootDir' is expected to contain all source files.
+
+[7m1[0m import { getSmartTableObj, updateSmartTableString } from "../managers/smartTable.manager"
+[7m [0m [91m                                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96mshared/apiDictionary.type.ts[0m:[93m1[0m:[93m47[0m - [91merror[0m[90m TS6059: [0mFile '/home/u1/_dev/tiro-notes/server/src/managers/performance.manager.ts' is not under 'rootDir' '/home/u1/_dev/tiro-notes/client'. 'rootDir' is expected to contain all source files.
+
+[7m1[0m import { iPerformanceReport, iPerfStat } from "../server/src/managers/performance.manager";
+[7m [0m [91m                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96mshared/apiDictionary.type.ts[0m:[93m2[0m:[93m308[0m - [91merror[0m[90m TS6059: [0mFile '/home/u1/_dev/tiro-notes/shared/types.shared.ts' is not under 'rootDir' '/home/u1/_dev/tiro-notes/client'. 'rootDir' is expected to contain all source files.
+  The file is in the program because:
+    Imported via "./types.shared" from file '/home/u1/_dev/tiro-notes/shared/apiDictionary.type.ts'
+    Imported via "../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/managers/ssr.manager.ts'
+    Imported via "../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/managers/renderNote.manager.ts'
+    Imported via "../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/managers/textEditor.manager.ts'
+    Imported via "../../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/managers/codeMirror/markdownPreviewPlugin.cm.tsx'
+    Imported via "../../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/managers/codeMirror/image.plugin.cm.tsx'
+    Imported via "../types.shared" from file '/home/u1/_dev/tiro-notes/shared/helpers/filename.helper.ts'
+    Imported via '../../../shared/types.shared' from file '/home/u1/_dev/tiro-notes/client/src/hooks/useUserSettings.hook.tsx'
+    Imported via "../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/managers/url.manager.ts'
+    Imported via "../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/managers/images.manager.ts'
+    Imported via '../../../shared/types.shared' from file '/home/u1/_dev/tiro-notes/client/src/managers/textProcessor.manager.tsx'
+    Imported via '../../../shared/types.shared' from file '/home/u1/_dev/tiro-notes/client/src/components/RessourcePreview.component.tsx'
+    Imported via '../../../../shared/types.shared' from file '/home/u1/_dev/tiro-notes/client/src/managers/ssr/ctag.ssr.tsx'
+    Imported via '../../../shared/types.shared' from file '/home/u1/_dev/tiro-notes/client/src/components/ContentBlock.component.tsx'
+    Imported via '../../../../shared/types.shared' from file '/home/u1/_dev/tiro-notes/client/src/components/dualView/PreviewArea.component.tsx'
+    Imported via '../../../../shared/types.shared' from file '/home/u1/_dev/tiro-notes/client/src/components/dualView/EditorArea.component.tsx'
+    Imported via '../../../../shared/types.shared' from file '/home/u1/_dev/tiro-notes/client/src/hooks/editor/noteEditorEvents.hook.ts'
+    Imported via "../types.shared" from file '/home/u1/_dev/tiro-notes/shared/helpers/metas.helper.ts'
+    Imported via "../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/managers/headerMetas.manager.ts'
+    Imported via '../../../shared/types.shared' from file '/home/u1/_dev/tiro-notes/client/src/components/FileHistoryPopup.component.tsx'
+    Imported via '../../../../shared/types.shared' from file '/home/u1/_dev/tiro-notes/client/src/hooks/app/useLightbox.hook.tsx'
+    Imported via "../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/managers/detachNote.manager.ts'
+    Imported via "../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/managers/ai.manager.ts'
+    Imported via "../../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/components/dualView/CodeMirrorEditor.component.tsx'
+    Imported via "../../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/managers/codeMirror/completion.cm.ts'
+    Imported via "../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/managers/folder.manager.ts'
+    Imported via "../../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/managers/codeMirror/replacements.cm.tsx'
+    Imported via "../../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/managers/codeMirror/urlLink.plugin.cm.tsx'
+    Imported via "../../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/managers/codeMirror/noteLink.plugin.cm.tsx'
+    Imported via "../../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/managers/codeMirror/filePreview.plugin.cm.tsx'
+    Imported via "../../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/managers/codeMirror/markdownStyling.cm.tsx'
+    Imported via "../../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/managers/codeMirror/ctag.plugin.cm.tsx'
+    Imported via "../../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/managers/codeMirror/hashtag.plugin.cm.ts'
+    Imported via "../../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/hooks/api/floatingPanel.api.hook.tsx'
+    Imported via '../../../shared/types.shared' from file '/home/u1/_dev/tiro-notes/client/src/components/NotePreview.component.tsx'
+    Imported via '../../../../shared/types.shared' from file '/home/u1/_dev/tiro-notes/client/src/components/windowGrid/WindowEditor.component.tsx'
+    Imported via "../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/managers/windowViewType.manager.ts'
+    Imported via '../../../../shared/types.shared' from file '/home/u1/_dev/tiro-notes/client/src/components/dualView/DualViewer.component.tsx'
+    Imported via "../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/managers/dragDrop.manager.ts'
+    Imported via "../../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/managers/codeMirror/datePicker.cm.ts'
+    Imported via "../../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/managers/codeMirror/checkboxTodo.cm.tsx'
+    Imported via "../../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/managers/codeMirror/markdownSynthax.cm.ts'
+    Imported via "../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/components/UploadButton.component.tsx'
+    Imported via '../../../../shared/types.shared' from file '/home/u1/_dev/tiro-notes/client/src/components/windowGrid/WindowGrid.component.tsx'
+    Imported via '../../../../shared/types.shared' from file '/home/u1/_dev/tiro-notes/client/src/components/windowGrid/DraggableGrid.component.tsx'
+    Imported via '../../../../shared/types.shared' from file '/home/u1/_dev/tiro-notes/client/src/hooks/app/tabs.hook.tsx'
+    Imported via "../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/managers/draggableGrid.manager.ts'
+    Imported via "../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/managers/print-pdf.manager.ts'
+    Imported via "../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/managers/noteLink.manager.ts'
+    Imported via "../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/managers/export.manager.ts'
+    Imported via "../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/managers/table.markdown.manager.ts'
+    Imported via "../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/managers/iframe.manager.ts'
+    Imported via '../../../../shared/types.shared' from file '/home/u1/_dev/tiro-notes/client/src/hooks/api/file.api.hook.tsx'
+    Imported via '../../../../shared/types.shared' from file '/home/u1/_dev/tiro-notes/client/src/hooks/api/move.api.hook.ts'
+    Imported via '../../../../shared/types.shared' from file '/home/u1/_dev/tiro-notes/client/src/hooks/api/browser.api.hook.tsx'
+    Imported via "../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/managers/sort.manager.ts'
+    Imported via '../../../../shared/types.shared' from file '/home/u1/_dev/tiro-notes/client/src/hooks/api/files.api.hook.tsx'
+    Imported via '../../../../shared/types.shared' from file '/home/u1/_dev/tiro-notes/client/src/hooks/api/search.hook.api.tsx'
+    Imported via "../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/managers/hashtags.manager.ts'
+    Imported via '../../../../shared/types.shared' from file '/home/u1/_dev/tiro-notes/client/src/hooks/api/folders.api.hook.tsx'
+    Imported via '../../../../shared/types.shared' from file '/home/u1/_dev/tiro-notes/client/src/hooks/api/ressource.api.hook.tsx'
+    Imported via '../../../../shared/types.shared' from file '/home/u1/_dev/tiro-notes/client/src/hooks/api/command.api.hook.tsx'
+    Imported via "../../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/hooks/app/lastFilesHistory.hook.tsx'
+    Imported via "../../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/hooks/api/plugin.api.hook.tsx'
+    Imported via "../../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/hooks/api/notification.api.hook.tsx'
+    Imported via '../../../../shared/types.shared' from file '/home/u1/_dev/tiro-notes/client/src/hooks/api/activity.api.hook.tsx'
+    Imported via '../../../../shared/types.shared' from file '/home/u1/_dev/tiro-notes/client/src/hooks/api/config.api.hook.tsx'
+    Imported via '../../../../shared/types.shared' from file '/home/u1/_dev/tiro-notes/client/src/components/settingsView/settingsView.component.tsx'
+    Imported via "../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/managers/ripgrepInstaller.manager.ts'
+    Imported via '../../../shared/types.shared' from file '/home/u1/_dev/tiro-notes/client/src/components/List.component.tsx'
+    Imported via '../../../shared/types.shared' from file '/home/u1/_dev/tiro-notes/client/src/components/TreeView.Component.tsx'
+    Imported via "../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/components/LastNotes.component.tsx'
+    Imported via '../../../../shared/types.shared' from file '/home/u1/_dev/tiro-notes/client/src/hooks/app/appView.hook.tsx'
+    Imported via '../../../shared/types.shared' from file '/home/u1/_dev/tiro-notes/client/src/components/ImageGallery.component.tsx'
+    Imported via '../../../shared/types.shared' from file '/home/u1/_dev/tiro-notes/client/src/components/Lightbox.component.tsx'
+    Imported via '../../../../shared/types.shared' from file '/home/u1/_dev/tiro-notes/client/src/components/tabs/TabList.component.tsx'
+    Imported via '../../../shared/types.shared' from file '/home/u1/_dev/tiro-notes/client/src/components/OmniBar.component.tsx'
+    Imported via "../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/managers/plugin.manager.ts'
+    Imported via "../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/managers/workMode.manager.ts'
+    Imported via '../../../shared/types.shared' from file '/home/u1/_dev/tiro-notes/client/src/components/FloatingPanels.component.tsx'
+    Imported via "../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/components/Shortcuts.component.tsx'
+    Imported via '../../../shared/types.shared' from file '/home/u1/_dev/tiro-notes/client/src/components/NotificationsCenter.component.tsx'
+    Imported via "../../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/hooks/app/fileMove.hook.ts'
+    Imported via '../../shared/types.shared' from file '/home/u1/_dev/tiro-notes/client/src/App.tsx'
+    Imported via '../../../shared/types.shared' from file '/home/u1/_dev/tiro-notes/client/src/components/fileList.component.tsx'
+    Imported via '../../../shared/types.shared' from file '/home/u1/_dev/tiro-notes/client/src/components/TtsPopup.component.tsx'
+    Imported via "../../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/hooks/app/imagesList.hook.tsx'
+    Imported via "../../../../shared/types.shared" from file '/home/u1/_dev/tiro-notes/client/src/hooks/app/searchFromTitle.hook.ts'
+
+[7m2[0m import { iActivityReport, iActivityReportParams, iAppView, iBackConfig, iCommandStreamChunk, iDownloadRessourceOpts, iFile, iFileImage, iFilePreview, iFolder, iFolderDeleteType, iImageCompressionParams, iNotification, iPlatform, iPlugin, iSearchWordRes, iSetupCode, iSetupForm, iUpdateConfigJsonOpts } from "./types.shared";
+[7m [0m [91m                                                                                                                                                                                                                                                                                                                   ~~~~~~~~~~~~~~~~[0m
+
+  [96mclient/src/managers/ssr.manager.ts[0m:[93m2[0m:[93m23[0m
+    [7m2[0m import { iFile } from "../../../shared/types.shared"
+    [7m [0m [96m                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/renderNote.manager.ts[0m:[93m3[0m:[93m23[0m
+    [7m3[0m import { iFile } from "../../../shared/types.shared"
+    [7m [0m [96m                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/textEditor.manager.ts[0m:[93m2[0m:[93m23[0m
+    [7m2[0m import { iFile } from "../../../shared/types.shared";
+    [7m [0m [96m                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/codeMirror/markdownPreviewPlugin.cm.tsx[0m:[93m12[0m:[93m23[0m
+    [7m12[0m import { iFile } from "../../../../shared/types.shared";
+    [7m  [0m [96m                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/codeMirror/image.plugin.cm.tsx[0m:[93m4[0m:[93m23[0m
+    [7m4[0m import { iFile } from "../../../../shared/types.shared";
+    [7m [0m [96m                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mshared/helpers/filename.helper.ts[0m:[93m1[0m:[93m36[0m
+    [7m1[0m import { iFile, iFileNature } from "../types.shared"
+    [7m [0m [96m                                   ~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/useUserSettings.hook.tsx[0m:[93m5[0m:[93m75[0m
+    [7m5[0m import { iUpdateConfigJsonOpts, iUserSettingList, iUserSettingName } from '../../../shared/types.shared';
+    [7m [0m [96m                                                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/url.manager.ts[0m:[93m3[0m:[93m33[0m
+    [7m3[0m import { iAppView,  iTab } from "../../../shared/types.shared";
+    [7m [0m [96m                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/images.manager.ts[0m:[93m3[0m:[93m35[0m
+    [7m3[0m import { iFile, iFileImage } from "../../../shared/types.shared";
+    [7m [0m [96m                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/textProcessor.manager.tsx[0m:[93m8[0m:[93m23[0m
+    [7m8[0m import { iFile } from '../../../shared/types.shared';
+    [7m [0m [96m                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/components/RessourcePreview.component.tsx[0m:[93m4[0m:[93m23[0m
+    [7m4[0m import { iFile } from '../../../shared/types.shared';
+    [7m [0m [96m                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/ssr/ctag.ssr.tsx[0m:[93m2[0m:[93m23[0m
+    [7m2[0m import { iFile } from '../../../../shared/types.shared';
+    [7m [0m [96m                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/components/ContentBlock.component.tsx[0m:[93m3[0m:[93m23[0m
+    [7m3[0m import { iFile } from '../../../shared/types.shared';
+    [7m [0m [96m                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/components/dualView/PreviewArea.component.tsx[0m:[93m3[0m:[93m23[0m
+    [7m3[0m import { iFile } from '../../../../shared/types.shared';
+    [7m [0m [96m                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/components/dualView/EditorArea.component.tsx[0m:[93m2[0m:[93m66[0m
+    [7m2[0m import { iFile, iFileImage, iTitleEditorStatus, iViewType } from '../../../../shared/types.shared';
+    [7m [0m [96m                                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/editor/noteEditorEvents.hook.ts[0m:[93m2[0m:[93m23[0m
+    [7m2[0m import { iFile } from '../../../../shared/types.shared';
+    [7m [0m [96m                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mshared/helpers/metas.helper.ts[0m:[93m2[0m:[93m29[0m
+    [7m2[0m import { metaContent } from "../types.shared"
+    [7m [0m [96m                            ~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/headerMetas.manager.ts[0m:[93m5[0m:[93m35[0m
+    [7m5[0m import { iFile, iFileMetas } from "../../../shared/types.shared";
+    [7m [0m [96m                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/components/FileHistoryPopup.component.tsx[0m:[93m5[0m:[93m23[0m
+    [7m5[0m import { iFile } from '../../../shared/types.shared';
+    [7m [0m [96m                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/app/useLightbox.hook.tsx[0m:[93m3[0m:[93m35[0m
+    [7m3[0m import { iFile, iFileImage } from '../../../../shared/types.shared';
+    [7m [0m [96m                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/detachNote.manager.ts[0m:[93m1[0m:[93m23[0m
+    [7m1[0m import { iFile } from "../../../shared/types.shared";
+    [7m [0m [96m                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/ai.manager.ts[0m:[93m3[0m:[93m23[0m
+    [7m3[0m import { iFile } from "../../../shared/types.shared"
+    [7m [0m [96m                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/components/dualView/CodeMirrorEditor.component.tsx[0m:[93m11[0m:[93m23[0m
+    [7m11[0m import { iFile } from "../../../../shared/types.shared";
+    [7m  [0m [96m                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/codeMirror/completion.cm.ts[0m:[93m4[0m:[93m23[0m
+    [7m4[0m import { iFile } from "../../../../shared/types.shared"
+    [7m [0m [96m                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/folder.manager.ts[0m:[93m1[0m:[93m32[0m
+    [7m1[0m import { iFile, iFolder } from "../../../shared/types.shared";
+    [7m [0m [96m                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/codeMirror/replacements.cm.tsx[0m:[93m10[0m:[93m23[0m
+    [7m10[0m import { iFile } from "../../../../shared/types.shared";
+    [7m  [0m [96m                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/codeMirror/urlLink.plugin.cm.tsx[0m:[93m12[0m:[93m23[0m
+    [7m12[0m import { iFile } from "../../../../shared/types.shared";
+    [7m  [0m [96m                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/codeMirror/noteLink.plugin.cm.tsx[0m:[93m3[0m:[93m23[0m
+    [7m3[0m import { iFile } from "../../../../shared/types.shared";
+    [7m [0m [96m                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/codeMirror/filePreview.plugin.cm.tsx[0m:[93m4[0m:[93m23[0m
+    [7m4[0m import { iFile } from "../../../../shared/types.shared";
+    [7m [0m [96m                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/codeMirror/markdownStyling.cm.tsx[0m:[93m3[0m:[93m23[0m
+    [7m3[0m import { iFile } from "../../../../shared/types.shared";
+    [7m [0m [96m                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/codeMirror/ctag.plugin.cm.tsx[0m:[93m3[0m:[93m23[0m
+    [7m3[0m import { iFile } from "../../../../shared/types.shared";
+    [7m [0m [96m                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/codeMirror/hashtag.plugin.cm.ts[0m:[93m2[0m:[93m23[0m
+    [7m2[0m import { iFile } from "../../../../shared/types.shared";
+    [7m [0m [96m                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/api/floatingPanel.api.hook.tsx[0m:[93m2[0m:[93m58[0m
+    [7m2[0m import { iFile, iNotification, iPlugin, iViewType } from "../../../../shared/types.shared"
+    [7m [0m [96m                                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/components/NotePreview.component.tsx[0m:[93m3[0m:[93m70[0m
+    [7m3[0m import { iFile, iTitleEditorStatus, iViewType, iWindowContent } from '../../../shared/types.shared';
+    [7m [0m [96m                                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/components/windowGrid/WindowEditor.component.tsx[0m:[93m3[0m:[93m70[0m
+    [7m3[0m import { iFile, iTitleEditorStatus, iViewType, iWindowContent } from '../../../../shared/types.shared';
+    [7m [0m [96m                                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/windowViewType.manager.ts[0m:[93m2[0m:[93m27[0m
+    [7m2[0m import { iViewType } from "../../../shared/types.shared";
+    [7m [0m [96m                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/components/dualView/DualViewer.component.tsx[0m:[93m4[0m:[93m54[0m
+    [7m4[0m import { iFile, iTitleEditorStatus, iViewType } from '../../../../shared/types.shared';
+    [7m [0m [96m                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/dragDrop.manager.ts[0m:[93m4[0m:[93m23[0m
+    [7m4[0m import { iFile } from "../../../shared/types.shared";
+    [7m [0m [96m                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/codeMirror/datePicker.cm.ts[0m:[93m3[0m:[93m23[0m
+    [7m3[0m import { iFile } from "../../../../shared/types.shared";
+    [7m [0m [96m                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/codeMirror/checkboxTodo.cm.tsx[0m:[93m2[0m:[93m23[0m
+    [7m2[0m import { iFile } from "../../../../shared/types.shared";
+    [7m [0m [96m                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/codeMirror/markdownSynthax.cm.ts[0m:[93m3[0m:[93m23[0m
+    [7m3[0m import { iFile } from "../../../../shared/types.shared";
+    [7m [0m [96m                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/components/UploadButton.component.tsx[0m:[93m3[0m:[93m23[0m
+    [7m3[0m import { iFile } from "../../../shared/types.shared"
+    [7m [0m [96m                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/components/windowGrid/WindowGrid.component.tsx[0m:[93m4[0m:[93m36[0m
+    [7m4[0m import { iFile, iGrid, iTab } from '../../../../shared/types.shared';
+    [7m [0m [96m                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/components/windowGrid/DraggableGrid.component.tsx[0m:[93m6[0m:[93m66[0m
+    [7m6[0m import { iFile, iGrid, iViewType, iWindow, iWindowContent } from '../../../../shared/types.shared';
+    [7m [0m [96m                                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/app/tabs.hook.tsx[0m:[93m1[0m:[93m72[0m
+    [7m1[0m import { iFile, iGrid, iTab, iViewType, iWindow, iWindowContent } from '../../../../shared/types.shared';
+    [7m [0m [96m                                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/draggableGrid.manager.ts[0m:[93m2[0m:[93m25[0m
+    [7m2[0m import { iWindow } from "../../../shared/types.shared"
+    [7m [0m [96m                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/print-pdf.manager.ts[0m:[93m2[0m:[93m23[0m
+    [7m2[0m import { iFile } from "../../../shared/types.shared"
+    [7m [0m [96m                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/noteLink.manager.ts[0m:[93m1[0m:[93m23[0m
+    [7m1[0m import { iFile } from "../../../shared/types.shared";
+    [7m [0m [96m                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/export.manager.ts[0m:[93m7[0m:[93m34[0m
+    [7m7[0m import { iFile, iViewType } from "../../../shared/types.shared"
+    [7m [0m [96m                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/table.markdown.manager.ts[0m:[93m1[0m:[93m23[0m
+    [7m1[0m import { iFile } from "../../../shared/types.shared"
+    [7m [0m [96m                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/iframe.manager.ts[0m:[93m3[0m:[93m23[0m
+    [7m3[0m import { iFile } from "../../../shared/types.shared";
+    [7m [0m [96m                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/api/file.api.hook.tsx[0m:[93m4[0m:[93m23[0m
+    [7m4[0m import { iFile } from '../../../../shared/types.shared';
+    [7m [0m [96m                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/api/move.api.hook.ts[0m:[93m2[0m:[93m23[0m
+    [7m2[0m import { iFile } from '../../../../shared/types.shared';
+    [7m [0m [96m                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/api/browser.api.hook.tsx[0m:[93m5[0m:[93m51[0m
+    [7m5[0m import { iFile, iFolder, iFolderDeleteType } from '../../../../shared/types.shared';
+    [7m [0m [96m                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/sort.manager.ts[0m:[93m2[0m:[93m23[0m
+    [7m2[0m import { iFile } from "../../../shared/types.shared";
+    [7m [0m [96m                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/api/files.api.hook.tsx[0m:[93m3[0m:[93m37[0m
+    [7m3[0m import { iFile, iFilePreview } from '../../../../shared/types.shared';
+    [7m [0m [96m                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/api/search.hook.api.tsx[0m:[93m3[0m:[93m49[0m
+    [7m3[0m import { iAppView, iFile, iSearchWordRes } from '../../../../shared/types.shared';
+    [7m [0m [96m                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/hashtags.manager.ts[0m:[93m3[0m:[93m23[0m
+    [7m3[0m import { iFile } from "../../../shared/types.shared";
+    [7m [0m [96m                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/api/folders.api.hook.tsx[0m:[93m4[0m:[93m25[0m
+    [7m4[0m import { iFolder } from '../../../../shared/types.shared';
+    [7m [0m [96m                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/api/ressource.api.hook.tsx[0m:[93m13[0m:[93m72[0m
+    [7m13[0m import { iDownloadRessourceOpts, iFile, iImageCompressionParams } from '../../../../shared/types.shared';
+    [7m  [0m [96m                                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/api/command.api.hook.tsx[0m:[93m3[0m:[93m37[0m
+    [7m3[0m import { iCommandStreamChunk } from '../../../../shared/types.shared';
+    [7m [0m [96m                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/app/lastFilesHistory.hook.tsx[0m:[93m4[0m:[93m23[0m
+    [7m4[0m import { iFile } from "../../../../shared/types.shared"
+    [7m [0m [96m                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/api/plugin.api.hook.tsx[0m:[93m4[0m:[93m38[0m
+    [7m4[0m import { iPlugin, iPluginType } from "../../../../shared/types.shared"
+    [7m [0m [96m                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/api/notification.api.hook.tsx[0m:[93m2[0m:[93m40[0m
+    [7m2[0m import { iNotification, iPlugin } from "../../../../shared/types.shared"
+    [7m [0m [96m                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/api/activity.api.hook.tsx[0m:[93m2[0m:[93m56[0m
+    [7m2[0m import { iActivityReport, iActivityReportParams } from '../../../../shared/types.shared';
+    [7m [0m [96m                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/api/config.api.hook.tsx[0m:[93m2[0m:[93m39[0m
+    [7m2[0m import { iBackConfig, iPlatform} from '../../../../shared/types.shared';
+    [7m [0m [96m                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/components/settingsView/settingsView.component.tsx[0m:[93m16[0m:[93m34[0m
+    [7m16[0m import { iUserSettingName } from '../../../../shared/types.shared';
+    [7m  [0m [96m                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/ripgrepInstaller.manager.ts[0m:[93m4[0m:[93m27[0m
+    [7m4[0m import { iPlatform } from "../../../shared/types.shared"
+    [7m [0m [96m                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/components/List.component.tsx[0m:[93m3[0m:[93m23[0m
+    [7m3[0m import { iFile } from '../../../shared/types.shared';
+    [7m [0m [96m                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/components/TreeView.Component.tsx[0m:[93m2[0m:[93m25[0m
+    [7m2[0m import { iFolder } from '../../../shared/types.shared';
+    [7m [0m [96m                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/components/LastNotes.component.tsx[0m:[93m2[0m:[93m23[0m
+    [7m2[0m import { iFile } from "../../../shared/types.shared";
+    [7m [0m [96m                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/app/appView.hook.tsx[0m:[93m2[0m:[93m26[0m
+    [7m2[0m import { iAppView } from '../../../../shared/types.shared';
+    [7m [0m [96m                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/components/ImageGallery.component.tsx[0m:[93m2[0m:[93m28[0m
+    [7m2[0m import { iFileImage } from '../../../shared/types.shared';
+    [7m [0m [96m                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/components/Lightbox.component.tsx[0m:[93m2[0m:[93m28[0m
+    [7m2[0m import { iFileImage } from '../../../shared/types.shared';
+    [7m [0m [96m                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/components/tabs/TabList.component.tsx[0m:[93m3[0m:[93m22[0m
+    [7m3[0m import { iTab } from '../../../../shared/types.shared';
+    [7m [0m [96m                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/components/OmniBar.component.tsx[0m:[93m5[0m:[93m38[0m
+    [7m5[0m import { iFile, iPlugin, iTab } from '../../../shared/types.shared';
+    [7m [0m [96m                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/plugin.manager.ts[0m:[93m2[0m:[93m25[0m
+    [7m2[0m import { iPlugin } from "../../../shared/types.shared"
+    [7m [0m [96m                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/managers/workMode.manager.ts[0m:[93m2[0m:[93m23[0m
+    [7m2[0m import { iFile } from "../../../shared/types.shared"
+    [7m [0m [96m                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/components/FloatingPanels.component.tsx[0m:[93m14[0m:[93m34[0m
+    [7m14[0m import { iFile, iViewType } from '../../../shared/types.shared';
+    [7m  [0m [96m                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/components/Shortcuts.component.tsx[0m:[93m2[0m:[93m23[0m
+    [7m2[0m import { iFile } from "../../../shared/types.shared";
+    [7m [0m [96m                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/components/NotificationsCenter.component.tsx[0m:[93m4[0m:[93m50[0m
+    [7m4[0m import { iNotification, iNotificationType } from '../../../shared/types.shared';
+    [7m [0m [96m                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/app/fileMove.hook.ts[0m:[93m1[0m:[93m32[0m
+    [7m1[0m import { iFile, iFolder } from "../../../../shared/types.shared";
+    [7m [0m [96m                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/App.tsx[0m:[93m10[0m:[93m45[0m
+    [7m10[0m import { iFile, iFolder, iGrid, iTab } from '../../shared/types.shared';
+    [7m  [0m [96m                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/components/fileList.component.tsx[0m:[93m3[0m:[93m37[0m
+    [7m3[0m import { iFile, iFilePreview } from '../../../shared/types.shared';
+    [7m [0m [96m                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/components/TtsPopup.component.tsx[0m:[93m3[0m:[93m23[0m
+    [7m3[0m import { iFile } from '../../../shared/types.shared';
+    [7m [0m [96m                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/app/imagesList.hook.tsx[0m:[93m3[0m:[93m28[0m
+    [7m3[0m import { iFileImage } from "../../../../shared/types.shared";
+    [7m [0m [96m                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/app/searchFromTitle.hook.ts[0m:[93m2[0m:[93m33[0m
+    [7m2[0m import { iAppView, iFile } from "../../../../shared/types.shared"
+    [7m [0m [96m                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+
+[96mshared/helpers/metas.helper.ts[0m:[93m3[0m:[93m45[0m - [91merror[0m[90m TS6059: [0mFile '/home/u1/_dev/tiro-notes/shared/helpers/timestamp.helper.ts' is not under 'rootDir' '/home/u1/_dev/tiro-notes/client'. 'rootDir' is expected to contain all source files.
+
+[7m3[0m import { isTimestamp, toTimeStampInS } from "./timestamp.helper"
+[7m [0m [91m                                            ~~~~~~~~~~~~~~~~~~~~[0m
+
+[96mshared/shared.config.ts[0m:[93m1[0m:[93m31[0m - [91merror[0m[90m TS6059: [0mFile '/home/u1/_dev/tiro-notes/shared/shared.strings.ts' is not under 'rootDir' '/home/u1/_dev/tiro-notes/client'. 'rootDir' is expected to contain all source files.
+
+[7m1[0m import { sharedStrings } from './shared.strings'
+[7m [0m [91m                              ~~~~~~~~~~~~~~~~~~[0m
+
+[96mshared/types.shared.ts[0m:[93m1[0m:[93m28[0m - [91merror[0m[90m TS6059: [0mFile '/home/u1/_dev/tiro-notes/shared/helpers/date.helper.ts' is not under 'rootDir' '/home/u1/_dev/tiro-notes/client'. 'rootDir' is expected to contain all source files.
+  The file is in the program because:
+    Imported via "./helpers/date.helper" from file '/home/u1/_dev/tiro-notes/shared/types.shared.ts'
+    Imported via '../../../shared/helpers/date.helper' from file '/home/u1/_dev/tiro-notes/client/src/components/FileHistoryPopup.component.tsx'
+    Imported via '../../../../shared/helpers/date.helper' from file '/home/u1/_dev/tiro-notes/client/src/components/dualView/EditorArea.component.tsx'
+    Imported via '../../../../shared/helpers/date.helper' from file '/home/u1/_dev/tiro-notes/client/src/hooks/app/usePromptPopup.hook.tsx'
+    Imported via '../../shared/helpers/date.helper' from file '/home/u1/_dev/tiro-notes/client/src/App.tsx'
+
+[7m1[0m import { getDateObj } from "./helpers/date.helper"
+[7m [0m [91m                           ~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  [96mclient/src/components/FileHistoryPopup.component.tsx[0m:[93m4[0m:[93m28[0m
+    [7m4[0m import { getDateObj } from '../../../shared/helpers/date.helper';
+    [7m [0m [96m                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/components/dualView/EditorArea.component.tsx[0m:[93m39[0m:[93m28[0m
+    [7m39[0m import { getDateObj } from '../../../../shared/helpers/date.helper';
+    [7m  [0m [96m                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/hooks/app/usePromptPopup.hook.tsx[0m:[93m11[0m:[93m28[0m
+    [7m11[0m import { getDateObj } from '../../../../shared/helpers/date.helper';
+    [7m  [0m [96m                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+  [96mclient/src/App.tsx[0m:[93m11[0m:[93m28[0m
+    [7m11[0m import { getDateObj } from '../../shared/helpers/date.helper';
+    [7m  [0m [96m                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    File is included via import here.
+
+[91m[error][0m Found 25 errors and 0 warnings
+
+> tiro-notes-source-code@1.0.0 publish-cli-dev
+> cd ./platforms/npm-cli-module; npm run build-then-publish-dev;
+
+
+> tiro-notes@0.52.20 build-then-publish-dev
+> run-s root-build publish-to-npm-dev
+
+
+> tiro-notes@0.52.20 root-build
+> cd ../..; run-s build
+
+
+> tiro-notes-source-code@1.0.0 build
+> CI=false npm run build-then-export
+
+
+> tiro-notes-source-code@1.0.0 build-then-export
+> run-s build-update-version create-build-folders build-client build-server site/build clean-prev-build export-the-build copy-build-to-electron-folder
+
+
+> tiro-notes-source-code@1.0.0 build-update-version
+> sed -i "s/\"version\": \".*\"/\"version\": \"$(cat ./.version)\"/" ./platforms/npm-cli-module/package.json && sed -i "3s/.*/const version = \"$(cat ./.version)\";/" ./shared/shared.config.ts
+
+
+> tiro-notes-source-code@1.0.0 create-build-folders
+> npx mkdirp ./build ./build/client ./build/server
+
+
+> tiro-notes-source-code@1.0.0 build-client
+> npm run --prefix ./client install-clean-build
+
+
+> tiro-notes-client@0.1.0 install-clean-build
+> run-s install-all clean-build build
+
+
+> tiro-notes-client@0.1.0 install-all
+> npm install --legacy-peer-deps
+
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: 'node-releases@2.0.48',
+npm WARN EBADENGINE   required: { node: '>=18' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+
+up to date, audited 2587 packages in 6s
+
+209 packages are looking for funding
+  run `npm fund` for details
+
+167 vulnerabilities (9 low, 110 moderate, 39 high, 9 critical)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+> tiro-notes-client@0.1.0 clean-build
+> rm -r ./client/build &
+
+rm: cannot remove './client/build': No such file or directory
+
+> tiro-notes-client@0.1.0 build
+> node scripts/build.js
+
+Creating an optimized production build...
+Compiled with warnings.
+
+./node_modules/typescript/lib/typescript.js
+Critical dependency: the request of a dependency is an expression
+
+./node_modules/typescript/lib/typescript.js
+Critical dependency: the request of a dependency is an expression
+
+./node_modules/typescript/lib/typescript.js
+Module not found: Can't resolve 'perf_hooks' in '/home/u1/_dev/tiro-notes/client/node_modules/typescript/lib'
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+File sizes after gzip:
+
+  1.36 MB (+3 B)      build/static/js/12.85f130e4.chunk.js
+  154.75 KB (+204 B)  build/static/js/main.f2128a47.chunk.js
+  31.82 KB            build/static/js/5.307b6480.chunk.js
+  25.78 KB            build/static/js/19.004342b7.chunk.js
+  24.16 KB            build/static/js/21.377bde95.chunk.js
+  22.64 KB            build/static/css/12.54474f95.chunk.css
+  22.55 KB            build/static/js/20.400635c6.chunk.js
+  15.58 KB            build/static/js/17.4e6d8e22.chunk.js
+  10.74 KB            build/static/js/90.58b50413.chunk.js
+  10.43 KB            build/static/js/22.97f27129.chunk.js
+  8.48 KB             build/static/js/91.d0607983.chunk.js
+  8.33 KB             build/static/js/1.dc212257.chunk.js
+  7.61 KB             build/static/js/0.8818db75.chunk.js
+  5.62 KB             build/static/js/56.ad8541df.chunk.js
+  5.1 KB              build/static/js/25.26949283.chunk.js
+  5.1 KB              build/static/js/50.d61bf562.chunk.js
+  4.51 KB             build/static/js/55.7e89444b.chunk.js
+  4.05 KB             build/static/js/81.3e86dcfc.chunk.js
+  3.96 KB             build/static/js/15.db8ece9d.chunk.js
+  3.94 KB             build/static/js/2.6e78ea89.chunk.js
+  3.39 KB             build/static/js/9.d4911eb8.chunk.js
+  3.35 KB             build/static/js/71.0b66ff83.chunk.js
+  3.28 KB             build/static/js/73.ba5cd0ec.chunk.js
+  2.92 KB             build/static/js/32.cff2eb9f.chunk.js
+  2.88 KB             build/static/js/6.db56389b.chunk.js
+  2.83 KB             build/static/js/45.cfaccbdb.chunk.js
+  2.72 KB             build/static/js/66.fcf111a8.chunk.js
+  2.7 KB              build/static/js/77.9e0c615b.chunk.js
+  2.68 KB             build/static/js/63.443b52f8.chunk.js
+  2.54 KB             build/static/js/107.3041ab4b.chunk.js
+  2.51 KB             build/static/js/103.d1ea5ba4.chunk.js
+  2.42 KB             build/static/js/94.babda4ae.chunk.js
+  2.4 KB              build/static/js/83.ed876d1d.chunk.js
+  2.3 KB              build/static/js/42.9d2aaaf8.chunk.js
+  2.16 KB             build/static/js/80.03d3c44a.chunk.js
+  2.15 KB             build/static/js/100.da1920be.chunk.js
+  2.13 KB             build/static/js/16.517ad23b.chunk.js
+  2.12 KB             build/static/js/58.3a4458c1.chunk.js
+  2.04 KB             build/static/js/runtime-main.72133cd6.js
+  2.03 KB             build/static/js/35.37436f63.chunk.js
+  2.01 KB             build/static/js/48.b0036b11.chunk.js
+  1.95 KB             build/static/js/28.72c93db3.chunk.js
+  1.88 KB             build/static/js/53.33e83e10.chunk.js
+  1.8 KB              build/static/js/29.80e40a62.chunk.js
+  1.8 KB              build/static/js/92.b1941812.chunk.js
+  1.79 KB             build/static/js/102.f9a16c85.chunk.js
+  1.75 KB             build/static/js/52.d60d6518.chunk.js
+  1.75 KB             build/static/js/99.62e4c9c4.chunk.js
+  1.71 KB             build/static/js/33.70a11c37.chunk.js
+  1.69 KB             build/static/js/37.e9b848bc.chunk.js
+  1.69 KB             build/static/js/13.7a41f99f.chunk.js
+  1.67 KB             build/static/js/78.e39822e2.chunk.js
+  1.66 KB             build/static/js/40.463e2602.chunk.js
+  1.64 KB             build/static/js/59.d5ea8728.chunk.js
+  1.63 KB             build/static/js/14.3201d51f.chunk.js
+  1.6 KB              build/static/js/3.664f336f.chunk.js
+  1.6 KB              build/static/js/82.d04a34d3.chunk.js
+  1.59 KB             build/static/js/88.0da244ee.chunk.js
+  1.56 KB             build/static/js/105.28c03a34.chunk.js
+  1.55 KB             build/static/js/36.83f9e51c.chunk.js
+  1.52 KB             build/static/js/23.4ad8d0ec.chunk.js
+  1.45 KB             build/static/js/60.96160883.chunk.js
+  1.44 KB             build/static/js/18.99a37042.chunk.js
+  1.4 KB              build/static/js/24.d47656da.chunk.js
+  1.38 KB             build/static/js/72.75b6477f.chunk.js
+  1.37 KB             build/static/js/79.47712414.chunk.js
+  1.35 KB             build/static/js/47.43108ad8.chunk.js
+  1.32 KB             build/static/js/49.57012f8f.chunk.js
+  1.32 KB             build/static/js/51.8c2a739c.chunk.js
+  1.32 KB             build/static/js/64.f67bbf85.chunk.js
+  1.3 KB              build/static/js/69.f92b446d.chunk.js
+  1.28 KB             build/static/js/96.e2d807e4.chunk.js
+  1.26 KB             build/static/js/106.37c81321.chunk.js
+  1.25 KB             build/static/js/93.cae75383.chunk.js
+  1.23 KB             build/static/js/76.03cc8251.chunk.js
+  1.22 KB             build/static/js/84.22e9c594.chunk.js
+  1.22 KB             build/static/js/26.7e126fb1.chunk.js
+  1.2 KB              build/static/js/70.fc10f889.chunk.js
+  1.19 KB             build/static/js/8.959dc24d.chunk.js
+  1.15 KB             build/static/js/104.a137d37d.chunk.js
+  1.14 KB             build/static/js/34.ff9d1883.chunk.js
+  1.12 KB             build/static/js/108.ac4ab4c5.chunk.js
+  1.11 KB             build/static/js/68.4447a6c0.chunk.js
+  1.1 KB              build/static/js/95.0a85c04f.chunk.js
+  1.08 KB             build/static/js/57.9fcc16d5.chunk.js
+  1.03 KB             build/static/js/4.328dd658.chunk.js
+  1 KB                build/static/js/65.f90a3a33.chunk.js
+  1009 B              build/static/js/46.04848b38.chunk.js
+  975 B               build/static/js/43.f55d6cd8.chunk.js
+  954 B               build/static/js/101.2d460d94.chunk.js
+  935 B               build/static/js/39.5299241a.chunk.js
+  913 B               build/static/js/86.f5ca5c0b.chunk.js
+  878 B               build/static/js/61.59a3090c.chunk.js
+  877 B               build/static/js/110.e0fd9e71.chunk.js
+  874 B               build/static/js/44.c769115a.chunk.js
+  874 B               build/static/js/7.83cb847e.chunk.js
+  837 B               build/static/js/85.d6790ffd.chunk.js
+  816 B               build/static/js/41.87cc1e1b.chunk.js
+  779 B               build/static/js/109.de1a8c92.chunk.js
+  716 B               build/static/js/62.858318f5.chunk.js
+  663 B               build/static/js/67.f0af4760.chunk.js
+  609 B               build/static/js/89.40ea9ef2.chunk.js
+  578 B               build/static/js/97.37813ebb.chunk.js
+  570 B               build/static/js/75.0ee213ed.chunk.js
+  526 B               build/static/js/31.8eaffd3a.chunk.js
+  522 B               build/static/js/87.6dbf41c6.chunk.js
+  508 B               build/static/js/98.6df7c8e0.chunk.js
+  482 B               build/static/js/54.30726307.chunk.js
+  477 B               build/static/js/27.85580870.chunk.js
+  414 B               build/static/js/74.69ee5648.chunk.js
+  382 B               build/static/js/30.763b695b.chunk.js
+  305 B               build/static/js/38.80412b61.chunk.js
+
+The bundle size is significantly larger than recommended.
+Consider reducing it with code splitting: https://goo.gl/9VhYWB
+You can also analyze the project dependencies: https://goo.gl/LeUzfb
+
+The project was built assuming it is hosted at /.
+You can control this with the homepage field in your package.json.
+
+The build folder is ready to be deployed.
+You may serve it with a static server:
+
+  npm install -g serve
+  serve -s build
+
+Find out more about deployment here:
+
+  https://cra.link/deployment
+
+
+> tiro-notes-source-code@1.0.0 build-server
+> npm run --prefix ./server install-clean-build
+
+
+> tiro-server@1.0.0 install-clean-build
+> run-s install-all clean-build build
+
+
+> tiro-server@1.0.0 install-all
+> run-s install-server install-shared
+
+
+> tiro-server@1.0.0 install-server
+> npm install
+
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: '@img/sharp-linux-x64@0.33.1',
+npm WARN EBADENGINE   required: {
+npm WARN EBADENGINE     glibc: '>=2.26',
+npm WARN EBADENGINE     node: '^18.17.0 || ^20.3.0 || >=21.0.0',
+npm WARN EBADENGINE     npm: '>=9.6.5',
+npm WARN EBADENGINE     pnpm: '>=7.1.0',
+npm WARN EBADENGINE     yarn: '>=3.2.0'
+npm WARN EBADENGINE   },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+
+up to date, audited 772 packages in 2s
+
+112 packages are looking for funding
+  run `npm fund` for details
+
+26 vulnerabilities (3 low, 11 moderate, 11 high, 1 critical)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+> tiro-server@1.0.0 install-shared
+> npm --prefix ../shared install
+
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: '@jest/console@30.4.1',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: '@jest/core@30.4.2',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: '@jest/diff-sequences@30.4.0',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: '@jest/environment@30.4.1',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: '@jest/expect@30.4.1',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: '@jest/expect-utils@30.4.1',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: '@jest/fake-timers@30.4.1',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: '@jest/get-type@30.1.0',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: '@jest/globals@30.4.1',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: '@jest/pattern@30.4.0',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: '@jest/reporters@30.4.1',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: '@jest/schemas@30.4.1',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: '@jest/snapshot-utils@30.4.1',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: '@jest/source-map@30.0.1',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: '@jest/test-result@30.4.1',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: '@jest/test-sequencer@30.4.1',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: '@jest/transform@30.4.1',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: '@jest/types@30.4.1',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: 'babel-jest@30.4.1',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: 'babel-plugin-jest-hoist@30.4.0',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: 'babel-preset-jest@30.4.0',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: 'expect@30.4.1',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: 'jest@30.4.2',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: 'jest-changed-files@30.4.1',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: 'jest-circus@30.4.2',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: 'jest-cli@30.4.2',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: 'jest-config@30.4.2',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: 'jest-diff@30.4.1',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: 'jest-docblock@30.4.0',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: 'jest-each@30.4.1',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: 'jest-environment-node@30.4.1',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: 'jest-haste-map@30.4.1',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: 'jest-leak-detector@30.4.1',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: 'jest-matcher-utils@30.4.1',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: 'jest-message-util@30.4.1',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: 'jest-mock@30.4.1',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: 'jest-regex-util@30.4.0',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: 'jest-resolve@30.4.1',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: 'jest-resolve-dependencies@30.4.2',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: 'jest-runner@30.4.2',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: 'jest-runtime@30.4.2',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: 'jest-snapshot@30.4.1',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: 'jest-util@30.4.1',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: 'jest-validate@30.4.1',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: 'jest-watcher@30.4.1',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: 'jest-worker@30.4.1',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: 'node-releases@2.0.48',
+npm WARN EBADENGINE   required: { node: '>=18' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: 'pretty-format@30.4.1',
+npm WARN EBADENGINE   required: { node: '^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }
+npm WARN EBADENGINE }
+
+up to date, audited 313 packages in 506ms
+
+46 packages are looking for funding
+  run `npm fund` for details
+
+3 high severity vulnerabilities
+
+To address all issues, run:
+  npm audit fix
+
+Run `npm audit` for details.
+
+> tiro-server@1.0.0 clean-build
+> rm -r ./build &
+
+
+> tiro-server@1.0.0 build
+> webpack
+
+asset tiro-server.js 1.9 MiB [emitted] [minimized] (name: main) 1 related asset
+orphan modules 207 KiB [orphan] 44 modules
+runtime modules 1.04 KiB 5 modules
+modules by path ./node_modules/ 3.77 MiB
+  javascript modules 3.26 MiB 529 modules
+  json modules 517 KiB 13 modules
+modules by path ./src/ 222 KiB 39 modules
+modules by path ../shared/ 52.8 KiB
+  modules by path ../shared/helpers/*.ts 18.6 KiB 6 modules
+  modules by path ../shared/*.ts 4.91 KiB 2 modules
+  + 3 modules
++ 26 modules
+
+WARNING in ./node_modules/engine.io/lib/server.js 106:58-80
+Critical dependency: the request of a dependency is an expression
+ @ ./node_modules/engine.io/lib/engine.io.js 45:0-36
+ @ ./node_modules/socket.io/lib/index.js 11:13-33
+ @ ./src/server.ts 43:19-39
+
+WARNING in ./node_modules/express/lib/view.js 81:13-25
+Critical dependency: the request of a dependency is an expression
+ @ ./node_modules/express/lib/application.js 22:11-28
+ @ ./node_modules/express/lib/express.js 18:12-36
+ @ ./node_modules/express/index.js 11:0-41
+ @ ./src/server.ts 32:14-32
+
+WARNING in ./node_modules/socket.io/lib/index.js 113:11-32
+Critical dependency: the request of a dependency is an expression
+ @ ./src/server.ts 43:19-39
+
+WARNING in ./node_modules/ws/lib/buffer-util.js 105:21-42
+Module not found: Error: Can't resolve 'bufferutil' in '/home/u1/_dev/tiro-notes/server/node_modules/ws/lib'
+ @ ./node_modules/ws/lib/websocket.js 27:21-45
+ @ ./node_modules/ws/index.js 3:18-44
+ @ ./node_modules/engine.io/lib/server.js 106:42-55
+ @ ./node_modules/engine.io/lib/engine.io.js 45:0-36
+ @ ./node_modules/socket.io/lib/index.js 11:13-33
+ @ ./src/server.ts 43:19-39
+
+WARNING in ./node_modules/ws/lib/validation.js 86:20-45
+Module not found: Error: Can't resolve 'utf-8-validate' in '/home/u1/_dev/tiro-notes/server/node_modules/ws/lib'
+ @ ./node_modules/ws/lib/sender.js 11:30-53
+ @ ./node_modules/ws/index.js 8:19-42
+ @ ./node_modules/engine.io/lib/server.js 106:42-55
+ @ ./node_modules/engine.io/lib/engine.io.js 45:0-36
+ @ ./node_modules/socket.io/lib/index.js 11:13-33
+ @ ./src/server.ts 43:19-39
+
+WARNING in configuration
+The 'mode' option has not been set, webpack will fallback to 'production' for this value.
+Set 'mode' option to 'development' or 'production' to enable defaults for each environment.
+You can also set it to 'none' to disable any default behavior. Learn more: https://webpack.js.org/configuration/mode/
+
+5 warnings have detailed information that is not shown.
+Use 'stats.errorDetails: true' resp. '--stats-error-details' to show it.
+
+webpack 5.105.2 compiled with 6 warnings in 12297 ms
+
+> tiro-notes-source-code@1.0.0 site/build
+> run-s export-readme blog/build docs/build marketplace/build
+
+
+> tiro-notes-source-code@1.0.0 export-readme
+> run-s export-readme-1 export-readme-2
+
+
+> tiro-notes-source-code@1.0.0 export-readme-1
+> cp README.md docs/README.md
+
+
+> tiro-notes-source-code@1.0.0 export-readme-2
+> cp README.md ./build/
+
+
+> tiro-notes-source-code@1.0.0 blog/build
+> npm run --prefix ./docs/_eleventy_blog_system build
+
+
+> eleventy-base-blog@8.0.0 build
+> npm install; npm run clean; npx @11ty/eleventy --output=../blog
+
+
+up to date, audited 302 packages in 1s
+
+59 packages are looking for funding
+  run `npm fund` for details
+
+9 vulnerabilities (1 moderate, 8 high)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+> eleventy-base-blog@8.0.0 clean
+> rm -r ../blog; mkdir ../blog
+
+[11ty/eleventy-base-blog] Excluding drafts.
+[11ty] Writing ../blog/sitemap.xml from ./content/sitemap/sitemap.xml.njk
+[11ty] Writing ../blog/feed/feed.xml from ./content/feed/feed.njk
+[11ty] Writing ../blog/feed/feed.json from ./content/feed/json.njk
+[11ty] Writing ../blog/devlog/2023/06/hello-world-devlog.html from ./content/blog/_articles/1.md (njk)
+[11ty] Writing ../blog/devlog/2023/06/agnostic-ai-assistant-into-tiro-notes.html from ./content/blog/_articles/2.md (njk)
+[11ty] Writing ../blog/devlog/2023/06/improving-productivity-omnibox-history.html from ./content/blog/_articles/A002.md (njk)
+[11ty] Writing ../blog/devlog/2023/06/tiro-notes-0-30-99-binaries-released-100-more-functionalities.html from ./content/blog/_articles/A003.md (njk)
+[11ty] Writing ../blog/blog/_articles/A004/index.html from ./content/blog/_articles/A004.md (njk)
+[11ty] Writing ../blog/404.html from ./content/404.md (njk)
+[11ty] Writing ../blog/tags/devlog/index.html from ./content/tags.njk
+[11ty] Writing ../blog/tags/guides/index.html from ./content/tags.njk
+[11ty] Writing ../blog/tags/ai/index.html from ./content/tags.njk
+[11ty] Writing ../blog/tags/text-editor/index.html from ./content/tags.njk
+[11ty] Writing ../blog/tags/productivity/index.html from ./content/tags.njk
+[11ty] Writing ../blog/tags/omnibox/index.html from ./content/tags.njk
+[11ty] Writing ../blog/tags/task-management/index.html from ./content/tags.njk
+[11ty] Writing ../blog/tags/release/index.html from ./content/tags.njk
+[11ty] Writing ../blog/tags/changelog/index.html from ./content/tags.njk
+[11ty] Writing ../blog/tags/index.html from ./content/tags-list.njk
+[11ty] Writing ../blog/blog/index.html from ./content/blog.njk
+[11ty] Writing ../blog/index.html from ./content/index.njk
+[11ty] Benchmark     31ms  10%    21× (Configuration) "htmlBaseWithPathPrefix" Transform
+[11ty] Copied 5 files / Wrote 21 files in 0.21 seconds (10.0ms each, v2.0.1)
+
+> tiro-notes-source-code@1.0.0 docs/build
+> npm run --prefix ./docs/_website_generator build
+
+
+> doc-generator@1.0.0 build
+> npm run-s gen-json gen-doc
+
+
+> doc-generator@1.0.0 gen-json
+> run-s gen-json-client-api gen-json-iframe-api gen-doc
+
+
+> doc-generator@1.0.0 gen-json-client-api
+> npx typedoc --tsconfig ../../client/tsconfig.json --json client-api.json ../../client/src/hooks/api/api.hook.tsx
+
+[96mInfo: [0mLoaded plugin typedoc-plugin-missing-exports
+[96mInfo: [0mJSON written to ./client-api.json
+
+> doc-generator@1.0.0 gen-json-iframe-api
+> npx typedoc --tsconfig ../../client/tsconfig.json --json iframe-api.json ../../client/src/managers/iframe.manager.ts
+
+[96mInfo: [0mLoaded plugin typedoc-plugin-missing-exports
+[96mInfo: [0mJSON written to ./iframe-api.json
+
+> doc-generator@1.0.0 gen-doc
+> run-s gen-doc-1 gen-doc-2
+
+
+> doc-generator@1.0.0 gen-doc-1
+> npm i
+
+
+up to date, audited 229 packages in 1s
+
+52 packages are looking for funding
+  run `npm fund` for details
+
+15 vulnerabilities (1 low, 5 moderate, 8 high, 1 critical)
+
+To address all issues, run:
+  npm audit fix
+
+Run `npm audit` for details.
+
+> doc-generator@1.0.0 gen-doc-2
+> ts-node doc.ts
+
+=========== STARTING GENERATOR ============
+==> ANALYSING EXTERNAL INTERFACES 
+==> ANALYSING ROOT INTERFACE 
+iframeMainCode
+=========== STARTING GENERATOR ============
+==> ANALYSING EXTERNAL INTERFACES 
+==> ANALYSING ROOT INTERFACE 
+iClientApi
+{}
+{}
+{}
+{
+  id: [33m1567[39m,
+  name: [32m'__type'[39m,
+  kind: [33m65536[39m,
+  kindString: [32m'Type literal'[39m,
+  flags: {},
+  children: [
+    {
+      id: [33m1568[39m,
+      name: [32m'file'[39m,
+      kind: [33m1024[39m,
+      kindString: [32m'Property'[39m,
+      flags: {},
+      sources: [
+        {
+          fileName: [32m'shared/types.shared.ts'[39m,
+          line: [33m171[39m,
+          character: [33m53[39m
+        }
+      ],
+      type: { type: [32m'reference'[39m, id: [33m1117[39m, name: [32m'iFile'[39m }
+    },
+    {
+      id: [33m1569[39m,
+      name: [32m'results'[39m,
+      kind: [33m1024[39m,
+      kindString: [32m'Property'[39m,
+      flags: {},
+      sources: [
+        {
+          fileName: [32m'shared/types.shared.ts'[39m,
+          line: [33m171[39m,
+          character: [33m66[39m
+        }
+      ],
+      type: {
+        type: [32m'array'[39m,
+        elementType: { type: [32m'intrinsic'[39m, name: [32m'string'[39m }
+      }
+    }
+  ],
+  groups: [ { title: [32m'Properties'[39m, kind: [33m1024[39m, children: [ [33m1568[39m, [33m1569[39m ] } ],
+  sources: [ { fileName: [32m'shared/types.shared.ts'[39m, line: [33m171[39m, character: [33m51[39m } ]
+}
+
+> tiro-notes-source-code@1.0.0 marketplace/build
+> run-s marketplace-json/build marketplace-html/build
+
+
+> tiro-notes-source-code@1.0.0 marketplace-json/build
+> run-s marketplace-json/build-int marketplace-json/copy-json-to-plugins-folder
+
+
+> tiro-notes-source-code@1.0.0 marketplace-json/build-int
+> npm run --prefix ./docs/_marketplace_generator build
+
+
+> doc-generator@1.0.0 build
+> ts-node marketplace-json-generator.ts
+
+[MARKETPLACE GEN] ========== START ============ 
+[MARKETPLACE GEN] plugin file found! => calendar.plugin.js
+[MARKETPLACE GEN] plugin file found! => datatable.plugin.js
+[MARKETPLACE GEN] plugin file found! => feed.plugin.js
+[MARKETPLACE GEN] plugin file found! => graph.plugin.js
+[MARKETPLACE GEN] plugin file found! => map.plugin.js
+[MARKETPLACE GEN] plugin file found! => slideshow.plugin.js
+[MARKETPLACE GEN] plugin file found! => timer.plugin.js
+[MARKETPLACE GEN] plugin file found! => weather.plugin.js
+[{"name":"calendar","pluginPath":"/calendar/calendar.plugin.js","description":"Description of calendar","versions":[{"version":"0.1.4","date":"19/12/23","comment":"inverting dates format + multifolder scan"},{"version":"0.1.3.5","date":"24/07/23","comment":"fix weekly_event bug"},{"version":"0.1.3","date":"10/07/23","comment":"isDev option added"},{"version":"0.1.2","date":"10/07/23","comment":"fixing bug for repeat yearly, adding repeat weekly, adding global caching option"},{"version":"0.1.1","date":"25/06/23","comment":"adding bg service"},{"version":"0.1.0","date":"24/06/23","comment":"adaptation to plugin"}],"images":[],"icon":null,"configuration":[]},{"name":"datatable","pluginPath":"/datatable/datatable.plugin.js","description":"Adds an advanced data table functionality to Tiro <br/> this is a long description","versions":[{"version":"0.0.1","date":"26/02/24","comment":"initial ctag commit","hash":"bd5c41c1b92e3ac483578b19b8c50c39a38fd81f"}],"images":["https://github.com/dotgreg/tiro-notes/assets/2981891/ba1d0751-e140-45b0-aada-398cd27df896","https://github.com/dotgreg/tiro-notes/assets/2981891/09c3ac6c-a15e-4bcd-8e92-26a879323c91"],"icon":"https://github.com/dotgreg/tiro-notes/assets/2981891/af963229-a7c1-41a1-bf73-2ac97c3fa7a0","configuration":[{"type":"checkbox","id":"timer-sound","description":"At the end of the countdown, play a sound"},{"type":"text","id":"timer-custom-sound-url","description":"Sound to be played at the end of the countdown, should be an absolute link and a mp3 like: <br/> http://website.com/mymp3.mp3 "}]},{"name":"feed","pluginPath":"/feed/feed.plugin.js","description":"Your news on Tiro (Rss, Youtube) <br/> this is a long description","versions":[{"version":"1.0.12","date":"25/07/23","comment":"adaptation to plugin"},{"version":"1.0.10","date":"15/07/23","comment":"column dev + redesign"},{"version":"1.0.9","date":"31/03/23","comment":"isDev option added"}],"images":["https://github.com/dotgreg/tiro-notes/assets/2981891/ba1d0751-e140-45b0-aada-398cd27df896","https://github.com/dotgreg/tiro-notes/assets/2981891/09c3ac6c-a15e-4bcd-8e92-26a879323c91"],"icon":"https://github.com/dotgreg/tiro-notes/assets/2981891/c3bc05a4-38b6-4355-b84d-6208cbf17c11","configuration":[{"type":"checkbox","id":"feed-enable-youtube-ctag","description":"Enable [[feed-yt]] to get your own youtube page. More informations <a href=\"https://tiro.org\">here</a>"},{"type":"text","id":"feed-youtube-api-key","description":"if youtube feed is enabled, you will need an API key to make it work"}]},{"name":"graph","pluginPath":"/graph/graph.plugin.js","description":"Description of graph","versions":[{"version":"1.0.4","date":"30/12/23","comment":"adaptation to plugin + fix color bug"},{"version":"1.0.3","date":"27/10/22","comment":""}],"images":[],"icon":null,"configuration":[]},{"name":"map","pluginPath":"/map/map.plugin.js","description":"Description of map","versions":[{"version":"0.1.0","date":"14/02/24","comment":"init"}],"images":[],"icon":null,"configuration":[]},{"name":"slideshow","pluginPath":"/slideshow/slideshow.plugin.js","description":"A custom tag plugin to create image slideshows from a list of URLs","versions":[{"version":"0.1.0","date":"18/05/26","comment":"Initial release","hash":"..."}],"images":[],"icon":null,"configuration":[]},{"name":"timer","pluginPath":"/timer/timer.plugin.js","description":"Adds a timer functionality to Tiro <br/> this is a long description","versions":[{"version":"0.2.2","date":"26/02/24","comment":"polishing timer ctag with perspective viewer","hash":"bd5c41c1b92e3ac483578b19b8c50c39a38fd81f"},{"version":"0.2.1","date":"14/02/24","comment":"adding custom tag timer","hash":"bd5c41c1b92e3ac483578b19b8c50c39a38fd81f"},{"version":"0.1.5","date":"10/07/23","comment":"adding log to timer","hash":"bd5c41c1b92e3ac483578b19b8c50c39a38fd81f"},{"version":"0.1.4","date":"25/06/23","comment":"switching to plugin files","hash":"bd5c41c1b92e3ac483578b19b8c50c39a38fd81f"},{"version":"0.1.3","date":"09/05/23","comment":"unique notification and sound","hash":"bd5c41c1b92e3ac483578b19b8c50c39a38fd81f"}],"images":["https://github.com/dotgreg/tiro-notes/assets/2981891/ba1d0751-e140-45b0-aada-398cd27df896","https://github.com/dotgreg/tiro-notes/assets/2981891/09c3ac6c-a15e-4bcd-8e92-26a879323c91"],"icon":"https://github.com/dotgreg/tiro-notes/assets/2981891/af963229-a7c1-41a1-bf73-2ac97c3fa7a0","configuration":[{"type":"checkbox","id":"timer-sound","description":"At the end of the countdown, play a sound"},{"type":"text","id":"timer-custom-sound-url","description":"Sound to be played at the end of the countdown, should be an absolute link and a mp3 like: <br/> http://website.com/mymp3.mp3 "}]},{"name":"weather","pluginPath":"/weather/weather.plugin.js","description":"Description of weather","versions":[{"version":"0.1.2","date":"24/03/24","comment":"adding showWearAdvices option and improved weather display"},{"version":"0.1.1.2","date":"10/07/23","comment":"adding a popup that gives tomorrows weather + dev + option to not show tomorrow popup"},{"version":"0.1.0","date":"18/06/23","comment":"adaptation to plugin"}],"images":[],"icon":null,"configuration":[]}]
+[MARKETPLACE GEN] Marketplace JSON file generated successfully.
+[MARKETPLACE GEN] ========== ENDS ============ 
+
+> tiro-notes-source-code@1.0.0 marketplace-json/copy-json-to-plugins-folder
+> cp ./docs/marketplace.json ./plugins/marketplace.json
+
+
+> tiro-notes-source-code@1.0.0 marketplace-html/build
+> cp ./client/src/components/settingsView/generatePluginsMarketplaceHtml.js ./docs/_plugin_marketplace_html/_automaticgen_generatePluginsMarketplaceHtml.js
+
+
+> tiro-notes-source-code@1.0.0 clean-prev-build
+> run-s clean-server clean-client clean-else
+
+
+> tiro-notes-source-code@1.0.0 clean-server
+> rm -r ./build/server &
+
+
+> tiro-notes-source-code@1.0.0 clean-client
+> rm -r ./build/client &
+
+
+> tiro-notes-source-code@1.0.0 clean-else
+> run-s clean-else-1 clean-else-2
+
+
+> tiro-notes-source-code@1.0.0 clean-else-1
+> rm -r ./build/scripts &
+
+rm: cannot remove './build/scripts': No such file or directory
+
+> tiro-notes-source-code@1.0.0 clean-else-2
+> rm ./build/package.json &
+
+
+> tiro-notes-source-code@1.0.0 export-the-build
+> run-s export-client export-config export-server export-readme
+
+
+> tiro-notes-source-code@1.0.0 export-client
+> cp -r client/build ./build/client
+
+
+> tiro-notes-source-code@1.0.0 export-config
+> run-s export-config-1 export-config-2
+
+
+> tiro-notes-source-code@1.0.0 export-config-1
+> cp package-root-build.json ./build/package.json
+
+
+> tiro-notes-source-code@1.0.0 export-server
+> run-s export-server-1 export-server-2
+
+
+> tiro-notes-source-code@1.0.0 export-server-1
+> cp -r server/build ./build/server
+
+
+> tiro-notes-source-code@1.0.0 export-server-2
+> cp -r server/ssl ./build/server/ssl
+
+
+> tiro-notes-source-code@1.0.0 export-readme
+> run-s export-readme-1 export-readme-2
+
+
+> tiro-notes-source-code@1.0.0 export-readme-1
+> cp README.md docs/README.md
+
+
+> tiro-notes-source-code@1.0.0 export-readme-2
+> cp README.md ./build/
+
+
+> tiro-notes-source-code@1.0.0 copy-build-to-electron-folder
+> rm -r ./platforms/electron/node-build; cp -r ./build ./platforms/electron/node-build
+
+
+> tiro-notes@0.52.21 publish-to-npm-dev
+> cd ./platforms/npm-cli-module; npm run clean-previous-build;  npm run export-cli-module; npm run export-helpers; echo WARNING REQUIRES NPM LOGIN BEFORE PUBLISHING! new method token which expires, check 'npm module and npx' note for more infos; cp ../../.npmrc ./node-build/.npmrc; cd node-build; npm publish --tag=develop
+
+sh: 1: cd: can't cd to ./platforms/npm-cli-module
+
+> tiro-notes@0.52.21 clean-previous-build
+> rm -r node-build
+
+
+> tiro-notes@0.52.21 export-cli-module
+> cp -r ../../build node-build; cp cli.js node-build/; cp package.json node-build/;
+
+
+> tiro-notes@0.52.21 export-helpers
+> cp ../shared.helpers.js ./node-build/shared.helpers.build.js
+
+WARNING REQUIRES NPM LOGIN BEFORE PUBLISHING! new method token which expires, check npm module and npx note for more infos
+npm notice 
+npm notice 📦  tiro-notes@0.52.21
+npm notice === Tarball Contents === 
+npm notice 4.4kB   README.md                                                           
+npm notice 11.6kB  cli.js                                                              
+npm notice 298.3kB client/appicons/icons/mac/icon.icns                                 
+npm notice 444B    client/appicons/icons/png/16x16.png                                 
+npm notice 748B    client/appicons/icons/png/24x24.png                                 
+npm notice 1.0kB   client/appicons/icons/png/32x32.png                                 
+npm notice 1.7kB   client/appicons/icons/png/48x48.png                                 
+npm notice 2.5kB   client/appicons/icons/png/64x64.png                                 
+npm notice 6.0kB   client/appicons/icons/png/128x128.png                               
+npm notice 16.4kB  client/appicons/icons/png/256x256.png                               
+npm notice 49.7kB  client/appicons/icons/png/512x512.png                               
+npm notice 154.2kB client/appicons/icons/png/1024x1024.png                             
+npm notice 361.1kB client/appicons/icons/win/icon.ico                                  
+npm notice 298.3kB client/appicons/tiro_icon.icns                                      
+npm notice 361.1kB client/appicons/tiro_icon.ico                                       
+npm notice 16.4kB  client/appicons/tiro_icon.png                                       
+npm notice 10.3kB  client/asset-manifest.json                                          
+npm notice 2.6kB   client/custom_icons/bottom-left.png                                 
+npm notice 2.6kB   client/custom_icons/bottom-right.png                                
+npm notice 2.6kB   client/custom_icons/bottom.png                                      
+npm notice 411B    client/custom_icons/check.svg                                       
+npm notice 2.5kB   client/custom_icons/left.png                                        
+npm notice 587B    client/custom_icons/line.svg                                        
+npm notice 2.5kB   client/custom_icons/right.png                                       
+npm notice 2.5kB   client/custom_icons/top-left.png                                    
+npm notice 2.6kB   client/custom_icons/top-right.png                                   
+npm notice 2.5kB   client/custom_icons/top.png                                         
+npm notice 394B    client/custom_icons/uncheck.svg                                     
+npm notice 934B    client/custom_icons/view-1.svg                                      
+npm notice 591B    client/custom_icons/view-2.svg                                      
+npm notice 607B    client/custom_icons/view-3.svg                                      
+npm notice 934B    client/custom_icons/view-4.svg                                      
+npm notice 5.4kB   client/favicon.png                                                  
+npm notice 22.0kB  client/icon-192x192.png                                             
+npm notice 15.3kB  client/icon-256x256.png                                             
+npm notice 47.0kB  client/icon-384x384.png                                             
+npm notice 22.3kB  client/icon-512x512.png                                             
+npm notice 4.8kB   client/index.html                                                   
+npm notice 725B    client/manifest.json                                                
+npm notice 724B    client/manifest.webmanifest                                         
+npm notice 1.9kB   client/service-worker.js                                            
+npm notice 106.7kB client/static/css/12.54474f95.chunk.css                             
+npm notice 22.5kB  client/static/js/0.8818db75.chunk.js                                
+npm notice 27.3kB  client/static/js/1.dc212257.chunk.js                                
+npm notice 11.0kB  client/static/js/2.6e78ea89.chunk.js                                
+npm notice 5.0kB   client/static/js/3.664f336f.chunk.js                                
+npm notice 3.8kB   client/static/js/4.328dd658.chunk.js                                
+npm notice 102.0kB client/static/js/5.307b6480.chunk.js                                
+npm notice 7.9kB   client/static/js/6.db56389b.chunk.js                                
+npm notice 1.8kB   client/static/js/7.83cb847e.chunk.js                                
+npm notice 3.3kB   client/static/js/8.959dc24d.chunk.js                                
+npm notice 8.4kB   client/static/js/9.d4911eb8.chunk.js                                
+npm notice 5.2MB   client/static/js/12.85f130e4.chunk.js                               
+npm notice 3.6kB   client/static/js/12.85f130e4.chunk.js.LICENSE.txt                   
+npm notice 4.3kB   client/static/js/13.7a41f99f.chunk.js                               
+npm notice 4.1kB   client/static/js/14.3201d51f.chunk.js                               
+npm notice 9.2kB   client/static/js/15.db8ece9d.chunk.js                               
+npm notice 4.9kB   client/static/js/16.517ad23b.chunk.js                               
+npm notice 40.6kB  client/static/js/17.4e6d8e22.chunk.js                               
+npm notice 2.5kB   client/static/js/18.99a37042.chunk.js                               
+npm notice 95.1kB  client/static/js/19.004342b7.chunk.js                               
+npm notice 71.9kB  client/static/js/20.400635c6.chunk.js                               
+npm notice 68.6kB  client/static/js/21.377bde95.chunk.js                               
+npm notice 26.4kB  client/static/js/22.97f27129.chunk.js                               
+npm notice 3.2kB   client/static/js/23.4ad8d0ec.chunk.js                               
+npm notice 2.6kB   client/static/js/24.d47656da.chunk.js                               
+npm notice 13.2kB  client/static/js/25.26949283.chunk.js                               
+npm notice 2.7kB   client/static/js/26.7e126fb1.chunk.js                               
+npm notice 919B    client/static/js/27.85580870.chunk.js                               
+npm notice 4.1kB   client/static/js/28.72c93db3.chunk.js                               
+npm notice 4.5kB   client/static/js/29.80e40a62.chunk.js                               
+npm notice 711B    client/static/js/30.763b695b.chunk.js                               
+npm notice 924B    client/static/js/31.8eaffd3a.chunk.js                               
+npm notice 6.3kB   client/static/js/32.cff2eb9f.chunk.js                               
+npm notice 4.1kB   client/static/js/33.70a11c37.chunk.js                               
+npm notice 2.5kB   client/static/js/34.ff9d1883.chunk.js                               
+npm notice 5.3kB   client/static/js/35.37436f63.chunk.js                               
+npm notice 3.7kB   client/static/js/36.83f9e51c.chunk.js                               
+npm notice 3.8kB   client/static/js/37.e9b848bc.chunk.js                               
+npm notice 458B    client/static/js/38.80412b61.chunk.js                               
+npm notice 2.2kB   client/static/js/39.5299241a.chunk.js                               
+npm notice 4.2kB   client/static/js/40.463e2602.chunk.js                               
+npm notice 2.0kB   client/static/js/41.87cc1e1b.chunk.js                               
+npm notice 5.3kB   client/static/js/42.9d2aaaf8.chunk.js                               
+npm notice 1.9kB   client/static/js/43.f55d6cd8.chunk.js                               
+npm notice 2.0kB   client/static/js/44.c769115a.chunk.js                               
+npm notice 8.2kB   client/static/js/45.cfaccbdb.chunk.js                               
+npm notice 2.2kB   client/static/js/46.04848b38.chunk.js                               
+npm notice 2.7kB   client/static/js/47.43108ad8.chunk.js                               
+npm notice 4.8kB   client/static/js/48.b0036b11.chunk.js                               
+npm notice 4.7kB   client/static/js/49.57012f8f.chunk.js                               
+npm notice 15.8kB  client/static/js/50.d61bf562.chunk.js                               
+npm notice 2.9kB   client/static/js/51.8c2a739c.chunk.js                               
+npm notice 4.2kB   client/static/js/52.d60d6518.chunk.js                               
+npm notice 4.3kB   client/static/js/53.33e83e10.chunk.js                               
+npm notice 1.0kB   client/static/js/54.30726307.chunk.js                               
+npm notice 11.9kB  client/static/js/55.7e89444b.chunk.js                               
+npm notice 16.8kB  client/static/js/56.ad8541df.chunk.js                               
+npm notice 2.8kB   client/static/js/57.9fcc16d5.chunk.js                               
+npm notice 5.5kB   client/static/js/58.3a4458c1.chunk.js                               
+npm notice 4.2kB   client/static/js/59.d5ea8728.chunk.js                               
+npm notice 3.5kB   client/static/js/60.96160883.chunk.js                               
+npm notice 2.1kB   client/static/js/61.59a3090c.chunk.js                               
+npm notice 1.5kB   client/static/js/62.858318f5.chunk.js                               
+npm notice 6.1kB   client/static/js/63.443b52f8.chunk.js                               
+npm notice 2.9kB   client/static/js/64.f67bbf85.chunk.js                               
+npm notice 2.2kB   client/static/js/65.f90a3a33.chunk.js                               
+npm notice 7.4kB   client/static/js/66.fcf111a8.chunk.js                               
+npm notice 1.6kB   client/static/js/67.f0af4760.chunk.js                               
+npm notice 2.5kB   client/static/js/68.4447a6c0.chunk.js                               
+npm notice 3.0kB   client/static/js/69.f92b446d.chunk.js                               
+npm notice 2.4kB   client/static/js/70.fc10f889.chunk.js                               
+npm notice 9.7kB   client/static/js/71.0b66ff83.chunk.js                               
+npm notice 2.6kB   client/static/js/72.75b6477f.chunk.js                               
+npm notice 7.9kB   client/static/js/73.ba5cd0ec.chunk.js                               
+npm notice 819B    client/static/js/74.69ee5648.chunk.js                               
+npm notice 1.1kB   client/static/js/75.0ee213ed.chunk.js                               
+npm notice 2.7kB   client/static/js/76.03cc8251.chunk.js                               
+npm notice 6.6kB   client/static/js/77.9e0c615b.chunk.js                               
+npm notice 4.1kB   client/static/js/78.e39822e2.chunk.js                               
+npm notice 3.0kB   client/static/js/79.47712414.chunk.js                               
+npm notice 5.3kB   client/static/js/80.03d3c44a.chunk.js                               
+npm notice 9.5kB   client/static/js/81.3e86dcfc.chunk.js                               
+npm notice 4.5kB   client/static/js/82.d04a34d3.chunk.js                               
+npm notice 6.5kB   client/static/js/83.ed876d1d.chunk.js                               
+npm notice 2.7kB   client/static/js/84.22e9c594.chunk.js                               
+npm notice 1.8kB   client/static/js/85.d6790ffd.chunk.js                               
+npm notice 2.2kB   client/static/js/86.f5ca5c0b.chunk.js                               
+npm notice 978B    client/static/js/87.6dbf41c6.chunk.js                               
+npm notice 3.6kB   client/static/js/88.0da244ee.chunk.js                               
+npm notice 1.3kB   client/static/js/89.40ea9ef2.chunk.js                               
+npm notice 37.5kB  client/static/js/90.58b50413.chunk.js                               
+npm notice 25.9kB  client/static/js/91.d0607983.chunk.js                               
+npm notice 4.2kB   client/static/js/92.b1941812.chunk.js                               
+npm notice 2.5kB   client/static/js/93.cae75383.chunk.js                               
+npm notice 6.9kB   client/static/js/94.babda4ae.chunk.js                               
+npm notice 3.0kB   client/static/js/95.0a85c04f.chunk.js                               
+npm notice 3.3kB   client/static/js/96.e2d807e4.chunk.js                               
+npm notice 1.2kB   client/static/js/97.37813ebb.chunk.js                               
+npm notice 1.1kB   client/static/js/98.6df7c8e0.chunk.js                               
+npm notice 4.2kB   client/static/js/99.62e4c9c4.chunk.js                               
+npm notice 5.0kB   client/static/js/100.da1920be.chunk.js                              
+npm notice 2.1kB   client/static/js/101.2d460d94.chunk.js                              
+npm notice 4.0kB   client/static/js/102.f9a16c85.chunk.js                              
+npm notice 6.0kB   client/static/js/103.d1ea5ba4.chunk.js                              
+npm notice 2.8kB   client/static/js/104.a137d37d.chunk.js                              
+npm notice 3.5kB   client/static/js/105.28c03a34.chunk.js                              
+npm notice 2.7kB   client/static/js/106.37c81321.chunk.js                              
+npm notice 6.8kB   client/static/js/107.3041ab4b.chunk.js                              
+npm notice 2.3kB   client/static/js/108.ac4ab4c5.chunk.js                              
+npm notice 1.7kB   client/static/js/109.de1a8c92.chunk.js                              
+npm notice 1.9kB   client/static/js/110.e0fd9e71.chunk.js                              
+npm notice 548.1kB client/static/js/main.f2128a47.chunk.js                             
+npm notice 3.8kB   client/static/js/runtime-main.72133cd6.js                           
+npm notice 768B    client/static/media/book-solid.87f5b737.svg                         
+npm notice 712B    client/static/media/compact-disc-solid.55b6e50c.svg                 
+npm notice 466.4kB client/static/media/deco-bg-map.7ca9103b.png                        
+npm notice 187.2kB client/static/media/fa-brands-400.150de8ea.ttf                      
+npm notice 108.0kB client/static/media/fa-brands-400.e033a13e.woff2                    
+npm notice 24.9kB  client/static/media/fa-regular-400.3223dc79.woff2                   
+npm notice 64.0kB  client/static/media/fa-regular-400.d8747423.ttf                     
+npm notice 394.6kB client/static/media/fa-solid-900.4a2cd718.ttf                       
+npm notice 150.1kB client/static/media/fa-solid-900.bb975c96.woff2                     
+npm notice 10.2kB  client/static/media/fa-v4compatibility.0e3a648b.ttf                 
+npm notice 4.6kB   client/static/media/fa-v4compatibility.68577e40.woff2               
+npm notice 1.2kB   client/static/media/file-audio-solid.a76f99f0.svg                   
+npm notice 661B    client/static/media/file-code-solid.62b467ac.svg                    
+npm notice 780B    client/static/media/file-excel-solid.217d73db.svg                   
+npm notice 1.5kB   client/static/media/file-pdf-solid.0a9d75fe.svg                     
+npm notice 637B    client/static/media/file-powerpoint-solid.4d969453.svg              
+npm notice 415B    client/static/media/file-solid.6415173e.svg                         
+npm notice 623B    client/static/media/file-video-solid.312288cf.svg                   
+npm notice 849B    client/static/media/file-word-solid.9228e1ff.svg                    
+npm notice 669B    client/static/media/file-zipper-solid.7db57917.svg                  
+npm notice 1.5kB   client/static/media/globe-africa-solid.0ad34146.svg                 
+npm notice 1.5kB   client/static/media/link-solid.7b689dbd.svg                         
+npm notice 70.9kB  client/static/media/open-sans-all-400-normal.cb2542fc.woff          
+npm notice 68.7kB  client/static/media/open-sans-all-700-normal.105e4309.woff          
+npm notice 69.5kB  client/static/media/open-sans-all-800-normal.86e783c7.woff          
+npm notice 10.7kB  client/static/media/open-sans-cyrillic-400-normal.5a546777.woff2    
+npm notice 10.4kB  client/static/media/open-sans-cyrillic-700-normal.2cf6253f.woff2    
+npm notice 10.4kB  client/static/media/open-sans-cyrillic-800-normal.41902933.woff2    
+npm notice 17.5kB  client/static/media/open-sans-cyrillic-ext-400-normal.01b11c56.woff2
+npm notice 16.9kB  client/static/media/open-sans-cyrillic-ext-700-normal.00b4dd17.woff2
+npm notice 16.9kB  client/static/media/open-sans-cyrillic-ext-800-normal.2c1c4cc5.woff2
+npm notice 9.0kB   client/static/media/open-sans-greek-400-normal.3064bf7e.woff2       
+npm notice 8.8kB   client/static/media/open-sans-greek-700-normal.a0312547.woff2       
+npm notice 8.9kB   client/static/media/open-sans-greek-800-normal.d60c6496.woff2       
+npm notice 3.8kB   client/static/media/open-sans-greek-ext-400-normal.1ed998a4.woff2   
+npm notice 3.7kB   client/static/media/open-sans-greek-ext-700-normal.8850c90c.woff2   
+npm notice 3.7kB   client/static/media/open-sans-greek-ext-800-normal.fe3583f2.woff2   
+npm notice 7.5kB   client/static/media/open-sans-hebrew-400-normal.daafcec8.woff2      
+npm notice 7.5kB   client/static/media/open-sans-hebrew-700-normal.3befb44d.woff2      
+npm notice 7.4kB   client/static/media/open-sans-hebrew-800-normal.bfe88fed.woff2      
+npm notice 16.7kB  client/static/media/open-sans-latin-400-normal.a1535f45.woff2       
+npm notice 16.4kB  client/static/media/open-sans-latin-700-normal.b245bc85.woff2       
+npm notice 16.7kB  client/static/media/open-sans-latin-800-normal.185f6b03.woff2       
+npm notice 13.0kB  client/static/media/open-sans-latin-ext-400-normal.ccfa20f8.woff2   
+npm notice 12.8kB  client/static/media/open-sans-latin-ext-700-normal.64471a17.woff2   
+npm notice 13.0kB  client/static/media/open-sans-latin-ext-800-normal.988eae1a.woff2   
+npm notice 7.1kB   client/static/media/open-sans-vietnamese-400-normal.473f6b09.woff2  
+npm notice 7.0kB   client/static/media/open-sans-vietnamese-700-normal.b4c5968d.woff2  
+npm notice 7.2kB   client/static/media/open-sans-vietnamese-800-normal.27b69d87.woff2  
+npm notice 577B    client/static/media/search-solid.cc51b702.svg                       
+npm notice 1.2kB   client/tiro-local.crt                                               
+npm notice 1.5kB   package.json                                                        
+npm notice 1.1kB   server/ssl/tiro-local.crt                                           
+npm notice 1.7kB   server/ssl/tiro-local.key                                           
+npm notice 2.0MB   server/tiro-server.js                                               
+npm notice 5.7kB   server/tiro-server.js.LICENSE.txt                                   
+npm notice 4.7kB   shared.helpers.build.js                                             
+npm notice === Tarball Details === 
+npm notice name:          tiro-notes                              
+npm notice version:       0.52.21                                 
+npm notice filename:      tiro-notes-0.52.21.tgz                  
+npm notice package size:  4.9 MB                                  
+npm notice unpacked size: 12.4 MB                                 
+npm notice shasum:        2124e3062bf932a012f2af638715f863efbd9b5c
+npm notice integrity:     sha512-hiKBzCASSrJfT[...]f2W85HHdisV3A==
+npm notice total files:   211                                     
+npm notice 
+npm notice Publishing to https://registry.npmjs.org/
++ tiro-notes@0.52.21

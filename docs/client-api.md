@@ -1389,9 +1389,9 @@ noteLink should be relative from tiro folder
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
        1. content: <span class="render-code-wrapper">string</span>
-       1. opts: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;id?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;startString?: <span class="render-code-wrapper">string</span><br/>}</span>
+       1. opts: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;id?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;startPercent?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;startString?: <span class="render-code-wrapper">string</span><br/>}</span>
  - Example: 
- <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.textToSpeechPopup.open",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;id?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;startString?: <span class="render-code-wrapper">string</span><br/>}</span> ]<br/>)</div>
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.textToSpeechPopup.open",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;id?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;startPercent?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;startString?: <span class="render-code-wrapper">string</span><br/>}</span> ]<br/>)</div>
  
 
 #### <span class="render-code-wrapper">ui.windows.active.get</span>
@@ -1907,7 +1907,7 @@ Watch for file changes
 #### <span class="render-code-wrapper">iTtsStatus</span>
  - Type: <span class="render-code-wrapper">object</span> 
  - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;currentChunk: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;isPlaying: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;totalChunks: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;currentText?: <span class="render-code-wrapper">string</span><br/>}</span></div>
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;currentChunk: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;isPlaying: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;totalChunks: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;currentText?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;progress?: <span class="render-code-wrapper">number</span><br/>}</span></div>
  
 
 #### <span class="render-code-wrapper">onUploadProgressFn</span>

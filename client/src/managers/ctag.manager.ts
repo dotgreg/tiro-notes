@@ -32,17 +32,27 @@ const getBaseCtagContent = (ctagName:string, cb:(txt:string)=>void) => {
 }
 
 const getCtagLegacyContent = (ctagName:string, cb) => {
+  console.log(`${h} [CTAG BOOT] getApi for legacy ctag "${ctagName}" ...`)
+  const apiWatchdog = setTimeout(() => {
+    console.warn(`${h} [CTAG BOOT] APP API NOT READY after 10s — ctag "${ctagName}" cannot be fetched (client api promise pending)`)
+  }, 10000)
   getApi(api => {
+    clearTimeout(apiWatchdog)
+    console.log(`${h} [CTAG BOOT] app API ready → file.getContent("/.tiro/tags/${ctagName}.md")`)
     api.file.getContent(`/.tiro/tags/${ctagName}.md`, ncontent => {
+        console.log(`${h} [CTAG BOOT] file.getContent answered: ${ncontent ? `content len=${ncontent.length}` : 'NULL (file missing?)'}`)
         cb(ncontent)
     }, {
-        onError: () => {
+        onError: (err) => {
+            console.log(`${h} [CTAG BOOT] file.getContent onError: ${err}`)
             // if not present, fallback to download from dev/custom-tags github for the moment
             if (baseCtag.includes(ctagName)) {
+              console.log(`${h} [CTAG BOOT] falling back to BASE ctag "${ctagName}" (github)`) 
               getBaseCtagContent(ctagName, txt => {
                 cb(txt)
               })
             } else {
+              console.warn(`${h} [CTAG BOOT] no fallback for "${ctagName}" → cb(null) — tag will stay EMPTY`)
               cb(null)
             }
         }
@@ -59,8 +69,14 @@ export const getCtagContent = (ctagName: string, cb:(ctagContent:string|null) =>
     // } else {
       
     // 2 PLUGINS
+    console.log(`${h} [CTAG BOOT] getCtagContent("${ctagName}") → plugins.get`)
+    const apiWatchdog = setTimeout(() => {
+      console.warn(`${h} [CTAG BOOT] APP API NOT READY after 10s — ctag "${ctagName}" cannot be resolved (client api promise pending?)`)
+    }, 10000)
     getApi(api => {
+      clearTimeout(apiWatchdog)
       api.plugins.get(ctagName, "tag", res => {
+        console.log(`${h} [CTAG BOOT] plugins.get("${ctagName}") answered: ${res ? `type=${res.type}` : 'null'}`)
         if (res && res.type === "tag") {
           cb(res.code)
         } else {
