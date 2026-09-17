@@ -7,21 +7,21 @@
 	"originalName": "",
 	"children": [
 		{
-			"id": 155,
+			"id": 157,
 			"name": "<internal>",
 			"kind": 4,
 			"kindString": "Namespace",
 			"flags": {},
 			"children": [
 				{
-					"id": 164,
+					"id": 166,
 					"name": "iFile",
 					"kind": 256,
 					"kindString": "Interface",
 					"flags": {},
 					"children": [
 						{
-							"id": 170,
+							"id": 172,
 							"name": "created",
 							"kind": 1024,
 							"kindString": "Property",
@@ -41,7 +41,7 @@
 							}
 						},
 						{
-							"id": 169,
+							"id": 171,
 							"name": "extension",
 							"kind": 1024,
 							"kindString": "Property",
@@ -61,7 +61,7 @@
 							}
 						},
 						{
-							"id": 174,
+							"id": 176,
 							"name": "filenameWithoutExt",
 							"kind": 1024,
 							"kindString": "Property",
@@ -81,7 +81,7 @@
 							}
 						},
 						{
-							"id": 173,
+							"id": 175,
 							"name": "folder",
 							"kind": 1024,
 							"kindString": "Property",
@@ -99,7 +99,7 @@
 							}
 						},
 						{
-							"id": 172,
+							"id": 174,
 							"name": "index",
 							"kind": 1024,
 							"kindString": "Property",
@@ -119,7 +119,7 @@
 							}
 						},
 						{
-							"id": 171,
+							"id": 173,
 							"name": "modified",
 							"kind": 1024,
 							"kindString": "Property",
@@ -139,7 +139,7 @@
 							}
 						},
 						{
-							"id": 166,
+							"id": 168,
 							"name": "name",
 							"kind": 1024,
 							"kindString": "Property",
@@ -157,7 +157,7 @@
 							}
 						},
 						{
-							"id": 165,
+							"id": 167,
 							"name": "nature",
 							"kind": 1024,
 							"kindString": "Property",
@@ -171,12 +171,12 @@
 							],
 							"type": {
 								"type": "reference",
-								"id": 189,
+								"id": 191,
 								"name": "iFileNature"
 							}
 						},
 						{
-							"id": 168,
+							"id": 170,
 							"name": "path",
 							"kind": 1024,
 							"kindString": "Property",
@@ -194,7 +194,7 @@
 							}
 						},
 						{
-							"id": 167,
+							"id": 169,
 							"name": "realname",
 							"kind": 1024,
 							"kindString": "Property",
@@ -212,7 +212,7 @@
 							}
 						},
 						{
-							"id": 175,
+							"id": 177,
 							"name": "stats",
 							"kind": 1024,
 							"kindString": "Property",
@@ -237,17 +237,17 @@
 							"title": "Properties",
 							"kind": 1024,
 							"children": [
-								170,
-								169,
-								174,
-								173,
 								172,
 								171,
-								166,
-								165,
+								176,
+								175,
+								174,
+								173,
 								168,
 								167,
-								175
+								170,
+								169,
+								177
 							]
 						}
 					],
@@ -260,14 +260,14 @@
 					]
 				},
 				{
-					"id": 182,
+					"id": 184,
 					"name": "iIframeMessage",
 					"kind": 256,
 					"kindString": "Interface",
 					"flags": {},
 					"children": [
 						{
-							"id": 183,
+							"id": 185,
 							"name": "action",
 							"kind": 1024,
 							"kindString": "Property",
@@ -275,18 +275,18 @@
 							"sources": [
 								{
 									"fileName": "client/src/managers/iframe.manager.ts",
-									"line": 56,
+									"line": 58,
 									"character": 1
 								}
 							],
 							"type": {
 								"type": "reference",
-								"id": 190,
+								"id": 192,
 								"name": "iIframeActions"
 							}
 						},
 						{
-							"id": 184,
+							"id": 186,
 							"name": "data",
 							"kind": 1024,
 							"kindString": "Property",
@@ -294,7 +294,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/managers/iframe.manager.ts",
-									"line": 57,
+									"line": 59,
 									"character": 1
 								}
 							],
@@ -309,21 +309,21 @@
 							"title": "Properties",
 							"kind": 1024,
 							"children": [
-								183,
-								184
+								185,
+								186
 							]
 						}
 					],
 					"sources": [
 						{
 							"fileName": "client/src/managers/iframe.manager.ts",
-							"line": 55,
+							"line": 57,
 							"character": 10
 						}
 					]
 				},
 				{
-					"id": 156,
+					"id": 158,
 					"name": "ReturnType",
 					"kind": 4194304,
 					"kindString": "Type alias",
@@ -342,7 +342,7 @@
 					],
 					"typeParameter": [
 						{
-							"id": 163,
+							"id": 165,
 							"name": "T",
 							"kind": 131072,
 							"kindString": "Type parameter",
@@ -352,7 +352,7 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 160,
+									"id": 162,
 									"name": "__type",
 									"kind": 65536,
 									"kindString": "Type literal",
@@ -368,7 +368,7 @@
 									],
 									"signatures": [
 										{
-											"id": 161,
+											"id": 163,
 											"name": "__type",
 											"kind": 4096,
 											"kindString": "Call signature",
@@ -377,7 +377,7 @@
 											},
 											"parameters": [
 												{
-													"id": 162,
+													"id": 164,
 													"name": "args",
 													"kind": 32768,
 													"kindString": "Parameter",
@@ -405,7 +405,7 @@
 						"type": "conditional",
 						"checkType": {
 							"type": "reference",
-							"id": 163,
+							"id": 165,
 							"qualifiedName": "T",
 							"package": "typescript",
 							"name": "T"
@@ -413,7 +413,7 @@
 						"extendsType": {
 							"type": "reflection",
 							"declaration": {
-								"id": 157,
+								"id": 159,
 								"name": "__type",
 								"kind": 65536,
 								"kindString": "Type literal",
@@ -429,7 +429,7 @@
 								],
 								"signatures": [
 									{
-										"id": 158,
+										"id": 160,
 										"name": "__type",
 										"kind": 4096,
 										"kindString": "Call signature",
@@ -438,7 +438,7 @@
 										},
 										"parameters": [
 											{
-												"id": 159,
+												"id": 161,
 												"name": "args",
 												"kind": 32768,
 												"kindString": "Parameter",
@@ -473,7 +473,7 @@
 					}
 				},
 				{
-					"id": 176,
+					"id": 178,
 					"name": "iApiCall",
 					"kind": 4194304,
 					"kindString": "Type alias",
@@ -481,14 +481,14 @@
 					"sources": [
 						{
 							"fileName": "client/src/managers/iframe.manager.ts",
-							"line": 659,
+							"line": 666,
 							"character": 6
 						}
 					],
 					"type": {
 						"type": "reflection",
 						"declaration": {
-							"id": 177,
+							"id": 179,
 							"name": "__type",
 							"kind": 65536,
 							"kindString": "Type literal",
@@ -496,20 +496,20 @@
 							"sources": [
 								{
 									"fileName": "client/src/managers/iframe.manager.ts",
-									"line": 659,
+									"line": 666,
 									"character": 17
 								}
 							],
 							"signatures": [
 								{
-									"id": 178,
+									"id": 180,
 									"name": "__type",
 									"kind": 4096,
 									"kindString": "Call signature",
 									"flags": {},
 									"parameters": [
 										{
-											"id": 179,
+											"id": 181,
 											"name": "apiName",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -520,7 +520,7 @@
 											}
 										},
 										{
-											"id": 180,
+											"id": 182,
 											"name": "apiArguments",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -534,7 +534,7 @@
 											}
 										},
 										{
-											"id": 181,
+											"id": 183,
 											"name": "cb",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -559,7 +559,7 @@
 					}
 				},
 				{
-					"id": 189,
+					"id": 191,
 					"name": "iFileNature",
 					"kind": 4194304,
 					"kindString": "Type alias",
@@ -586,7 +586,7 @@
 					}
 				},
 				{
-					"id": 190,
+					"id": 192,
 					"name": "iIframeActions",
 					"kind": 4194304,
 					"kindString": "Type alias",
@@ -632,12 +632,16 @@
 							{
 								"type": "literal",
 								"value": "iframeLog"
+							},
+							{
+								"type": "literal",
+								"value": "childReady"
 							}
 						]
 					}
 				},
 				{
-					"id": 185,
+					"id": 187,
 					"name": "iRessObjOrString",
 					"kind": 4194304,
 					"kindString": "Type alias",
@@ -645,7 +649,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/managers/iframe.manager.ts",
-							"line": 468,
+							"line": 475,
 							"character": 6
 						}
 					],
@@ -659,14 +663,14 @@
 							{
 								"type": "reflection",
 								"declaration": {
-									"id": 186,
+									"id": 188,
 									"name": "__type",
 									"kind": 65536,
 									"kindString": "Type literal",
 									"flags": {},
 									"children": [
 										{
-											"id": 188,
+											"id": 190,
 											"name": "type",
 											"kind": 1024,
 											"kindString": "Property",
@@ -676,7 +680,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/managers/iframe.manager.ts",
-													"line": 468,
+													"line": 475,
 													"character": 49
 												}
 											],
@@ -686,7 +690,7 @@
 											}
 										},
 										{
-											"id": 187,
+											"id": 189,
 											"name": "url",
 											"kind": 1024,
 											"kindString": "Property",
@@ -694,7 +698,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/managers/iframe.manager.ts",
-													"line": 468,
+													"line": 475,
 													"character": 36
 												}
 											],
@@ -709,15 +713,15 @@
 											"title": "Properties",
 											"kind": 1024,
 											"children": [
-												188,
-												187
+												190,
+												189
 											]
 										}
 									],
 									"sources": [
 										{
 											"fileName": "client/src/managers/iframe.manager.ts",
-											"line": 468,
+											"line": 475,
 											"character": 34
 										}
 									]
@@ -732,19 +736,19 @@
 					"title": "Interfaces",
 					"kind": 256,
 					"children": [
-						164,
-						182
+						166,
+						184
 					]
 				},
 				{
 					"title": "Type aliases",
 					"kind": 4194304,
 					"children": [
-						156,
-						176,
-						189,
-						190,
-						185
+						158,
+						178,
+						191,
+						192,
+						187
 					]
 				}
 			]
@@ -757,7 +761,7 @@
 			"flags": {},
 			"children": [
 				{
-					"id": 36,
+					"id": 38,
 					"name": "apiAnswer",
 					"kind": 1024,
 					"kindString": "Property",
@@ -765,21 +769,21 @@
 					"sources": [
 						{
 							"fileName": "client/src/managers/iframe.manager.ts",
-							"line": 48,
+							"line": 50,
 							"character": 1
 						}
 					],
 					"type": {
 						"type": "reflection",
 						"declaration": {
-							"id": 37,
+							"id": 39,
 							"name": "__type",
 							"kind": 65536,
 							"kindString": "Type literal",
 							"flags": {},
 							"children": [
 								{
-									"id": 39,
+									"id": 41,
 									"name": "data",
 									"kind": 1024,
 									"kindString": "Property",
@@ -787,7 +791,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/managers/iframe.manager.ts",
-											"line": 50,
+											"line": 52,
 											"character": 2
 										}
 									],
@@ -797,7 +801,7 @@
 									}
 								},
 								{
-									"id": 38,
+									"id": 40,
 									"name": "reqId",
 									"kind": 1024,
 									"kindString": "Property",
@@ -805,7 +809,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/managers/iframe.manager.ts",
-											"line": 49,
+											"line": 51,
 											"character": 2
 										}
 									],
@@ -820,8 +824,8 @@
 									"title": "Properties",
 									"kind": 1024,
 									"children": [
-										39,
-										38
+										41,
+										40
 									]
 								}
 							]
@@ -829,7 +833,7 @@
 					}
 				},
 				{
-					"id": 31,
+					"id": 33,
 					"name": "apiCall",
 					"kind": 1024,
 					"kindString": "Property",
@@ -837,21 +841,21 @@
 					"sources": [
 						{
 							"fileName": "client/src/managers/iframe.manager.ts",
-							"line": 43,
+							"line": 45,
 							"character": 1
 						}
 					],
 					"type": {
 						"type": "reflection",
 						"declaration": {
-							"id": 32,
+							"id": 34,
 							"name": "__type",
 							"kind": 65536,
 							"kindString": "Type literal",
 							"flags": {},
 							"children": [
 								{
-									"id": 35,
+									"id": 37,
 									"name": "apiArguments",
 									"kind": 1024,
 									"kindString": "Property",
@@ -859,7 +863,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/managers/iframe.manager.ts",
-											"line": 46,
+											"line": 48,
 											"character": 2
 										}
 									],
@@ -872,7 +876,7 @@
 									}
 								},
 								{
-									"id": 34,
+									"id": 36,
 									"name": "apiName",
 									"kind": 1024,
 									"kindString": "Property",
@@ -880,7 +884,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/managers/iframe.manager.ts",
-											"line": 45,
+											"line": 47,
 											"character": 2
 										}
 									],
@@ -890,7 +894,7 @@
 									}
 								},
 								{
-									"id": 33,
+									"id": 35,
 									"name": "reqId",
 									"kind": 1024,
 									"kindString": "Property",
@@ -898,7 +902,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/managers/iframe.manager.ts",
-											"line": 44,
+											"line": 46,
 											"character": 2
 										}
 									],
@@ -913,9 +917,86 @@
 									"title": "Properties",
 									"kind": 1024,
 									"children": [
-										35,
-										34,
-										33
+										37,
+										36,
+										35
+									]
+								}
+							]
+						}
+					}
+				},
+				{
+					"id": 16,
+					"name": "askFullscreen",
+					"kind": 1024,
+					"kindString": "Property",
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "client/src/managers/iframe.manager.ts",
+							"line": 29,
+							"character": 1
+						}
+					],
+					"type": {
+						"type": "reflection",
+						"declaration": {
+							"id": 17,
+							"name": "__type",
+							"kind": 65536,
+							"kindString": "Type literal",
+							"flags": {}
+						}
+					}
+				},
+				{
+					"id": 21,
+					"name": "canScrollIframe",
+					"kind": 1024,
+					"kindString": "Property",
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "client/src/managers/iframe.manager.ts",
+							"line": 33,
+							"character": 1
+						}
+					],
+					"type": {
+						"type": "reflection",
+						"declaration": {
+							"id": 22,
+							"name": "__type",
+							"kind": 65536,
+							"kindString": "Type literal",
+							"flags": {},
+							"children": [
+								{
+									"id": 23,
+									"name": "status",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "client/src/managers/iframe.manager.ts",
+											"line": 34,
+											"character": 2
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "boolean"
+									}
+								}
+							],
+							"groups": [
+								{
+									"title": "Properties",
+									"kind": 1024,
+									"children": [
+										23
 									]
 								}
 							]
@@ -924,14 +1005,14 @@
 				},
 				{
 					"id": 14,
-					"name": "askFullscreen",
+					"name": "childReady",
 					"kind": 1024,
 					"kindString": "Property",
 					"flags": {},
 					"sources": [
 						{
 							"fileName": "client/src/managers/iframe.manager.ts",
-							"line": 27,
+							"line": 28,
 							"character": 1
 						}
 					],
@@ -947,60 +1028,7 @@
 					}
 				},
 				{
-					"id": 19,
-					"name": "canScrollIframe",
-					"kind": 1024,
-					"kindString": "Property",
-					"flags": {},
-					"sources": [
-						{
-							"fileName": "client/src/managers/iframe.manager.ts",
-							"line": 31,
-							"character": 1
-						}
-					],
-					"type": {
-						"type": "reflection",
-						"declaration": {
-							"id": 20,
-							"name": "__type",
-							"kind": 65536,
-							"kindString": "Type literal",
-							"flags": {},
-							"children": [
-								{
-									"id": 21,
-									"name": "status",
-									"kind": 1024,
-									"kindString": "Property",
-									"flags": {},
-									"sources": [
-										{
-											"fileName": "client/src/managers/iframe.manager.ts",
-											"line": 32,
-											"character": 2
-										}
-									],
-									"type": {
-										"type": "intrinsic",
-										"name": "boolean"
-									}
-								}
-							],
-							"groups": [
-								{
-									"title": "Properties",
-									"kind": 1024,
-									"children": [
-										21
-									]
-								}
-							]
-						}
-					}
-				},
-				{
-					"id": 22,
+					"id": 24,
 					"name": "getScrollPos",
 					"kind": 1024,
 					"kindString": "Property",
@@ -1008,21 +1036,21 @@
 					"sources": [
 						{
 							"fileName": "client/src/managers/iframe.manager.ts",
-							"line": 34,
+							"line": 36,
 							"character": 1
 						}
 					],
 					"type": {
 						"type": "reflection",
 						"declaration": {
-							"id": 23,
+							"id": 25,
 							"name": "__type",
 							"kind": 65536,
 							"kindString": "Type literal",
 							"flags": {},
 							"children": [
 								{
-									"id": 24,
+									"id": 26,
 									"name": "y",
 									"kind": 1024,
 									"kindString": "Property",
@@ -1030,7 +1058,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/managers/iframe.manager.ts",
-											"line": 35,
+											"line": 37,
 											"character": 2
 										}
 									],
@@ -1045,7 +1073,7 @@
 									"title": "Properties",
 									"kind": 1024,
 									"children": [
-										24
+										26
 									]
 								}
 							]
@@ -1053,7 +1081,7 @@
 					}
 				},
 				{
-					"id": 25,
+					"id": 27,
 					"name": "iframeError",
 					"kind": 1024,
 					"kindString": "Property",
@@ -1061,21 +1089,21 @@
 					"sources": [
 						{
 							"fileName": "client/src/managers/iframe.manager.ts",
-							"line": 37,
+							"line": 39,
 							"character": 1
 						}
 					],
 					"type": {
 						"type": "reflection",
 						"declaration": {
-							"id": 26,
+							"id": 28,
 							"name": "__type",
 							"kind": 65536,
 							"kindString": "Type literal",
 							"flags": {},
 							"children": [
 								{
-									"id": 27,
+									"id": 29,
 									"name": "error",
 									"kind": 1024,
 									"kindString": "Property",
@@ -1083,7 +1111,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/managers/iframe.manager.ts",
-											"line": 38,
+											"line": 40,
 											"character": 2
 										}
 									],
@@ -1098,7 +1126,7 @@
 									"title": "Properties",
 									"kind": 1024,
 									"children": [
-										27
+										29
 									]
 								}
 							]
@@ -1106,7 +1134,7 @@
 					}
 				},
 				{
-					"id": 28,
+					"id": 30,
 					"name": "iframeLog",
 					"kind": 1024,
 					"kindString": "Property",
@@ -1114,21 +1142,21 @@
 					"sources": [
 						{
 							"fileName": "client/src/managers/iframe.manager.ts",
-							"line": 40,
+							"line": 42,
 							"character": 1
 						}
 					],
 					"type": {
 						"type": "reflection",
 						"declaration": {
-							"id": 29,
+							"id": 31,
 							"name": "__type",
 							"kind": 65536,
 							"kindString": "Type literal",
 							"flags": {},
 							"children": [
 								{
-									"id": 30,
+									"id": 32,
 									"name": "msg",
 									"kind": 1024,
 									"kindString": "Property",
@@ -1136,7 +1164,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/managers/iframe.manager.ts",
-											"line": 41,
+											"line": 43,
 											"character": 2
 										}
 									],
@@ -1151,7 +1179,7 @@
 									"title": "Properties",
 									"kind": 1024,
 									"children": [
-										30
+										32
 									]
 								}
 							]
@@ -1220,7 +1248,7 @@
 											},
 											{
 												"type": "reference",
-												"id": 164,
+												"id": 166,
 												"name": "iFile"
 											}
 										]
@@ -1393,7 +1421,7 @@
 					}
 				},
 				{
-					"id": 16,
+					"id": 18,
 					"name": "resize",
 					"kind": 1024,
 					"kindString": "Property",
@@ -1401,21 +1429,21 @@
 					"sources": [
 						{
 							"fileName": "client/src/managers/iframe.manager.ts",
-							"line": 28,
+							"line": 30,
 							"character": 1
 						}
 					],
 					"type": {
 						"type": "reflection",
 						"declaration": {
-							"id": 17,
+							"id": 19,
 							"name": "__type",
 							"kind": 65536,
 							"kindString": "Type literal",
 							"flags": {},
 							"children": [
 								{
-									"id": 18,
+									"id": 20,
 									"name": "height",
 									"kind": 1024,
 									"kindString": "Property",
@@ -1423,7 +1451,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/managers/iframe.manager.ts",
-											"line": 29,
+											"line": 31,
 											"character": 2
 										}
 									],
@@ -1447,7 +1475,7 @@
 									"title": "Properties",
 									"kind": 1024,
 									"children": [
-										18
+										20
 									]
 								}
 							]
@@ -1460,15 +1488,16 @@
 					"title": "Properties",
 					"kind": 1024,
 					"children": [
-						36,
-						31,
+						38,
+						33,
+						16,
+						21,
 						14,
-						19,
-						22,
-						25,
-						28,
+						24,
+						27,
+						30,
 						2,
-						16
+						18
 					]
 				}
 			],
@@ -1481,7 +1510,7 @@
 			]
 		},
 		{
-			"id": 154,
+			"id": 156,
 			"name": "apiType",
 			"kind": 4194304,
 			"kindString": "Type alias",
@@ -1489,19 +1518,19 @@
 			"sources": [
 				{
 					"fileName": "client/src/managers/iframe.manager.ts",
-					"line": 771,
+					"line": 781,
 					"character": 12
 				}
 			],
 			"type": {
 				"type": "reference",
-				"id": 156,
+				"id": 158,
 				"typeArguments": [
 					{
 						"type": "query",
 						"queryType": {
 							"type": "reference",
-							"id": 63,
+							"id": 65,
 							"name": "iframeMainCode"
 						}
 					}
@@ -1512,7 +1541,7 @@
 			}
 		},
 		{
-			"id": 40,
+			"id": 42,
 			"name": "iframeParentManager",
 			"kind": 32,
 			"kindString": "Variable",
@@ -1522,21 +1551,21 @@
 			"sources": [
 				{
 					"fileName": "client/src/managers/iframe.manager.ts",
-					"line": 105,
+					"line": 107,
 					"character": 13
 				}
 			],
 			"type": {
 				"type": "reflection",
 				"declaration": {
-					"id": 41,
+					"id": 43,
 					"name": "__type",
 					"kind": 65536,
 					"kindString": "Type literal",
 					"flags": {},
 					"children": [
 						{
-							"id": 54,
+							"id": 56,
 							"name": "send",
 							"kind": 1024,
 							"kindString": "Property",
@@ -1544,28 +1573,28 @@
 							"sources": [
 								{
 									"fileName": "client/src/managers/iframe.manager.ts",
-									"line": 108,
+									"line": 110,
 									"character": 1
 								}
 							],
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 55,
+									"id": 57,
 									"name": "__type",
 									"kind": 65536,
 									"kindString": "Type literal",
 									"flags": {},
 									"signatures": [
 										{
-											"id": 56,
+											"id": 58,
 											"name": "__type",
 											"kind": 4096,
 											"kindString": "Call signature",
 											"flags": {},
 											"parameters": [
 												{
-													"id": 57,
+													"id": 59,
 													"name": "el",
 													"kind": 32768,
 													"kindString": "Parameter",
@@ -1587,14 +1616,14 @@
 													}
 												},
 												{
-													"id": 58,
+													"id": 60,
 													"name": "message",
 													"kind": 32768,
 													"kindString": "Parameter",
 													"flags": {},
 													"type": {
 														"type": "reference",
-														"id": 182,
+														"id": 184,
 														"name": "iIframeMessage"
 													}
 												}
@@ -1610,7 +1639,7 @@
 							"defaultValue": "sendToIframe"
 						},
 						{
-							"id": 42,
+							"id": 44,
 							"name": "subscribe",
 							"kind": 1024,
 							"kindString": "Property",
@@ -1618,21 +1647,21 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 43,
+									"id": 45,
 									"name": "__type",
 									"kind": 65536,
 									"kindString": "Type literal",
 									"flags": {},
 									"signatures": [
 										{
-											"id": 44,
+											"id": 46,
 											"name": "__type",
 											"kind": 4096,
 											"kindString": "Call signature",
 											"flags": {},
 											"parameters": [
 												{
-													"id": 45,
+													"id": 47,
 													"name": "subId",
 													"kind": 32768,
 													"kindString": "Parameter",
@@ -1643,7 +1672,7 @@
 													}
 												},
 												{
-													"id": 46,
+													"id": 48,
 													"name": "cb",
 													"kind": 32768,
 													"kindString": "Parameter",
@@ -1651,28 +1680,28 @@
 													"type": {
 														"type": "reflection",
 														"declaration": {
-															"id": 47,
+															"id": 49,
 															"name": "__type",
 															"kind": 65536,
 															"kindString": "Type literal",
 															"flags": {},
 															"signatures": [
 																{
-																	"id": 48,
+																	"id": 50,
 																	"name": "__type",
 																	"kind": 4096,
 																	"kindString": "Call signature",
 																	"flags": {},
 																	"parameters": [
 																		{
-																			"id": 49,
+																			"id": 51,
 																			"name": "data",
 																			"kind": 32768,
 																			"kindString": "Parameter",
 																			"flags": {},
 																			"type": {
 																				"type": "reference",
-																				"id": 182,
+																				"id": 184,
 																				"name": "iIframeMessage"
 																			}
 																		}
@@ -1697,7 +1726,7 @@
 							}
 						},
 						{
-							"id": 50,
+							"id": 52,
 							"name": "unsubscribe",
 							"kind": 1024,
 							"kindString": "Property",
@@ -1705,21 +1734,21 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 51,
+									"id": 53,
 									"name": "__type",
 									"kind": 65536,
 									"kindString": "Type literal",
 									"flags": {},
 									"signatures": [
 										{
-											"id": 52,
+											"id": 54,
 											"name": "__type",
 											"kind": 4096,
 											"kindString": "Call signature",
 											"flags": {},
 											"parameters": [
 												{
-													"id": 53,
+													"id": 55,
 													"name": "subId",
 													"kind": 32768,
 													"kindString": "Parameter",
@@ -1745,9 +1774,9 @@
 							"title": "Properties",
 							"kind": 1024,
 							"children": [
-								54,
-								42,
-								50
+								56,
+								44,
+								52
 							]
 						}
 					]
@@ -1756,7 +1785,7 @@
 			"defaultValue": "..."
 		},
 		{
-			"id": 59,
+			"id": 61,
 			"name": "generateIframeHtml",
 			"kind": 64,
 			"kindString": "Function",
@@ -1764,20 +1793,20 @@
 			"sources": [
 				{
 					"fileName": "client/src/managers/iframe.manager.ts",
-					"line": 133,
+					"line": 135,
 					"character": 13
 				}
 			],
 			"signatures": [
 				{
-					"id": 60,
+					"id": 62,
 					"name": "generateIframeHtml",
 					"kind": 4096,
 					"kindString": "Call signature",
 					"flags": {},
 					"parameters": [
 						{
-							"id": 61,
+							"id": 63,
 							"name": "tagContent",
 							"kind": 32768,
 							"kindString": "Parameter",
@@ -1788,7 +1817,7 @@
 							}
 						},
 						{
-							"id": 62,
+							"id": 64,
 							"name": "frameId",
 							"kind": 32768,
 							"kindString": "Parameter",
@@ -1809,7 +1838,7 @@
 			]
 		},
 		{
-			"id": 63,
+			"id": 65,
 			"name": "iframeMainCode",
 			"kind": 64,
 			"kindString": "Function",
@@ -1817,20 +1846,20 @@
 			"sources": [
 				{
 					"fileName": "client/src/managers/iframe.manager.ts",
-					"line": 185,
+					"line": 187,
 					"character": 13
 				}
 			],
 			"signatures": [
 				{
-					"id": 64,
+					"id": 66,
 					"name": "iframeMainCode",
 					"kind": 4096,
 					"kindString": "Call signature",
 					"flags": {},
 					"parameters": [
 						{
-							"id": 65,
+							"id": 67,
 							"name": "p",
 							"kind": 32768,
 							"kindString": "Parameter",
@@ -1838,14 +1867,14 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 66,
+									"id": 68,
 									"name": "__type",
 									"kind": 65536,
 									"kindString": "Type literal",
 									"flags": {},
 									"children": [
 										{
-											"id": 68,
+											"id": 70,
 											"name": "backendUrl",
 											"kind": 1024,
 											"kindString": "Property",
@@ -1853,7 +1882,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/managers/iframe.manager.ts",
-													"line": 187,
+													"line": 189,
 													"character": 1
 												}
 											],
@@ -1863,7 +1892,7 @@
 											}
 										},
 										{
-											"id": 75,
+											"id": 77,
 											"name": "bindToElClass",
 											"kind": 1024,
 											"kindString": "Property",
@@ -1871,63 +1900,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/managers/iframe.manager.ts",
-													"line": 194,
-													"character": 1
-												}
-											],
-											"type": {
-												"type": "intrinsic",
-												"name": "any"
-											}
-										},
-										{
-											"id": 72,
-											"name": "createEventBus",
-											"kind": 1024,
-											"kindString": "Property",
-											"flags": {},
-											"sources": [
-												{
-													"fileName": "client/src/managers/iframe.manager.ts",
-													"line": 191,
-													"character": 1
-												}
-											],
-											"type": {
-												"type": "intrinsic",
-												"name": "any"
-											}
-										},
-										{
-											"id": 67,
-											"name": "frameId",
-											"kind": 1024,
-											"kindString": "Property",
-											"flags": {
-												"isOptional": true
-											},
-											"sources": [
-												{
-													"fileName": "client/src/managers/iframe.manager.ts",
-													"line": 186,
-													"character": 1
-												}
-											],
-											"type": {
-												"type": "intrinsic",
-												"name": "any"
-											}
-										},
-										{
-											"id": 73,
-											"name": "generateUUID",
-											"kind": 1024,
-											"kindString": "Property",
-											"flags": {},
-											"sources": [
-												{
-													"fileName": "client/src/managers/iframe.manager.ts",
-													"line": 192,
+													"line": 196,
 													"character": 1
 												}
 											],
@@ -1938,7 +1911,7 @@
 										},
 										{
 											"id": 74,
-											"name": "getRessourceIdFromUrl",
+											"name": "createEventBus",
 											"kind": 1024,
 											"kindString": "Property",
 											"flags": {},
@@ -1956,10 +1929,12 @@
 										},
 										{
 											"id": 69,
-											"name": "loginToken",
+											"name": "frameId",
 											"kind": 1024,
 											"kindString": "Property",
-											"flags": {},
+											"flags": {
+												"isOptional": true
+											},
 											"sources": [
 												{
 													"fileName": "client/src/managers/iframe.manager.ts",
@@ -1973,15 +1948,15 @@
 											}
 										},
 										{
-											"id": 70,
-											"name": "replaceCustomMdTags",
+											"id": 75,
+											"name": "generateUUID",
 											"kind": 1024,
 											"kindString": "Property",
 											"flags": {},
 											"sources": [
 												{
 													"fileName": "client/src/managers/iframe.manager.ts",
-													"line": 189,
+													"line": 194,
 													"character": 1
 												}
 											],
@@ -1992,7 +1967,7 @@
 										},
 										{
 											"id": 76,
-											"name": "ressCacheId",
+											"name": "getRessourceIdFromUrl",
 											"kind": 1024,
 											"kindString": "Property",
 											"flags": {},
@@ -2010,7 +1985,7 @@
 										},
 										{
 											"id": 71,
-											"name": "unescapeHtml",
+											"name": "loginToken",
 											"kind": 1024,
 											"kindString": "Property",
 											"flags": {},
@@ -2025,6 +2000,60 @@
 												"type": "intrinsic",
 												"name": "any"
 											}
+										},
+										{
+											"id": 72,
+											"name": "replaceCustomMdTags",
+											"kind": 1024,
+											"kindString": "Property",
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "client/src/managers/iframe.manager.ts",
+													"line": 191,
+													"character": 1
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										},
+										{
+											"id": 78,
+											"name": "ressCacheId",
+											"kind": 1024,
+											"kindString": "Property",
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "client/src/managers/iframe.manager.ts",
+													"line": 197,
+													"character": 1
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										},
+										{
+											"id": 73,
+											"name": "unescapeHtml",
+											"kind": 1024,
+											"kindString": "Property",
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "client/src/managers/iframe.manager.ts",
+													"line": 192,
+													"character": 1
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "any"
+											}
 										}
 									],
 									"groups": [
@@ -2032,16 +2061,16 @@
 											"title": "Properties",
 											"kind": 1024,
 											"children": [
-												68,
-												75,
-												72,
-												67,
-												73,
+												70,
+												77,
 												74,
 												69,
-												70,
+												75,
 												76,
-												71
+												71,
+												72,
+												78,
+												73
 											]
 										}
 									]
@@ -2052,14 +2081,14 @@
 					"type": {
 						"type": "reflection",
 						"declaration": {
-							"id": 77,
+							"id": 79,
 							"name": "__type",
 							"kind": 65536,
 							"kindString": "Type literal",
 							"flags": {},
 							"children": [
 								{
-									"id": 79,
+									"id": 81,
 									"name": "call",
 									"kind": 1024,
 									"kindString": "Property",
@@ -2067,19 +2096,19 @@
 									"sources": [
 										{
 											"fileName": "client/src/managers/iframe.manager.ts",
-											"line": 721,
+											"line": 728,
 											"character": 2
 										}
 									],
 									"type": {
 										"type": "reference",
-										"id": 176,
+										"id": 178,
 										"name": "iApiCall"
 									},
 									"defaultValue": "callApi"
 								},
 								{
-									"id": 80,
+									"id": 82,
 									"name": "utils",
 									"kind": 1024,
 									"kindString": "Property",
@@ -2087,21 +2116,21 @@
 									"sources": [
 										{
 											"fileName": "client/src/managers/iframe.manager.ts",
-											"line": 722,
+											"line": 729,
 											"character": 2
 										}
 									],
 									"type": {
 										"type": "reflection",
 										"declaration": {
-											"id": 81,
+											"id": 83,
 											"name": "__type",
 											"kind": 65536,
 											"kindString": "Type literal",
 											"flags": {},
 											"children": [
 												{
-													"id": 134,
+													"id": 136,
 													"name": "canScrollIframe",
 													"kind": 1024,
 													"kindString": "Property",
@@ -2109,21 +2138,21 @@
 													"type": {
 														"type": "reflection",
 														"declaration": {
-															"id": 135,
+															"id": 137,
 															"name": "__type",
 															"kind": 65536,
 															"kindString": "Type literal",
 															"flags": {},
 															"signatures": [
 																{
-																	"id": 136,
+																	"id": 138,
 																	"name": "__type",
 																	"kind": 4096,
 																	"kindString": "Call signature",
 																	"flags": {},
 																	"parameters": [
 																		{
-																			"id": 137,
+																			"id": 139,
 																			"name": "status",
 																			"kind": 32768,
 																			"kindString": "Parameter",
@@ -2144,7 +2173,7 @@
 													}
 												},
 												{
-													"id": 145,
+													"id": 147,
 													"name": "createDiv",
 													"kind": 1024,
 													"kindString": "Property",
@@ -2152,14 +2181,14 @@
 													"type": {
 														"type": "reflection",
 														"declaration": {
-															"id": 146,
+															"id": 148,
 															"name": "__type",
 															"kind": 65536,
 															"kindString": "Type literal",
 															"flags": {},
 															"signatures": [
 																{
-																	"id": 147,
+																	"id": 149,
 																	"name": "__type",
 																	"kind": 4096,
 																	"kindString": "Call signature",
@@ -2167,14 +2196,14 @@
 																	"type": {
 																		"type": "reflection",
 																		"declaration": {
-																			"id": 148,
+																			"id": 150,
 																			"name": "__type",
 																			"kind": 65536,
 																			"kindString": "Type literal",
 																			"flags": {},
 																			"children": [
 																				{
-																					"id": 149,
+																					"id": 151,
 																					"name": "div",
 																					"kind": 1024,
 																					"kindString": "Property",
@@ -2182,7 +2211,7 @@
 																					"sources": [
 																						{
 																							"fileName": "client/src/managers/iframe.manager.ts",
-																							"line": 699,
+																							"line": 706,
 																							"character": 3
 																						}
 																					],
@@ -2193,7 +2222,7 @@
 																					"defaultValue": "..."
 																				},
 																				{
-																					"id": 150,
+																					"id": 152,
 																					"name": "updateContent",
 																					"kind": 1024,
 																					"kindString": "Property",
@@ -2201,21 +2230,21 @@
 																					"type": {
 																						"type": "reflection",
 																						"declaration": {
-																							"id": 151,
+																							"id": 153,
 																							"name": "__type",
 																							"kind": 65536,
 																							"kindString": "Type literal",
 																							"flags": {},
 																							"signatures": [
 																								{
-																									"id": 152,
+																									"id": 154,
 																									"name": "__type",
 																									"kind": 4096,
 																									"kindString": "Call signature",
 																									"flags": {},
 																									"parameters": [
 																										{
-																											"id": 153,
+																											"id": 155,
 																											"name": "nContent",
 																											"kind": 32768,
 																											"kindString": "Parameter",
@@ -2241,8 +2270,8 @@
 																					"title": "Properties",
 																					"kind": 1024,
 																					"children": [
-																						149,
-																						150
+																						151,
+																						152
 																					]
 																				}
 																			]
@@ -2254,7 +2283,7 @@
 													}
 												},
 												{
-													"id": 131,
+													"id": 133,
 													"name": "fullscreenIframe",
 													"kind": 1024,
 													"kindString": "Property",
@@ -2262,14 +2291,14 @@
 													"type": {
 														"type": "reflection",
 														"declaration": {
-															"id": 132,
+															"id": 134,
 															"name": "__type",
 															"kind": 65536,
 															"kindString": "Type literal",
 															"flags": {},
 															"signatures": [
 																{
-																	"id": 133,
+																	"id": 135,
 																	"name": "__type",
 																	"kind": 4096,
 																	"kindString": "Call signature",
@@ -2284,7 +2313,7 @@
 													}
 												},
 												{
-													"id": 101,
+													"id": 103,
 													"name": "getCachedRessourceUrl",
 													"kind": 1024,
 													"kindString": "Property",
@@ -2292,21 +2321,21 @@
 													"type": {
 														"type": "reflection",
 														"declaration": {
-															"id": 102,
+															"id": 104,
 															"name": "__type",
 															"kind": 65536,
 															"kindString": "Type literal",
 															"flags": {},
 															"signatures": [
 																{
-																	"id": 103,
+																	"id": 105,
 																	"name": "__type",
 																	"kind": 4096,
 																	"kindString": "Call signature",
 																	"flags": {},
 																	"parameters": [
 																		{
-																			"id": 104,
+																			"id": 106,
 																			"name": "url",
 																			"kind": 32768,
 																			"kindString": "Parameter",
@@ -2317,7 +2346,7 @@
 																			}
 																		},
 																		{
-																			"id": 105,
+																			"id": 107,
 																			"name": "fileName",
 																			"kind": 32768,
 																			"kindString": "Parameter",
@@ -2340,7 +2369,7 @@
 													}
 												},
 												{
-													"id": 82,
+													"id": 84,
 													"name": "getInfos",
 													"kind": 1024,
 													"kindString": "Property",
@@ -2348,14 +2377,14 @@
 													"type": {
 														"type": "reflection",
 														"declaration": {
-															"id": 83,
+															"id": 85,
 															"name": "__type",
 															"kind": 65536,
 															"kindString": "Type literal",
 															"flags": {},
 															"signatures": [
 																{
-																	"id": 84,
+																	"id": 86,
 																	"name": "__type",
 																	"kind": 4096,
 																	"kindString": "Call signature",
@@ -2363,14 +2392,14 @@
 																	"type": {
 																		"type": "reflection",
 																		"declaration": {
-																			"id": 85,
+																			"id": 87,
 																			"name": "__type",
 																			"kind": 65536,
 																			"kindString": "Type literal",
 																			"flags": {},
 																			"children": [
 																				{
-																					"id": 94,
+																					"id": 96,
 																					"name": "backendUrl",
 																					"kind": 1024,
 																					"kindString": "Property",
@@ -2388,7 +2417,7 @@
 																					}
 																				},
 																				{
-																					"id": 86,
+																					"id": 88,
 																					"name": "file",
 																					"kind": 1024,
 																					"kindString": "Property",
@@ -2409,14 +2438,14 @@
 																							},
 																							{
 																								"type": "reference",
-																								"id": 164,
+																								"id": 166,
 																								"name": "iFile"
 																							}
 																						]
 																					}
 																				},
 																				{
-																					"id": 90,
+																					"id": 92,
 																					"name": "frameId",
 																					"kind": 1024,
 																					"kindString": "Property",
@@ -2434,7 +2463,7 @@
 																					}
 																				},
 																				{
-																					"id": 87,
+																					"id": 89,
 																					"name": "innerTag",
 																					"kind": 1024,
 																					"kindString": "Property",
@@ -2452,7 +2481,7 @@
 																					}
 																				},
 																				{
-																					"id": 93,
+																					"id": 95,
 																					"name": "loginToken",
 																					"kind": 1024,
 																					"kindString": "Property",
@@ -2470,7 +2499,7 @@
 																					}
 																				},
 																				{
-																					"id": 91,
+																					"id": 93,
 																					"name": "reloadCounter",
 																					"kind": 1024,
 																					"kindString": "Property",
@@ -2488,7 +2517,7 @@
 																					}
 																				},
 																				{
-																					"id": 95,
+																					"id": 97,
 																					"name": "ressCacheId",
 																					"kind": 1024,
 																					"kindString": "Property",
@@ -2506,7 +2535,7 @@
 																					}
 																				},
 																				{
-																					"id": 89,
+																					"id": 91,
 																					"name": "tagContent",
 																					"kind": 1024,
 																					"kindString": "Property",
@@ -2524,7 +2553,7 @@
 																					}
 																				},
 																				{
-																					"id": 88,
+																					"id": 90,
 																					"name": "tagName",
 																					"kind": 1024,
 																					"kindString": "Property",
@@ -2542,7 +2571,7 @@
 																					}
 																				},
 																				{
-																					"id": 92,
+																					"id": 94,
 																					"name": "windowId",
 																					"kind": 1024,
 																					"kindString": "Property",
@@ -2565,16 +2594,16 @@
 																					"title": "Properties",
 																					"kind": 1024,
 																					"children": [
-																						94,
-																						86,
-																						90,
-																						87,
-																						93,
-																						91,
-																						95,
-																						89,
+																						96,
 																						88,
-																						92
+																						92,
+																						89,
+																						95,
+																						93,
+																						97,
+																						91,
+																						90,
+																						94
 																					]
 																				}
 																			]
@@ -2586,7 +2615,7 @@
 													}
 												},
 												{
-													"id": 106,
+													"id": 108,
 													"name": "getRessourceIdFromUrl",
 													"kind": 1024,
 													"kindString": "Property",
@@ -2594,7 +2623,7 @@
 													"sources": [
 														{
 															"fileName": "client/src/managers/iframe.manager.ts",
-															"line": 727,
+															"line": 734,
 															"character": 3
 														}
 													],
@@ -2605,7 +2634,7 @@
 													"defaultValue": "p.getRessourceIdFromUrl"
 												},
 												{
-													"id": 96,
+													"id": 98,
 													"name": "loadCachedRessources",
 													"kind": 1024,
 													"kindString": "Property",
@@ -2613,21 +2642,21 @@
 													"type": {
 														"type": "reflection",
 														"declaration": {
-															"id": 97,
+															"id": 99,
 															"name": "__type",
 															"kind": 65536,
 															"kindString": "Type literal",
 															"flags": {},
 															"signatures": [
 																{
-																	"id": 98,
+																	"id": 100,
 																	"name": "__type",
 																	"kind": 4096,
 																	"kindString": "Call signature",
 																	"flags": {},
 																	"parameters": [
 																		{
-																			"id": 99,
+																			"id": 101,
 																			"name": "ressources",
 																			"kind": 32768,
 																			"kindString": "Parameter",
@@ -2636,13 +2665,13 @@
 																				"type": "array",
 																				"elementType": {
 																					"type": "reference",
-																					"id": 185,
+																					"id": 187,
 																					"name": "iRessObjOrString"
 																				}
 																			}
 																		},
 																		{
-																			"id": 100,
+																			"id": 102,
 																			"name": "cb",
 																			"kind": 32768,
 																			"kindString": "Parameter",
@@ -2665,7 +2694,7 @@
 													}
 												},
 												{
-													"id": 138,
+													"id": 140,
 													"name": "loadCustomTag",
 													"kind": 1024,
 													"kindString": "Property",
@@ -2673,21 +2702,21 @@
 													"type": {
 														"type": "reflection",
 														"declaration": {
-															"id": 139,
+															"id": 141,
 															"name": "__type",
 															"kind": 65536,
 															"kindString": "Type literal",
 															"flags": {},
 															"signatures": [
 																{
-																	"id": 140,
+																	"id": 142,
 																	"name": "__type",
 																	"kind": 4096,
 																	"kindString": "Call signature",
 																	"flags": {},
 																	"parameters": [
 																		{
-																			"id": 141,
+																			"id": 143,
 																			"name": "url",
 																			"kind": 32768,
 																			"kindString": "Parameter",
@@ -2698,7 +2727,7 @@
 																			}
 																		},
 																		{
-																			"id": 142,
+																			"id": 144,
 																			"name": "innerTag",
 																			"kind": 32768,
 																			"kindString": "Parameter",
@@ -2709,7 +2738,7 @@
 																			}
 																		},
 																		{
-																			"id": 143,
+																			"id": 145,
 																			"name": "opts",
 																			"kind": 32768,
 																			"kindString": "Parameter",
@@ -2730,7 +2759,7 @@
 													}
 												},
 												{
-													"id": 112,
+													"id": 114,
 													"name": "loadRessources",
 													"kind": 1024,
 													"kindString": "Property",
@@ -2738,21 +2767,21 @@
 													"type": {
 														"type": "reflection",
 														"declaration": {
-															"id": 113,
+															"id": 115,
 															"name": "__type",
 															"kind": 65536,
 															"kindString": "Type literal",
 															"flags": {},
 															"signatures": [
 																{
-																	"id": 114,
+																	"id": 116,
 																	"name": "__type",
 																	"kind": 4096,
 																	"kindString": "Call signature",
 																	"flags": {},
 																	"parameters": [
 																		{
-																			"id": 115,
+																			"id": 117,
 																			"name": "ressources",
 																			"kind": 32768,
 																			"kindString": "Parameter",
@@ -2761,13 +2790,13 @@
 																				"type": "array",
 																				"elementType": {
 																					"type": "reference",
-																					"id": 185,
+																					"id": 187,
 																					"name": "iRessObjOrString"
 																				}
 																			}
 																		},
 																		{
-																			"id": 116,
+																			"id": 118,
 																			"name": "cb",
 																			"kind": 32768,
 																			"kindString": "Parameter",
@@ -2790,7 +2819,7 @@
 													}
 												},
 												{
-													"id": 117,
+													"id": 119,
 													"name": "loadRessourcesOneByOne",
 													"kind": 1024,
 													"kindString": "Property",
@@ -2798,21 +2827,21 @@
 													"type": {
 														"type": "reflection",
 														"declaration": {
-															"id": 118,
+															"id": 120,
 															"name": "__type",
 															"kind": 65536,
 															"kindString": "Type literal",
 															"flags": {},
 															"signatures": [
 																{
-																	"id": 119,
+																	"id": 121,
 																	"name": "__type",
 																	"kind": 4096,
 																	"kindString": "Call signature",
 																	"flags": {},
 																	"parameters": [
 																		{
-																			"id": 120,
+																			"id": 122,
 																			"name": "ressources",
 																			"kind": 32768,
 																			"kindString": "Parameter",
@@ -2821,13 +2850,13 @@
 																				"type": "array",
 																				"elementType": {
 																					"type": "reference",
-																					"id": 185,
+																					"id": 187,
 																					"name": "iRessObjOrString"
 																				}
 																			}
 																		},
 																		{
-																			"id": 121,
+																			"id": 123,
 																			"name": "cb",
 																			"kind": 32768,
 																			"kindString": "Parameter",
@@ -2850,7 +2879,7 @@
 													}
 												},
 												{
-													"id": 107,
+													"id": 109,
 													"name": "loadScripts",
 													"kind": 1024,
 													"kindString": "Property",
@@ -2858,21 +2887,21 @@
 													"type": {
 														"type": "reflection",
 														"declaration": {
-															"id": 108,
+															"id": 110,
 															"name": "__type",
 															"kind": 65536,
 															"kindString": "Type literal",
 															"flags": {},
 															"signatures": [
 																{
-																	"id": 109,
+																	"id": 111,
 																	"name": "__type",
 																	"kind": 4096,
 																	"kindString": "Call signature",
 																	"flags": {},
 																	"parameters": [
 																		{
-																			"id": 110,
+																			"id": 112,
 																			"name": "scripts",
 																			"kind": 32768,
 																			"kindString": "Parameter",
@@ -2886,7 +2915,7 @@
 																			}
 																		},
 																		{
-																			"id": 111,
+																			"id": 113,
 																			"name": "cb",
 																			"kind": 32768,
 																			"kindString": "Parameter",
@@ -2909,7 +2938,7 @@
 													}
 												},
 												{
-													"id": 122,
+													"id": 124,
 													"name": "loadScriptsNoCache",
 													"kind": 1024,
 													"kindString": "Property",
@@ -2917,21 +2946,21 @@
 													"type": {
 														"type": "reflection",
 														"declaration": {
-															"id": 123,
+															"id": 125,
 															"name": "__type",
 															"kind": 65536,
 															"kindString": "Type literal",
 															"flags": {},
 															"signatures": [
 																{
-																	"id": 124,
+																	"id": 126,
 																	"name": "__type",
 																	"kind": 4096,
 																	"kindString": "Call signature",
 																	"flags": {},
 																	"parameters": [
 																		{
-																			"id": 125,
+																			"id": 127,
 																			"name": "scripts",
 																			"kind": 32768,
 																			"kindString": "Parameter",
@@ -2945,7 +2974,7 @@
 																			}
 																		},
 																		{
-																			"id": 126,
+																			"id": 128,
 																			"name": "cb",
 																			"kind": 32768,
 																			"kindString": "Parameter",
@@ -2968,7 +2997,7 @@
 													}
 												},
 												{
-													"id": 127,
+													"id": 129,
 													"name": "resizeIframe",
 													"kind": 1024,
 													"kindString": "Property",
@@ -2976,21 +3005,21 @@
 													"type": {
 														"type": "reflection",
 														"declaration": {
-															"id": 128,
+															"id": 130,
 															"name": "__type",
 															"kind": 65536,
 															"kindString": "Type literal",
 															"flags": {},
 															"signatures": [
 																{
-																	"id": 129,
+																	"id": 131,
 																	"name": "__type",
 																	"kind": 4096,
 																	"kindString": "Call signature",
 																	"flags": {},
 																	"parameters": [
 																		{
-																			"id": 130,
+																			"id": 132,
 																			"name": "heightRaw",
 																			"kind": 32768,
 																			"kindString": "Parameter",
@@ -3013,7 +3042,7 @@
 													}
 												},
 												{
-													"id": 144,
+													"id": 146,
 													"name": "uuid",
 													"kind": 1024,
 													"kindString": "Property",
@@ -3021,7 +3050,7 @@
 													"sources": [
 														{
 															"fileName": "client/src/managers/iframe.manager.ts",
-															"line": 738,
+															"line": 745,
 															"character": 3
 														}
 													],
@@ -3037,20 +3066,20 @@
 													"title": "Properties",
 													"kind": 1024,
 													"children": [
-														134,
-														145,
-														131,
-														101,
-														82,
-														106,
-														96,
-														138,
-														112,
-														117,
-														107,
-														122,
-														127,
-														144
+														136,
+														147,
+														133,
+														103,
+														84,
+														108,
+														98,
+														140,
+														114,
+														119,
+														109,
+														124,
+														129,
+														146
 													]
 												}
 											]
@@ -3059,7 +3088,7 @@
 									"defaultValue": "..."
 								},
 								{
-									"id": 78,
+									"id": 80,
 									"name": "version",
 									"kind": 1024,
 									"kindString": "Property",
@@ -3067,7 +3096,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/managers/iframe.manager.ts",
-											"line": 720,
+											"line": 727,
 											"character": 2
 										}
 									],
@@ -3083,9 +3112,9 @@
 									"title": "Properties",
 									"kind": 1024,
 									"children": [
-										79,
-										80,
-										78
+										81,
+										82,
+										80
 									]
 								}
 							]
@@ -3100,7 +3129,7 @@
 			"title": "Namespaces",
 			"kind": 4,
 			"children": [
-				155
+				157
 			]
 		},
 		{
@@ -3114,22 +3143,22 @@
 			"title": "Type aliases",
 			"kind": 4194304,
 			"children": [
-				154
+				156
 			]
 		},
 		{
 			"title": "Variables",
 			"kind": 32,
 			"children": [
-				40
+				42
 			]
 		},
 		{
 			"title": "Functions",
 			"kind": 64,
 			"children": [
-				59,
-				63
+				61,
+				65
 			]
 		}
 	],

@@ -111,7 +111,7 @@ const FilesTagApp = (innerTagStr, opts) => {
 
             const getIconFile = (fileType) => {
               let ft = fileType.toLowerCase()
-		          if (["jpg", "jpeg", "gif", "png" ].includes(ft)) return "image"
+		          if (["jpg", "jpeg", "gif", "png", "webp" ].includes(ft)) return "image"
 		          else if (["pdf" ].includes(ft)) return "file-pdf"
 		          else if (["doc", "docx", "odt" ].includes(ft)) return "file-word"
 		          else if (["xls", "xlsx" , "xls" , "ods" ].includes(ft)) return "file-excel"
@@ -143,7 +143,7 @@ const FilesTagApp = (innerTagStr, opts) => {
                     content: `${item.raw.path}`,
                   },
                 }])
-              } else if (["png", "jpg", "jpeg", "gif"].indexOf(item.type) !== -1) {
+              } else if (["png", "jpg", "jpeg", "gif", "webp"].indexOf(item.type) !== -1) {
                 api.call("ui.lightbox.open", [0, [item.raw.path]])
               } else {
                 api.call("ui.floatingPanel.create", [{
@@ -279,14 +279,14 @@ const FilesTagApp = (innerTagStr, opts) => {
                   onItemOpenClick(item)
                 },
                 image: (item) => {
-                  if (["png", "jpg", "jpeg", "gif"].indexOf(item.type) !== -1) {
+                  if (["png", "jpg", "jpeg", "gif", "webp"].indexOf(item.type) !== -1) {
                     return `${getFullUrlItem(item)}`
                   } else if (["pdf", "epub"].indexOf(item.type) !== -1) {
                     return {html:`<div class="icon"><i class="fas fa-${item.icon}"></i></div>`}
                   }
                 },
                 hideLabel: (item) => {
-                  if (["png", "jpg", "jpeg", "gif"].indexOf(item.type) !== -1) return true
+                  if (["png", "jpg", "jpeg", "gif", "webp"].indexOf(item.type) !== -1) return true
                   return false
                 },
                 label: (item) => {

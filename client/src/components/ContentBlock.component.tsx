@@ -30,7 +30,7 @@ const reservedTagNames = ["latex", "l"]
 // CTAG handshake: kill the iframe and reload it if the child never answers within this window
 const CTAG_HANDSHAKE_TIMEOUT_MS = 5000
 // bounded reload attempts, then show the error instead of looping forever
-const CTAG_HANDSHAKE_MAX_RETRIES = 3
+const CTAG_HANDSHAKE_MAX_RETRIES = 10
 export type onIframeMouseWheelFn = (e: WheelEvent) => void
 
 export const ContentBlockInt = (p: {
