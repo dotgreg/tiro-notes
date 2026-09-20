@@ -18,6 +18,7 @@ import { deviceType } from '../../managers/device.manager';
 import { getFontSize } from '../../managers/font.manager';
 import { get } from 'http';
 import { triggerTiroHelpPopup } from '../../managers/help.manager';
+import { getBuiltinShortcutNames } from '../../managers/keyboard.manager';
 
 type ConfigPanel = {
 	title: string,
@@ -661,6 +662,7 @@ export const SettingsPopup = (p: {
 						<br>Commands available:
 						<br>- toggle_note: Toggle a note in a floating window. The command content should be the relative note path like /path/to/note.md
 						<br>- highlight_to_ai: Send the selected text to an AI, if nothing is selected, send the cursor line to the AI. The AI suggest function should be enabled. The command content can be the AI model name, but can also be left empty, it will select the first ai model (ref AI Suggest command line)
+						${getBuiltinShortcutNames() ? `<br> <br> Built-in commands (no content needed, binding one replaces its default shortcut): ${getBuiltinShortcutNames()}` : ""}
 						<br>
 						<br> Example:
 						<br> shift + alt > 1 | toggle_note |/path/to/note.md 

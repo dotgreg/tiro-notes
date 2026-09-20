@@ -5,14 +5,28 @@ import { codeMirrorGlobalVars } from '../components/dualView/CodeMirrorEditor.co
 import { notifLog } from './devCli.manager';
 
 
-export const addKeyShortcut = (shortcut: string, Fn: Function) => {
+// built-in shortcuts exposed to the "Custom Shortcuts" settings, by name:
+// name -> default shortcuts + fn (rebinding the name in settings replaces the default shortcut)
+export const namedShortcuts: Record<string, { fn: Function; shortcuts: string[] }> = {}
+
+export const registerBuiltinShortcut = (name: string, fn: Function, shortcut: string) => {
+	if (!namedShortcuts[name]) namedShortcuts[name] = { fn, shortcuts: [] }
+	namedShortcuts[name].fn = fn
+	if (!namedShortcuts[name].shortcuts.includes(shortcut)) namedShortcuts[name].shortcuts.push(shortcut)
+}
+
+export const getBuiltinShortcutNames = () => Object.keys(namedShortcuts).join(", ")
+
+export const addKeyShortcut = (shortcut: string, Fn: Function, nameForConfig?: string) => {
 	if (!k || !k.bind) return
+	if (nameForConfig) registerBuiltinShortcut(nameForConfig, Fn, shortcut)
 	k.bind(shortcut, Fn);
 }
 
-export const releaseKeyShortcut = (shortcut: string, Fn: Function) => {
+export const releaseKeyShortcut = (shortcut: string, Fn: Function, nameForConfig?: string) => {
 	if (!k || !k.bind) return
 	k.unbind(shortcut, Fn);
+	if (nameForConfig) delete namedShortcuts[nameForConfig]
 }
 
 export const releaseKeyShortcuts = () => {
@@ -23,7 +37,7 @@ export const releaseKeyShortcuts = () => {
 export interface iKeyboardShortcut {
 	shortcut: string
 	func: Function
-	command_name: "toggle_note" | "highlight_to_ai"
+	command_name: string
 	command_content: string
 }
 export const loadUserKeyboardShortcuts = (configText:string):iKeyboardShortcut[] => {
@@ -61,11 +75,12 @@ export const loadUserKeyboardShortcuts = (configText:string):iKeyboardShortcut[]
 		//
 		// hydrating functions
 		//
-		let func = () => {
+		let func: Function = () => {
 			// wooo
 		}
 		if (command_name === "toggle_note") func = Fn_toggle_note(command_content)
 		else if (command_name === "highlight_to_ai") func = Fn_highlight_to_ai(command_content)
+		else if (namedShortcuts[command_name]) func = namedShortcuts[command_name].fn
 		else func = () => {notifLog(`[custom shortcuts] command not found: "${command_name}"`, "error_shortcut_id"	)}
 
 		return {shortcut, func, command_name, command_content}

@@ -46,7 +46,7 @@ import { cloneDeep, each, random, set, update } from 'lodash-es';
 import { devCliAddFn, notifLog } from './managers/devCli.manager';
 import { NotificationsCenter } from './components/NotificationsCenter.component';
 import { startFrontendBackgroundPluginsCron } from './managers/plugin.manager';
-import { addKeyShortcut, loadUserKeyboardShortcuts, releaseKeyShortcut, releaseKeyShortcuts } from './managers/keyboard.manager';
+import { addKeyShortcut, loadUserKeyboardShortcuts, registerBuiltinShortcut, releaseKeyShortcut } from './managers/keyboard.manager';
 import { useNotePreviewPopupApi } from './hooks/api/notePreviewPopup.api.hook';
 import { NotePreviewPopup } from './components/NotePreviewPopup.component';
 import { onStartupReactToUrlParams, updateAppUrlFromActiveWindow } from './managers/url.manager';
@@ -432,34 +432,45 @@ export const App = () => {
   useEffect(() => {
     const openOmni = () => { setSuggestOpen(true); setSuggestShow(true) }
     const closeOmni = () => { setSuggestOpen(false); }
-    // k.bind('alt + spacebar', openOmni);
-    addKeyShortcut('alt + spacebar', openOmni);
-    addKeyShortcut('alt + p', openOmni);
-    addKeyShortcut('alt + ,', () => { setConfigPopup("settings") });
-    addKeyShortcut('alt + /', () => { triggerTiroHelpPopup() });
-    // encryption + upload
-    addKeyShortcut('ctrl + e', () => {
-      api.note.ui.editorAction.dispatch({ type: "toggleEncryption", noteParentType: "grid" })
-    });
-    addKeyShortcut('ctrl + alt + e', () => {
-      api.note.ui.editorAction.dispatch({ type: "toggleEncryption", noteParentType: "floating" })
-    });
-    addKeyShortcut('ctrl + alt + u', () => {
-      api.note.ui.editorAction.dispatch({ type: "triggerUpload", noteParentType: "floating" })
-    });
-    // addKeyShortcut('alt + e', () => { api.note.ui.editorAction.dispatch({ type: "toggleEncryption", noteParentType: "grid" }) });
-    addKeyShortcut('ctrl + u', () => { api.note.ui.editorAction.dispatch({ type: "triggerUpload", noteParentType: "grid" }) });
-    addKeyShortcut('alt + s', () => { api.ai.setStatus("stop") });
-
-    // k.bind('esc', closeOmni);
-    addKeyShortcut('esc', () => {
-      closeOmni()
-      setConfigPopup(null)
-    });
-    return () => {
-      releaseKeyShortcuts()
+    const openSettings = () => { setConfigPopup("settings") }
+    const openTiroHelp = () => { triggerTiroHelpPopup() }
+    const toggleEncryptionGrid = () => { api.note.ui.editorAction.dispatch({ type: "toggleEncryption", noteParentType: "grid" }) }
+    const toggleEncryptionFloating = () => { api.note.ui.editorAction.dispatch({ type: "toggleEncryption", noteParentType: "floating" }) }
+    const triggerUploadFloating = () => { api.note.ui.editorAction.dispatch({ type: "triggerUpload", noteParentType: "floating" }) }
+    const triggerUploadGrid = () => { api.note.ui.editorAction.dispatch({ type: "triggerUpload", noteParentType: "grid" }) }
+    const stopAI = () => { api.ai.setStatus("stop") }
+    const closePopups = () => { closeOmni(); setConfigPopup(null) }
+    // built-ins the user re-bound in "Custom Shortcuts" settings: still registered, but their default shortcut is not bound
+    const overridden = new Set(loadUserKeyboardShortcuts(userSettingsSync.curr.keyboard_shortcuts_textarea || "").map(sc => sc.command_name))
+    const bindBuiltin = (name: string, shortcut: string, fn: Function) => {
+      registerBuiltinShortcut(name, fn, shortcut)
+      if (!overridden.has(name)) addKeyShortcut(shortcut, fn, name)
     }
-  }, [filesHistory])
+    bindBuiltin('openOmni', 'alt + spacebar', openOmni)
+    bindBuiltin('openOmni', 'alt + p', openOmni)
+    bindBuiltin('openSettings', 'alt + ,', openSettings)
+    bindBuiltin('openTiroHelp', 'alt + /', openTiroHelp)
+    // encryption + upload
+    bindBuiltin('toggleEncryptionGrid', 'ctrl + e', toggleEncryptionGrid)
+    bindBuiltin('toggleEncryptionFloating', 'ctrl + alt + e', toggleEncryptionFloating)
+    bindBuiltin('triggerUploadFloating', 'ctrl + alt + u', triggerUploadFloating)
+    bindBuiltin('triggerUploadGrid', 'ctrl + u', triggerUploadGrid)
+    bindBuiltin('stopAI', 'alt + s', stopAI)
+    bindBuiltin('closePopups', 'esc', closePopups)
+    return () => {
+      // release only this effect's shortcuts (releaseAllKeys would also wipe the custom ones)
+      releaseKeyShortcut('alt + spacebar', openOmni, 'openOmni')
+      releaseKeyShortcut('alt + p', openOmni, 'openOmni')
+      releaseKeyShortcut('alt + ,', openSettings, 'openSettings')
+      releaseKeyShortcut('alt + /', openTiroHelp, 'openTiroHelp')
+      releaseKeyShortcut('ctrl + e', toggleEncryptionGrid, 'toggleEncryptionGrid')
+      releaseKeyShortcut('ctrl + alt + e', toggleEncryptionFloating, 'toggleEncryptionFloating')
+      releaseKeyShortcut('ctrl + alt + u', triggerUploadFloating, 'triggerUploadFloating')
+      releaseKeyShortcut('ctrl + u', triggerUploadGrid, 'triggerUploadGrid')
+      releaseKeyShortcut('alt + s', stopAI, 'stopAI')
+      releaseKeyShortcut('esc', closePopups, 'closePopups')
+    }
+  }, [filesHistory, userSettingsSync.curr.keyboard_shortcuts_textarea])
 
 
 
@@ -487,17 +498,23 @@ export const App = () => {
     })
   }
   useEffect(() => {
-    addKeyShortcut('alt  > n', createNoteFn);
-    // addKeyShortcut('alt + shift > f', createNoteFloatingFn);
-    addKeyShortcut('alt > v', toggleActiveWindowView);
-    addKeyShortcut('alt > d', detachActiveNoteInFloating);
-    return () => {
-      releaseKeyShortcut('alt  > n', createNoteFn)
-      // releaseKeyShortcut('alt + shift > f', createNoteFloatingFn) 
-      releaseKeyShortcut('alt > v', toggleActiveWindowView);
-      releaseKeyShortcut('alt > d', detachActiveNoteInFloating);
+    // same as above: user re-bound these in settings? registered, but default shortcut not bound
+    const overridden = new Set(loadUserKeyboardShortcuts(userSettingsSync.curr.keyboard_shortcuts_textarea || "").map(sc => sc.command_name))
+    const bindBuiltin = (name: string, shortcut: string, fn: Function) => {
+      registerBuiltinShortcut(name, fn, shortcut)
+      if (!overridden.has(name)) addKeyShortcut(shortcut, fn, name)
     }
-  })
+    bindBuiltin('createNote', 'alt  > n', createNoteFn)
+    // bindBuiltin('createNoteFloating', 'alt + shift > f', createNoteFloatingFn)
+    bindBuiltin('toggleWindowView', 'alt > v', toggleActiveWindowView)
+    bindBuiltin('detachNoteFloating', 'alt > d', detachActiveNoteInFloating)
+    return () => {
+      releaseKeyShortcut('alt  > n', createNoteFn, 'createNote')
+      // releaseKeyShortcut('alt + shift > f', createNoteFloatingFn, 'createNoteFloating') 
+      releaseKeyShortcut('alt > v', toggleActiveWindowView, 'toggleWindowView')
+      releaseKeyShortcut('alt > d', detachActiveNoteInFloating, 'detachNoteFloating')
+    }
+  }, [userSettingsSync.curr.keyboard_shortcuts_textarea])
 
 
 
