@@ -416,7 +416,7 @@ export const SettingsPopup = (p: {
 					{
 						type: 'number',
 						title: "sentences in audio part",
-						expl: "The text will be split into audio parts. How many sentences should be in one part",
+						expl: "Cap: an audio part is closed once it holds this many sentences (legacy engines without their own max words). Engines with their own max words are cut purely by words, this setting does not apply",
 						var: us.get('tts_sentences_per_part'),
 						modifier: val => { 
 							us.set('tts_sentences_per_part', val) 
@@ -424,8 +424,8 @@ export const SettingsPopup = (p: {
 					},
 					{
 						type: 'number',
-						title: "Max words per sentence",
-						expl: "Fallback used when an engine line does not define its own max words. If the sentence exceeds the limit, it will be split into multiple parts, if audio cuts in a sentence, reduce that number",
+						title: "Max words per audio part (TTS)",
+						expl: "Fallback used when an engine line does not define its own max words. Each audio part is closed before the sentence that would push it over this count, so a part never exceeds it (a single sentence longer than the limit is split in words). If audio cuts in a sentence, reduce that number",
 						var: us.get('tts_max_words_per_sentence'),
 						modifier: val => { 
 							us.set('tts_max_words_per_sentence', val) 

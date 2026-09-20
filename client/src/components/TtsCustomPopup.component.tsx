@@ -119,7 +119,7 @@ export const TtsCustomPopup = (p: {
   }
 
   // ── TTS engine backends (setting `tts_custom_engine_command`) ────────────
-  // one engine per line: "name | max words per sentence (-1 = whole text) | command"
+  // one engine per line: "name | max words per part (-1 = whole text) | command"
   // a line without " | " = legacy single command (one engine, global max words)
   const engines = useMemo(
     () => parseTtsEngines(userSettingsSync.curr.tts_custom_engine_command, userSettingsSync.curr.tts_max_words_per_sentence),
@@ -189,6 +189,10 @@ export const TtsCustomPopup = (p: {
     // split p.fileContent into sentences
     let cleanedText = cleanText2Speech(p.fileContent)
     let sentencesPerPart = userSettingsSync.curr.tts_sentences_per_part
+    // engine with its own max words → the word cap is the ONLY part-size rule
+    // (without this, tts_sentences_per_part forces a part break every N sentences
+    // and caps e.g. a 50k-words engine at ~10 sentences per part)
+    if (selectedEngine?.hasOwnMaxWords) sentencesPerPart = Infinity
     let chunkedText2: string[]
     if (selMaxWords === -1) {
       // this engine asks for the WHOLE text in a single part
@@ -256,7 +260,7 @@ export const TtsCustomPopup = (p: {
     const name = e.target.value
     setSelEngineName(name)
     const en = engines.find(x => x.name === name)
-    log(`${pre}: 🔊 engine → ${name}${en ? ` (max ${en.maxWords === -1 ? 'whole text' : `${en.maxWords} words/sentence`})` : ''}`)
+    log(`${pre}: 🔊 engine → ${name}${en ? ` (max ${en.maxWords === -1 ? 'whole text' : `${en.maxWords} words/part`})` : ''}`)
     downloader.cleanup()
     if (isPlayingRef.current) {
       setIsPlaying(false)
@@ -572,7 +576,7 @@ export const TtsCustomPopup = (p: {
               {
                 engines.map(en => (
                   <option key={en.name} value={en.name}>
-                    {en.name} ({en.maxWords === -1 ? 'whole text' : `${en.maxWords} w/sentence`})
+                    {en.name} ({en.maxWords === -1 ? 'whole text' : `max ${en.maxWords} w/part`})
                   </option>
                 ))
               }

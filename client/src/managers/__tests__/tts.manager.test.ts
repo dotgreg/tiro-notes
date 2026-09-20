@@ -11,7 +11,44 @@ jest.mock('lodash-es', () => ({
   debounce: jest.fn(fn => fn),
 }))
 
-import { parseTtsEngines } from '../tts.manager'
+import { parseTtsEngines, chunkTextInSentences2 } from '../tts.manager'
+
+describe('chunkTextInSentences2 (max words per part)', () => {
+  const sentence = (n: number) => Array.from({ length: n }, (_, i) => `w${i}`).join(' ') + '.'
+
+  it('closes the part BEFORE the sentence that would exceed the cap', () => {
+    // 23 sentences x 20 words; cap 450 → first part must hold 22 sentences (440w), not 23 (460w)
+    const text = Array.from({ length: 23 }, () => sentence(20)).join(' ')
+    const chunks = chunkTextInSentences2(text, 100, 450)
+    const words = (c: string) => (c.match(/\S+/g) || []).length
+    chunks.forEach(c => expect(words(c)).toBeLessThanOrEqual(450))
+    expect(words(chunks[0])).toBe(440)
+  })
+
+  it('word cap is the only rule when sentencesPerPart is Infinity (engines with own max words)', () => {
+    // 23 sentences x 20 words, cap 450, sentence cap off → 22 sentences (440w) in the first part
+    const text = Array.from({ length: 23 }, () => sentence(20)).join(' ')
+    const chunks = chunkTextInSentences2(text, Infinity, 450)
+    const words = (c: string) => (c.match(/\S+/g) || []).length
+    expect(words(chunks[0])).toBe(440)
+    expect(words(chunks[1])).toBe(20)
+  })
+
+  it('sentencesPerPart acts as a cap (part closes when it holds that many sentences)', () => {
+    // 30 sentences x 20 words; sentence cap 10 hits (200w) before the word cap (500)
+    const text = Array.from({ length: 30 }, () => sentence(20)).join(' ')
+    const chunks = chunkTextInSentences2(text, 10, 500)
+    const words = (c: string) => (c.match(/\S+/g) || []).length
+    expect(words(chunks[0])).toBe(200)
+    expect(chunks).toHaveLength(3)
+  })
+
+  it('keeps the final part (trailing sentences are not dropped)', () => {
+    const chunks = chunkTextInSentences2(['a b c.', 'd e f.', 'g h i.'].join(' '), 1, 100)
+    expect(chunks).toHaveLength(3)
+    expect(chunks[2].trim()).toBe('g h i.')
+  })
+})
 
 describe('parseTtsEngines', () => {
   it('parses one engine per line: name | maxWords | command', () => {
@@ -24,6 +61,7 @@ describe('parseTtsEngines', () => {
     expect(engines).toHaveLength(2)
     expect(engines[0].name).toBe('engine1')
     expect(engines[0].maxWords).toBe(50)
+    expect(engines[0].hasOwnMaxWords).toBe(true)
     expect(engines[0].command).toBe('curl -X POST --data "{{input}}" https://a.test')
     expect(engines[1].maxWords).toBe(100)
   })
@@ -43,6 +81,7 @@ describe('parseTtsEngines', () => {
     expect(engines).toHaveLength(1)
     expect(engines[0].name).toBe('default')
     expect(engines[0].maxWords).toBe(75)
+    expect(engines[0].hasOwnMaxWords).toBe(false)
     expect(engines[0].command).toBe('curl -X POST --data "{{input}}" https://a.test')
   })
 

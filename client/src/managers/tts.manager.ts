@@ -30,16 +30,22 @@ export const cleanText2Speech = (rawText: string) => {
 	return text2read
 }
 
-/** One TTS engine backend: name | maxWordsPerSentence | command.
- *  maxWords = -1 → send the WHOLE text as a single part. */
+/** One TTS engine backend: name | maxWordsPerPart | command.
+ *  maxWords = max words per audio part: the part is closed BEFORE the
+ *  sentence that would exceed the cap (the cap is never exceeded). A single
+ *  sentence longer than the cap is split by words. -1 → WHOLE text, one part.
+ *  hasOwnMaxWords = true when the engine line defines its max words ("name | N | cmd")
+ *  → the word cap is the ONLY part-size rule (tts_sentences_per_part is ignored).
+ *  false = legacy single-command line using the global fallback. */
 export interface TtsEngine {
 	name: string
 	maxWords: number
+	hasOwnMaxWords: boolean
 	command: string
 }
 
 /** Parse the `tts_custom_engine_command` setting: one engine per line
- *  `name | maxWordsPerSentence (-1 = whole text) | command`. The command part
+ *  `name | maxWordsPerPart (-1 = whole text) | command`. The command part
  *  may itself contain " | " (the parts are joined back). Lines without a
  *  " | " separator are a legacy single command → one engine, global max words. */
 export const parseTtsEngines = (raw: string | undefined, fallbackMaxWords: number): TtsEngine[] => {
@@ -52,12 +58,14 @@ export const parseTtsEngines = (raw: string | undefined, fallbackMaxWords: numbe
 			res.push({
 				name: parts[0].trim() || (res.length === 0 ? 'default' : `engine ${i + 1}`),
 				maxWords: isNaN(maxWords) ? fallbackMaxWords : maxWords,
+				hasOwnMaxWords: true,
 				command: parts.slice(2).join(' | ').trim(),
 			})
 		} else {
 			res.push({
 				name: res.length === 0 ? 'default' : `engine ${i + 1}`,
 				maxWords: fallbackMaxWords,
+				hasOwnMaxWords: false,
 				command: lines[i],
 			})
 		}
@@ -132,6 +140,8 @@ export const extractToChunkPos = (extract: string, chunkedText:string[], chunkLe
 
 export const chunkTextInSentences2 = (text2chunk: string, sentencesPerPart:number, partMaxWords: number = 70): string[] => {
 	partMaxWords = parseInt(partMaxWords.toString())
+	// word count that ignores the leading space sentences keep (split(" ") counts an empty token)
+	const countWords = (s: string) => (s.match(/\S+/g) || []).length
 	// 1 remove spaces
 	text2chunk = removeTextLineJumps(text2chunk)
 	// 2 split by sentences while keeping punctuation
@@ -149,20 +159,27 @@ export const chunkTextInSentences2 = (text2chunk: string, sentencesPerPart:numbe
 	sentences = sentences.filter(s => s.length > 0)
 	let currChunk = ""
 	let chunks:string[] = []
-	
+	let sentencesInPart = 0
+
 	for (let i = 0; i < sentences.length; i++) {
-		// if sentencesPerPart is reached
-		if(i % sentencesPerPart === 0) {
+		// sentencesPerPart is a CAP: close the part once it holds that many sentences
+		// (Infinity for engines with their own max words → word cap is the only rule)
+		if (sentencesInPart >= sentencesPerPart) {
 			chunks.push(currChunk)
 			currChunk = ""
+			sentencesInPart = 0
 		}
-		// if merged sentences is > 70
+		// max words: close the part BEFORE the sentence that would exceed the cap
+		// (22 sentences = 440 words stays in, the 23rd → 460 starts a new part)
+		if (currChunk && countWords(currChunk) + countWords(sentences[i]) > partMaxWords) {
+			chunks.push(currChunk)
+			currChunk = ""
+			sentencesInPart = 0
+		}
 		currChunk += sentences[i]
-		let wordsInPart = currChunk.split(" ").length
-		if(wordsInPart > partMaxWords) {
-			chunks.push(currChunk)
-			currChunk = ""
-		}
+		sentencesInPart++
+	}
+	if (currChunk) chunks.push(currChunk) // ponytail: leftover part was silently dropped (trailing sentences lost)
 
 		// if current sentence is > 70, split it using commas
 		// if (sentences[i].split(" ").length > partMaxWords) {
@@ -171,9 +188,6 @@ export const chunkTextInSentences2 = (text2chunk: string, sentencesPerPart:numbe
 		// 		chunks.push(subSentences[j])
 		// 	}
 		// }
-	}
-
-
 
 	// console.log(1112, sentences.length)
 	// for each chunk, if > partMaxWords, split in subsentences
@@ -188,7 +202,7 @@ export const chunkTextInSentences2 = (text2chunk: string, sentencesPerPart:numbe
 	// }
 	// if still partMaxWords, split in smaller chunks
 	for (let i = 0; i < chunks.length; i++) {
-		while (chunks[i].split(" ").length > partMaxWords) {
+		while (countWords(chunks[i]) > partMaxWords) {
 			let subChunk = chunks[i].split(" ").slice(0, partMaxWords).join(" ")
 			chunks[i] = chunks[i].split(" ").slice(partMaxWords).join(" ")
 			chunks.splice(i, 0, subChunk)
