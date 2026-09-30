@@ -43,6 +43,25 @@ describe('chunkTextInSentences2 (max words per part)', () => {
     expect(chunks).toHaveLength(3)
   })
 
+  it('tiles a 48k-word text with a 20k cap: 3 exact parts, no overlap or loss', () => {
+    let text = ''
+    let n = 0
+    for (let s = 0; s < 1999; s++) {
+      const len = s % 50 === 0 ? 1 : s % 37 === 0 ? 2 : 25
+      text += Array.from({ length: len }, () => `w${n++}`).join(' ') + '. '
+    }
+    text += Array.from({ length: 300 }, () => `w${n++}`).join(' ') + '.'
+    const total = (text.match(/\S+/g) || []).length
+    const chunks = chunkTextInSentences2(text, Infinity, 20000)
+    const words = (c: string) => (c.match(/\S+/g) || []).length
+    expect(chunks).toHaveLength(3)
+    expect(chunks.reduce((a, c) => a + words(c), 0)).toBe(total)
+    // part starts strictly advance through the text (no overlap, in order)
+    const firsts = chunks.map(c => parseInt(c.trim().split(/\s+/)[0].slice(1)))
+    for (let i = 1; i < firsts.length; i++) expect(firsts[i]).toBeGreaterThan(firsts[i - 1])
+    expect(chunks[2].trim().endsWith(`w${n - 1}.`)).toBe(true)
+  })
+
   it('keeps the final part (trailing sentences are not dropped)', () => {
     const chunks = chunkTextInSentences2(['a b c.', 'd e f.', 'g h i.'].join(' '), 1, 100)
     expect(chunks).toHaveLength(3)

@@ -653,20 +653,23 @@ export const SettingsPopup = (p: {
 					{
 						type: 'textarea',
 						title: "Custom Shortcuts",
-						expl: `Define custom shortcuts. One shortcut per line with the following format: 
-						<br>shortcut | command_name | command_content 
-						<br>- shortcut: the key combination (ex: 'ctrl+shift > e') 
-						<br>- command_name: the command to execute (toggle_note | highlight_to_ai)
-						<br>- command_content: the content of the command (ex: '/path/to/note.md' | 'ai_model_name')
-						<br>	
+expl: `Define custom shortcuts. One shortcut per line with the following format: shortcut | command_name | command_content
+						<ul>
+						<li>shortcut: the key combination (ex: 'ctrl+shift > e')</li>
+						<li>command_name: the command to execute (toggle_note | highlight_to_ai)</li>
+						<li>command_content: the content of the command (ex: '/path/to/note.md' | 'ai_model_name')</li>
+						</ul>
 						<br>Commands available:
-						<br>- toggle_note: Toggle a note in a floating window. The command content should be the relative note path like /path/to/note.md
-						<br>- highlight_to_ai: Send the selected text to an AI, if nothing is selected, send the cursor line to the AI. The AI suggest function should be enabled. The command content can be the AI model name, but can also be left empty, it will select the first ai model (ref AI Suggest command line)
-						${getBuiltinShortcutNames() ? `<br> <br> Built-in commands (no content needed, binding one replaces its default shortcut): ${getBuiltinShortcutNames()}` : ""}
-						<br>
-						<br> Example:
-						<br> shift + alt > 1 | toggle_note |/path/to/note.md 
-						<br> ctrl + shift > 2 | highlight_to_ai | ai_mode_name`,
+						<ul>
+						<li>toggle_note: Toggle a note in a floating window. The command content should be the relative note path like /path/to/note.md</li>
+						<li>highlight_to_ai: Send the selected text to an AI, if nothing is selected, send the cursor line to the AI. The AI suggest function should be enabled. The command content can be the AI model name, but can also be left empty, it will select the first ai model (ref AI Suggest command line)</li>
+						${getBuiltinShortcutNames() ? `<li>Built-in commands (no content needed, binding one replaces its default shortcut): ${getBuiltinShortcutNames()}</li>` : ""}
+						</ul>
+						<br>Example:
+						<ul>
+						<li>shift + alt > 1 | toggle_note |/path/to/note.md</li>
+						<li>ctrl + shift > 2 | highlight_to_ai | ai_mode_name</li>
+						</ul>`,
 						var: us.get('keyboard_shortcuts_textarea'),
 						modifier: val => {
 							// setDisplayReload(true);

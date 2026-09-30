@@ -359,7 +359,7 @@ export const downloadFile = async (url: string, folder: string, opts?:iDownloadR
 		if (opts.noCacheArg === true) cacheArg = false
 
 		if (cacheArg) {
-			let randomizedArgNoCache = `?${random(0, 10000000)}`
+			let randomizedArgNoCache = `${url.includes("?") ? "&" : "?"}${random(0, 10000000)}`
 			url = url + randomizedArgNoCache
 		}
 

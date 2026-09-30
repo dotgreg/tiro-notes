@@ -91,9 +91,11 @@ export function useChunkDownloader(options: ChunkDownloaderOptions): ChunkDownlo
       specialChars: false,
       escapeChars: true,
     })
-    let stringCmdProcessed = stringCmd.replace('{{input}}', textToSent)
-    stringCmdProcessed = stringCmdProcessed.replace('{{input_simple}}', textToSentSimple)
-    stringCmdProcessed = stringCmdProcessed.replace('{{speed}}', String(getRate ? getRate() : 1))
+    let stringCmdProcessed = stringCmd.replace('{{input}}', () => textToSent)
+    stringCmdProcessed = stringCmdProcessed.replace('{{input_simple}}', () => textToSentSimple)
+    stringCmdProcessed = stringCmdProcessed.replace('{{speed}}', () => String(getRate ? getRate() : 1))
+    // function replacements: a plain-string replace would interpret $& / $' / $` /
+    // $$ in the text (e.g. "$5 & more") as pattern specials and corrupt the command
 
     // Word count — only on the fresh download
     const wordsNb = textToSent.split(' ').length || 0
@@ -103,7 +105,8 @@ export function useChunkDownloader(options: ChunkDownloaderOptions): ChunkDownlo
 
     const start = Date.now()
     downloadInProgress.current.add(chunkId)
-    log(`${pre}: 🚀 requesting chunk ${chunkId} ${wordLog}`)
+    // log the start of the sent text: proof of what part N actually contains
+    log(`${pre}: 🚀 requesting chunk ${chunkId} ${wordLog} — starts: “${textToSent.trim().slice(0, 60)}”`)
     const epoch = epochRef.current
 
     let isCbCalled = false // guard: the API callback must fire at most once
