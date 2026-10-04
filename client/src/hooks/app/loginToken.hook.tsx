@@ -5,6 +5,7 @@ import { sharedConfig } from '../../../../shared/shared.config';
 import { Input } from '../../components/Input.component';
 import { Popup } from '../../components/Popup.component';
 import { getCookie, setCookie } from '../../managers/cookie.manager';
+import { clearRememberedCreds, getRememberedCreds, LOGIN_ENC_KEY, REMEMBER_COOKIE, setRememberedCreds } from '../../managers/loginRemember.manager';
 import { initSocketConnexion } from '../../managers/sockets/socket.manager';
 import { strings } from '../../managers/strings.manager';
 import { getUrlRawParams } from '../../managers/url.manager';
@@ -24,7 +25,9 @@ export const setLoginToken = (token: string) => {
 }
 export const disconnectUser = () => {
 	setLoginToken('')
+	clearRememberedCreds()
 }
+
 
 export const useLoginToken = (p: {
 	onLoginAsked: Function
@@ -37,6 +40,11 @@ export const useLoginToken = (p: {
 	const [password, setPassword] = useState('')
 
 	const [formMessage, setFormMessage] = useState<['error' | 'success', string]>()
+
+	// last login sent to the backend, used to know if we must remember this device
+	const lastSubmit = useRef({ user: '', password: '', remember: false, auto: false })
+	const autoLoginTried = useRef(false)
+	const [saveToLs, setSaveToLs] = useLocalStorage<boolean>("login-to-ls", !!getCookie(REMEMBER_COOKIE))
 
 	// SOCKET INTERACTIONS
 	const listenerId = useRef<number>(0)
@@ -57,12 +65,17 @@ export const useLoginToken = (p: {
 							break
 						}
 						setLoginToken(data.token)
+						if (lastSubmit.current.remember)
+							setRememberedCreds(lastSubmit.current.user, lastSubmit.current.password)
+						else clearRememberedCreds()
 						setDisplayLoginPopup(false)
 
 						// custom logic after login success event
 						p.onLoginSuccess()
 						break;
 					case 'WRONG_TOKEN':
+						// token expired/invalid => silent re-login with the remembered creds (1 try per page load)
+						if (tryAutoLogin()) break
 						setDisplayLoginPopup(true)
 						setFormMessage(['error', strings.loginForm.wrongToken])
 
@@ -77,6 +90,8 @@ export const useLoginToken = (p: {
 						p.onLoginAsked()
 						break;
 					case 'WRONG_USER_PASSWORD':
+						// remembered creds are stale (password changed server side) => forget them
+						if (lastSubmit.current.auto) clearRememberedCreds()
 						setFormMessage(['error', strings.loginForm.wrongUserPassword])
 						setDisplayLoginPopup(true)
 						break;
@@ -98,7 +113,7 @@ export const useLoginToken = (p: {
 		if (displayLoginPopup) {
 			// check if user and password inside url
 			const urlParams = getUrlRawParams().dic
-			const encryptedPassword = "__HARDCODED_LOGIN_LS_PASSWORD_0129dsfaf1029__"
+			const encryptedPassword = LOGIN_ENC_KEY
 			if (
 				urlParams['l1'] && urlParams['l2'] &&
 				urlParams['l1'].value && urlParams['l2'].value
@@ -138,19 +153,29 @@ export const useLoginToken = (p: {
 	}, [displayLoginPopup])
 
 
-	const submitForm = () => {
+	const submitForm = (creds?: { user: string, password: string }, auto = false) => {
+		const userToSubmit = creds ? creds.user : user
+		const passwordToSubmit = creds ? creds.password : password
 		setFormMessage(undefined)
-		if (!user || !password) {
+		if (!userToSubmit || !passwordToSubmit) {
 			setFormMessage(['error', 'enter user and password'])
 			return
 		}
+		lastSubmit.current = { user: userToSubmit, password: passwordToSubmit, remember: saveToLs, auto }
 		initSocketConnexion().then(conn => {
-			conn.socketManager.emit('sendLoginInfos', { user, password, token: getLoginToken() })
+			conn.socketManager.emit('sendLoginInfos', { user: userToSubmit, password: passwordToSubmit, token: getLoginToken() })
 		})
+	}
+	const tryAutoLogin = () => {
+		if (autoLoginTried.current) return false
+		const creds = getRememberedCreds()
+		if (!creds) return false
+		autoLoginTried.current = true
+		submitForm(creds, true)
+		return true
 	}
 
 	const [inputFocus, setInputFocus] = useState(1)
-	const [saveToLs, setSaveToLs] = useLocalStorage("login-to-ls", false)
 
 	const LoginPopupComponent = (p: {
 
@@ -178,15 +203,13 @@ export const useLoginToken = (p: {
 								onChange={e => { setPassword(e) }}
 							/>
 
-							{/* 
-							working frontend but disabled function
 							<Input
 								value={saveToLs}
 								label={strings.setupForm.saveToLs}
 								type={'checkbox'}
 								style={`.input-component { flex-direction: row-reverse; span {width: 90%; font-weight: 400; font-size: 10px; text-transform: lowercase;} .input-wrapper {width: 10%;}}`}
-								onChange={e => {setSaveToLs(!saveToLs) }}
-							/> */}
+								onChange={() => { setSaveToLs(!saveToLs) }}
+							/>
 
 							<button value='submit' className="submit-button" onClick={e => { submitForm() }}>
 								{strings.setupForm.submit}
