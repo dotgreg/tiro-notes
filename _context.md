@@ -1,1 +1,0 @@
-/home/u1/.config/pi/SPECS_all_projects/tironotes_specs/_context.md

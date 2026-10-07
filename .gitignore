@@ -38,3 +38,6 @@ AGENTS.md
 progress.md
 plan.md
 research.md
+
+# project-local pi action specs (symlink to ~/.config/pi/SPECS_all_projects/)
+_context.md
