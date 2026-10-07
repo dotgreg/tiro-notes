@@ -16,8 +16,14 @@ export interface iEncryptApi {
 }
 
 var Bits = 1024; 
+
+// cryptico derives the key deterministically from the password, but generateRSAKey() is a
+// Miller-Rabin prime search: ~750ms of blocking CPU per call. Cache it, generate once.
+const keyCache: {[password:string]: any} = {}
+const getKey = (password:string) => keyCache[password] || (keyCache[password] = cryptico.generateRSAKey(password, Bits))
+
 export const encryptText = (text:string, password:string):encryptionAnswer => {
-    var privateKey = cryptico.generateRSAKey(password, Bits);
+    var privateKey = getKey(password);
     var publicKey = cryptico.publicKeyString(privateKey); 
     let results = cryptico.encrypt(text, publicKey) as encryptionAnswer
     // if (results.cipher) return results.cipher
@@ -26,7 +32,7 @@ export const encryptText = (text:string, password:string):encryptionAnswer => {
 }
 
 export const decryptText = (text:string, password:string):encryptionAnswer => {
-    var privateKey = cryptico.generateRSAKey(password, Bits);
+    var privateKey = getKey(password);
     let results = cryptico.decrypt(text, privateKey) as encryptionAnswer;
     // if (results.plaintext) return results.plaintext
     // console.error('[DECRYPT TEXT] failed to decrypt text, return original text', results)cm
