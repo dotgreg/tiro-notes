@@ -1,6 +1,6 @@
 import { sharedStrings } from './shared.strings'
 // THIRD LINE AUTOMATICALLY GENERATED, SHOULD ALWAYS BE THE THIRD LINE!
-const version = "0.52.32";
+const version = "0.52.37";
 // END OF AUTOMATICALLY GENERATED BLOCK
 
 export const sharedConfig = {
@@ -8,7 +8,7 @@ export const sharedConfig = {
 	// socketServerPort: 3001, 
 	// frontendServerPort: 3001,
 	// staticServerPort: 3001,
-	tokenRefreshInHours: 24 * 4,
+	tokenRefreshInHours: 24 * 20,
 
 	path: {
 		staticResources: 'static',

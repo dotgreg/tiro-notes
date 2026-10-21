@@ -88,11 +88,13 @@ const getUser = (userName: string): iUser | false => {
 // INIT TOKEN INTERVAL LOGIC
 //
 const startIntervalTokenResfresh = (hours: number) => {
-	log(`[LOGIN TOKEN] startIntervalTokenResfresh every ${hours} hours = ${1000 * 60 * 60 * hours} seconds`);
+	// node setInterval clamps to 1ms past 2^31-1 ms (24.8 days) -> would fire every millisecond
+	const ms = Math.min(1000 * 60 * 60 * hours, 2147483647)
+	log(`[LOGIN TOKEN] startIntervalTokenResfresh every ${hours} hours = ${ms} ms`);
 
 	setInterval(() => {
 		regenerateTokensInMemory()
-	}, 1000 * 60 * 60 * hours)
+	}, ms)
 }
 const startTokenAppBackend = () => {
 	// refreshing token every x hours

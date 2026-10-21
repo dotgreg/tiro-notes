@@ -49,6 +49,19 @@ export const useLoginToken = (p: {
 	// SOCKET INTERACTIONS
 	const listenerId = useRef<number>(0)
 
+	const showLoginPopup = (data: any) => {
+		setDisplayLoginPopup(true)
+		setFormMessage(['error', strings.loginForm.wrongToken])
+		// DEMO PREFILL MODE
+		let infos = data.loginInfos
+		if (infos?.demo_mode) {
+			setUser("viewer")
+			setPassword(infos.viewer_password)
+		}
+		// custom logic after LoginAsked
+		p.onLoginAsked()
+	}
+
 	useEffect(() => {
 		let cancelled = false
 		initSocketConnexion().then(conn => {
@@ -75,19 +88,12 @@ export const useLoginToken = (p: {
 						break;
 					case 'WRONG_TOKEN':
 						// token expired/invalid => silent re-login with the remembered creds (1 try per page load)
-						if (tryAutoLogin()) break
-						setDisplayLoginPopup(true)
-						setFormMessage(['error', strings.loginForm.wrongToken])
-
-						// DEMO PREFILL MODE
-						let infos = data.loginInfos
-						if (infos?.demo_mode) {
-							setUser("viewer")
-							setPassword(infos.viewer_password)
+						if (!autoLoginTried.current) {
+							autoLoginTried.current = true
+							getRememberedCreds().then(creds => creds ? submitForm(creds, true) : showLoginPopup(data))
+							break
 						}
-
-						// custom logic after LoginAsked
-						p.onLoginAsked()
+						showLoginPopup(data)
 						break;
 					case 'WRONG_USER_PASSWORD':
 						// remembered creds are stale (password changed server side) => forget them
@@ -166,15 +172,6 @@ export const useLoginToken = (p: {
 			conn.socketManager.emit('sendLoginInfos', { user: userToSubmit, password: passwordToSubmit, token: getLoginToken() })
 		})
 	}
-	const tryAutoLogin = () => {
-		if (autoLoginTried.current) return false
-		const creds = getRememberedCreds()
-		if (!creds) return false
-		autoLoginTried.current = true
-		submitForm(creds, true)
-		return true
-	}
-
 	const [inputFocus, setInputFocus] = useState(1)
 
 	const LoginPopupComponent = (p: {

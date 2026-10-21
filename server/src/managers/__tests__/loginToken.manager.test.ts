@@ -5,6 +5,12 @@ process.env.TIRO_TESTING_ENV = 'true'
 jest.mock('../../server', () => ({}))
 // require (not import) so TIRO_TESTING_ENV is set before the module graph loads
 const { getOrCreateUserToken } = require("../loginToken.manager")
+const { sharedConfig } = require("../../../../shared/shared.config")
+
+test('tokenRefreshInHours stays inside node setInterval int32 range', () => {
+    // past 2^31-1 ms node clamps setInterval to 1ms -> token regeneration floods the backend
+    expect(1000 * 60 * 60 * sharedConfig.tokenRefreshInHours).toBeLessThanOrEqual(2147483647)
+})
 
 test('getOrCreateUserToken returns a non-empty string', () => {
     const token = getOrCreateUserToken("test")

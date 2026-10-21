@@ -21,8 +21,8 @@ const datatableCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
         // IF ONE LINE ONLY, IT IS A FILE URL
         if (innerTagStr.trim().split("\n").length === 1 && innerTagStr.trim().length > 5) {
                 const infos = api.utils.getInfos();
-                let dataFileUrl = innerTagStr.trim()
-                let dataFileName = dataFileUrl.split("/").slice(-1)[0].split("?")[0]
+                // ponytail: no `let` here, a block scoped var used to shadow the outer dataFileUrl
+                dataFileUrl = innerTagStr.trim()
                 const isAbs = dataFileUrl.startsWith("http")
                 if (isAbs === false) {
                         dataFileUrl = infos.backendUrl + "/static/" + infos.file.folder + "/" + dataFileUrl + `?token=${infos.loginToken}`

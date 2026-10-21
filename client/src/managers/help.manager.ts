@@ -58,6 +58,8 @@ export const triggerTiroHelpPopup = () => {
     - add the string "--latex", it will format latex equations <br>
     - add the string "--no-date-picker", it will disable the date picker <br>
     - add the string "--spellcheck", it will enable the native browser spellcheck <br>
+    - add the string "--disable-history--", it will disable the note history backup <br>
+    - add the string "--reload-every-10m" (10 = any number of minutes), it will reload the note content from the server every 10 minutes <br>
 </pre></code>
 
 

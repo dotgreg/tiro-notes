@@ -93,6 +93,39 @@ const feedApp = (innerTagStr, opts) => {
 		}
 
 		//
+		// SINGLE FAILURE POPUP
+		// all feed failures are merged into ONE notification (same id => popup is replaced, not stacked),
+		// re-emitted every 5s so it stays visible and shows the growing list
+		//
+		const failedFeeds = {}
+		let failNotifTimer = 0
+		const renderFailNotif = () => {
+				const names = Object.keys(failedFeeds)
+				if (!names.length) return false
+				api.call("ui.notification.emit", [{
+						id: "feed-failures",
+						content: `<b>${names.length} feed${names.length > 1 ? "s" : ""} failed</b><br><br>` + names.map(n => `• ${n}${failedFeeds[n] ? ` <i>(${failedFeeds[n]})</i>` : ""}`).join("<br>"),
+						options: { hideAfter: -1 }
+				}])
+				return true
+		}
+		window.feedFailNotif = (name, reason = "") => {
+				failedFeeds[name] = reason
+				renderFailNotif()
+				if (!failNotifTimer) failNotifTimer = setInterval(() => {
+						if (!renderFailNotif()) clearInterval(failNotifTimer)
+					}, 5000)
+		}
+		window.feedFailResolved = (name) => {
+				if (!(name in failedFeeds)) return // never failed => nothing to refresh
+				delete failedFeeds[name]
+				if (Object.keys(failedFeeds).length) return renderFailNotif()
+				clearInterval(failNotifTimer)
+				failNotifTimer = 0
+				api.call("ui.notification.emit", [{ id: "feed-failures", content: "All feeds fetched", options: { hideAfter: 2 } }])
+		}
+
+		//
 		//  FETCH AND REDEABILITY
 		//
 		const fetchArticleContent = (url, cb) => {
@@ -540,17 +573,17 @@ const feedApp = (innerTagStr, opts) => {
 									let debugInfo = `${count}/${feedsArr.length} : ${feedsArr[i].name} => ${feedItems.length} els`
 									console.log(h, `feed loaded ${debugInfo}`);
 									setStatus(`Loading... (loading feeds : ${debugInfo})`)
+									window.feedFailResolved(feedsArr[i].name)
 									// sort items by time
 									resItems = resItems.sort((a, b) => b.timestamp - a.timestamp)
 									setDebounceCache(resItems)
 									cb(resItems)
 									if (feedItems.length === 0) {
-										api.call("ui.notification.emit", [{content:"Failed fetching feed: "+feedsArr[i].name, options: {hideAfter: 3 }}])
+										window.feedFailNotif(feedsArr[i].name, "0 items")
 									}
 								}, (error) => {
 									// on failure
-									// setFailedFeeds([...failedFeeds, feedsArr[i].name])
-									api.call("ui.notification.emit", [{content:"Failed fetching feed: "+feedsArr[i].name, options: {hideAfter: 3 }}])
+									window.feedFailNotif(feedsArr[i].name, error?.shortMessage || error?.message || "fetch error")
 									console.log(h, `feed FAILED ${JSON.stringify(feedsArr[i])} =>`, {error});
 								})
 							}, opts.feedLoadDelay * i)

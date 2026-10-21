@@ -16,6 +16,7 @@ import { iUploadedFileInfos } from '../../hooks/api/upload.api.hook';
 import { uploadFileToEditor } from '../../managers/upload.manager';
 import { userSettingsSync } from '../../hooks/useUserSettings.hook';
 import { addBackMetaToContent, filterMetaFromFileContent } from '../../managers/headerMetas.manager';
+import { getNoteAutoReloadMinutes } from '../../managers/noteStrings.manager';
 import { iNoteParentType } from '../NotePreview.component';
 
 
@@ -278,6 +279,20 @@ export const WindowEditorInt = (p: {
 		waitingContentUpdate.current = false
 	}, 2000)
 
+
+
+	//
+	// AUTO RELOAD CONTENT : "--reload-every-5m" inside the note
+	//
+	useEffect(() => {
+		const minutes = getNoteAutoReloadMinutes(fileContent)
+		if (!minutes) return
+		const id = setInterval(() => {
+			if (isBeingEdited.current) return // never erase unsaved local edits
+			reloadContent()
+		}, minutes * 60 * 1000)
+		return () => clearInterval(id)
+	}, [fileContent, file?.path, windowId])
 
 
 	// ON ACTIVE, LOAD LIST

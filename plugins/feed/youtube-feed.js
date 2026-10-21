@@ -18,6 +18,7 @@ const getUploadPlaylist = (feed, cb) => {
     cb(uploadPlaylist)
   }, err => {
     console.log("[YOUTUBE] error fetching getUploadPlaylist", feed, err)
+    window.feedFailNotif?.(feed.name, "no upload playlist")
   })
 }
 
@@ -162,6 +163,7 @@ const youtubeChannelToId = (channelName, cb, retries = 0) => {
       arr2 = arr1[1].split(`"`)[0]
       if (arr2.length > 10 && arr2.length < 40) {
         console.log(`[YOUTUBE] channel id found for ${channelUrl}`, arr2)
+        window.feedFailResolved?.(channelName)
         cb(arr2)
       } else {
         throw new Error(`unexpected result: "${arr2}"`)
@@ -171,13 +173,11 @@ const youtubeChannelToId = (channelName, cb, retries = 0) => {
         const delay = (5 + Math.random() * 5) * 1000 // 5-10s random
         const delayS = Math.round(delay / 1000)
         console.warn(`[YOUTUBE] resolve failed for ${channelName}, retrying in ${delayS}s (${retries + 1}/5)`, e)
-        api.call("ui.notification.emit", [{
-          content: `YouTube: retrying ${channelName} in ${delayS}s (${retries + 1}/5)`,
-          options: { hideAfter: 3 }
-        }])
+        window.feedFailNotif?.(channelName, `retrying in ${delayS}s (${retries + 1}/5)`)
         setTimeout(() => youtubeChannelToId(channelName, cb, retries + 1), delay)
       } else {
         console.error(`[YOUTUBE] could not fetch id of ${channelUrl} after 5 retries`, e)
+        window.feedFailNotif?.(channelName, "unreachable after 5 retries")
         cb(null)
       }
     }
@@ -185,15 +185,17 @@ const youtubeChannelToId = (channelName, cb, retries = 0) => {
 }
 
 const fetchItems = (feed, cb) => {
+  // any successful youtube fetch clears this feed from the shared failure popup
+  const done = (items) => { window.feedFailResolved?.(feed.name); cb(items) }
   //
   // CHANNEL
   // if url starts with @, load the channel and    take the upload playlist id
   if (feed.url.startsWith("@")) {
     const fetchPlaylistsFromChannel = () => {
       getUploadPlaylist(feed, playlistId => {
-        if (!playlistId) return cb([])
+        if (!playlistId) return done([])
         getItemsPlaylist(playlistId, items => {
-          cb(processItems(items))
+          done(processItems(items))
         }, feed.limitFetchNb)
       })
     }
@@ -201,7 +203,7 @@ const fetchItems = (feed, cb) => {
       fetchPlaylistsFromChannel()
     } else {
       youtubeChannelToId(feed.url, id => {
-        if (!id) return cb([])
+        if (!id) return done([])
         feed.url = `@${id}`
         fetchPlaylistsFromChannel()
       })
@@ -212,7 +214,7 @@ const fetchItems = (feed, cb) => {
     //
     // otherwise, consider it as a playlist id
     getItemsPlaylist(feed.url, items => {
-      cb(processItems(items))
+      done(processItems(items))
     }, feed.limitFetchNb)
   }
 

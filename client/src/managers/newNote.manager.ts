@@ -21,7 +21,12 @@ export const createNewNote = (p: {
                     // layout: deviceType() === "mobile" ? "bottom" : "bottom-right",
                 })
             } else {
-                nFile && api.ui.browser.goTo(selectedFolder, nFile.name, { openIn: 'activeWindow' })
+                // goTo only reloads the files list of a folder (and skips empty folder paths),
+                // it does NOT load the note in the active window: open the file we just created
+                if (!nFile) return
+                api.ui.browser.goTo(nFile.folder, nFile.name)
+                if (api.ui.windows.active.get()) api.ui.windows.active.setContent(nFile)
+                else api.tabs.openInNewTab(nFile)
             }
         })
     })

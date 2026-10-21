@@ -20,7 +20,13 @@ export const cleanUrl = (url:string) => {
 // URL PARSER
 //
 export const genUrlPreviewStr = (url) => {
-	const parsedUrl = new URL(url);
+	let parsedUrl: URL
+	try {
+		parsedUrl = new URL(url);
+	} catch (e) {
+		// not a real URL (scp-like "user@host:~path/", "host:25", bare words) -> plain text, no crash
+		return url.replace(/^https?:\/\//, "").substring(0, 30);
+	}
 	let siteName = parsedUrl.hostname.replace(/^www\./, '');
 	// let siteName = parsedUrl.hostname;
 	const pathSegments = parsedUrl.pathname.split('/').filter(segment => segment.trim() !== '');

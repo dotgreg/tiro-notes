@@ -8,6 +8,7 @@ import type {iGraphPerspectiveLib} from "./graph_perspective.lib.js"
 
 export type iGraphPerspectiveParams = {
     items?: any[],
+    fileUrl?: string,
     parentVars: {opts:any},
     defaultViews?: Array<iView[]>,
     cb: (viewer: iGraphPerspectiveViewerWrapper) => void
@@ -284,8 +285,23 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                     return arr
                 }
 
+                // perspective parses "," delimited csv only, so swap the delimiter on ";" files
+                const normalizeCsvText = (csvText/*:string*/) => {
+                    const countSemiCols = (csvText.match(/;/g) || []).length
+                    const countCommas = (csvText.match(/,/g) || []).length
+                    if (countSemiCols > countCommas) return csvText.replace(/,/g, ".").replace(/;/g, ",")
+                    return csvText
+                }
+
                 workspace.loadFileUrl = (fileUrl/*:string*/, cb) => {
-                    // @TODO
+                    fetch(fileUrl).then((res) => res.text()).then((csvString) => {
+                        workspace.ctag.addTable("init_table", normalizeCsvText(csvString), true)
+                        if (cb) cb()
+                    }).catch((e) => {
+                        console.warn(hl, "Error loading fileUrl", fileUrl, e)
+                        api.call("ui.notification.emit", [{id:"notif-id-graph-perspective", content:`<h3>Error loading data file</h3><br><code>${fileUrl}</code><br>${JSON.stringify(e)}`, options:{hideAfter: 120}}])
+                        if (cb) cb()
+                    })
                 }
 
                 // @BROKEN export current view to csv string
@@ -364,7 +380,8 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                 // 
                 // 
 
-                workspace.ctag.addTable("init_table",window._graph_perspective_props.items, true);
+                if (window._graph_perspective_props.fileUrl) workspace.loadFileUrl(window._graph_perspective_props.fileUrl)
+                else workspace.ctag.addTable("init_table",window._graph_perspective_props.items, true);
 
 
 
@@ -746,16 +763,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                     reader.onload =  async (fileLoadedEvent) => {
                         console.log(hl,"file loaded", fileLoadedEvent)
                         let data = fileLoadedEvent.target.result;
-                        // count the number of ; and ,
-                        let countSemiCols = (data.match(/;/g) || []).length
-                        let countCommas = (data.match(/,/g) || []).length
-                        // if more ; than , replace ; by ,
-                        if (countSemiCols > countCommas) {
-                            console.log(hl,"DETECTED SEMICOL CSV => replacing ; by ,")
-                            // replace first , by .
-                            data = data.replace(/,/g, ".")
-                            data = data.replace(/;/g, ",")
-                        }
+                        data = normalizeCsvText(data)
 
                         // checkbox replace data is checked?
                         let shouldReplaceData = document.getElementById("perspective-config-replace-existing-data").checked

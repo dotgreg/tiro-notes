@@ -11,7 +11,8 @@ module.exports = {
 				// REQUIRED + file.js to mock files
 				'\\.(png|jpg|webp|ttf|woff|woff2|svg|mp4|css|less|jpeg)$': '<rootDir>/__mocks__/file.js',
 				// lodash-es is ESM, jest runs CJS: map to the same API in CJS
-				'^lodash-es$': 'lodash'
+				'^lodash-es$': 'lodash',
+				'^lodash-es/(.*)$': 'lodash/$1'
 		},
 		setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
 		snapshotSerializers: [],
