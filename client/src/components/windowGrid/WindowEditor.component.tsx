@@ -36,6 +36,8 @@ export const WindowEditorInt = (p: {
 	const { file, view, active, i } = { ...p.content }
 
 	const [fileContent, setFileContent] = useState('')
+	// content as seen by the user: server content + local typing (needed by the autoreload string)
+	const [liveContent, setLiveContent] = useState('')
 	const [intViewType, setIntViewType] = useState<iViewType>("editor")
 	const windowId = i
 
@@ -113,6 +115,7 @@ export const WindowEditorInt = (p: {
 			// LOAD CONTENT FIRST
 			api.file.getContent(file.path, content => {
 				setFileContent(content)
+				setLiveContent(content)
 				setCanEdit(true)
 			})
 
@@ -134,6 +137,7 @@ export const WindowEditorInt = (p: {
 					) return waitingContentUpdate.current = watchUpdate.fileContent
 	
 					setFileContent(watchUpdate.fileContent)
+					setLiveContent(watchUpdate.fileContent)
 				})
 			}
 		})
@@ -236,7 +240,9 @@ export const WindowEditorInt = (p: {
 			})
 		})
 		
-	}, [file?.path, fileContent])
+	// fileContent is not used here (offline reupdate is commented out): subscribing appStatus on a
+	// fixed idReq per fileContent change leaked one permanent listener per keystroke per window
+	}, [file?.path])
 
 	const fileContentRef = useRef<string>(fileContent)
 	useEffect(() => {
@@ -256,6 +262,7 @@ export const WindowEditorInt = (p: {
 		getApi(api => {
 			api.file.saveContent(filepath, content, { history: true, debounced: 500, withMetas:innerFile}) 
 		})
+		setLiveContent(content)
 		isBeingEdited.current = true
 		isEditedDebounce()
 		// OLD MECANISM
@@ -284,15 +291,18 @@ export const WindowEditorInt = (p: {
 	//
 	// AUTO RELOAD CONTENT : "--reload-every-5m" inside the note
 	//
+	// key the timer on the parsed MINUTES (a number), not on liveContent: a dependency on the note
+	// string restarts the countdown on every keystroke/watch update, so an edited window never
+	// reloaded and only the untouched window of the set did it
+	const autoReloadMinutes = getNoteAutoReloadMinutes(liveContent)
 	useEffect(() => {
-		const minutes = getNoteAutoReloadMinutes(fileContent)
-		if (!minutes) return
+		if (!autoReloadMinutes) return
 		const id = setInterval(() => {
 			if (isBeingEdited.current) return // never erase unsaved local edits
 			reloadContent()
-		}, minutes * 60 * 1000)
+		}, autoReloadMinutes * 60 * 1000)
 		return () => clearInterval(id)
-	}, [fileContent, file?.path, windowId])
+	}, [autoReloadMinutes, file?.path, windowId])
 
 
 	// ON ACTIVE, LOAD LIST

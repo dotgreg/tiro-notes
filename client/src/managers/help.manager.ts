@@ -7,6 +7,7 @@ export const triggerTiroHelpPopup = () => {
 <p>Tiro Notes version ${sharedConfig.version}</p>
 
 <h3>Shortcuts</h3>
+<div class="scut">
 <h4>Interface</h4>
     <ul>
     <li>Alt + , : Hide/Show Settings</li>
@@ -46,20 +47,22 @@ export const triggerTiroHelpPopup = () => {
     <li>Alt + o / Alt + Shift + o : Increase/Decrease opacity of active floating window</li>
 </ul>
 
+</div>
 <h3>Documentation</h3>
 <ul>
     <li><a href="https://tiro-notes.org" target="_blank"> tiro-notes.org </a></li>
 </ul>
 
 <h4> Note config</h4>
-<code><pre>
-- In a note, if you <br>: 
-    - add the string "--table", it will format markdown tables <br>
-    - add the string "--latex", it will format latex equations <br>
-    - add the string "--no-date-picker", it will disable the date picker <br>
-    - add the string "--spellcheck", it will enable the native browser spellcheck <br>
-    - add the string "--disable-history--", it will disable the note history backup <br>
-    - add the string "--reload-every-10m" (10 = any number of minutes), it will reload the note content from the server every 10 minutes <br>
+<code>
+<pre>
+- In a note, if you : 
+    - add the string "--table", it will format markdown tables
+    - add the string "--latex", it will format latex equations
+    - add the string "--no-date-picker", it will disable the date picker
+    - add the string "--spellcheck", it will enable the native browser spellcheck
+    - add the string "--disable-history--", it will disable the note history backup
+    - add the string "--reload-every-10m" (10 = any number of minutes), it will reload the note content from the server every 10 minutes
 </pre></code>
 
 
@@ -74,7 +77,8 @@ and pasting the content of plugin register, which ends by ".plugin.js" inside it
 <a target="_blank" href="https://github.com/dotgreg/tiro-notes/blob/dev/plugins/timer/timer.plugin.js">that timer plugin</a> </p>
 
 - there are several kinds of plugins: 
-<code><pre>
+<code>
+<pre>
 - ctag plugin: (custom tag) that can be inserted inside a note like 
     - [[epub]]mybook[[epub]] 
     - [[pdf]]mypdf[[pdf]] 
@@ -96,7 +100,8 @@ and pasting the content of plugin register, which ends by ".plugin.js" inside it
 
 </p>
 <code>
-	<pre>
+	
+<pre>
 CONTENT OF /.tiro/snippets.md
 ===========
     sym_like_love| 👍
@@ -107,8 +112,7 @@ CONTENT OF /.tiro/snippets.md
     tdcal0 | - [ ] [ev|TODO|\${new Date().toLocaleString("fr").split(" ")[0]} 14:00|]
     daysDiff | \${Math.floor(   (new Date() - new Date("11/23/23") ) / (1000 * 60 * 60 * 24)) }
     cop_code_python | \`\`\`python \\n \\n \\n \`\`\`
-
-	</pre>
+</pre>
 </code>
 
 <h4>Automatic spreadsheet-like table</h4>
@@ -120,28 +124,30 @@ CONTENT OF /.tiro/snippets.md
 <p> 
 You can create forms by referencing them in /.tiro/forms.md (create a note if it does not exists), one form for each line<br>
 
-<code><pre>
-- {{_datetime}} and {{_date}} will automatically insert the date <br>
-- the line_format is used to format the line in the note<br>
-- you can insert tags in it like: {{NAME_FIELD|TYPE_FIELD (text, number, select, date) | COMMENT FIELD comment field. optional}}<br>
-- In the comment field,<br>: 
-    - adding "optional" will make the field optional<br>
-    - adding "not_visible" will make the field value not inserted (useful for field used by ai_insert)<br>
-    - adding "remember" will keep the last value inputed <br>
-    - adding "history" will save answer inputed previously <br>
-    - adding "ai_insert: summarize the field [long text]" or "ai_suggest: find from [fullname] the first name" will enable AI suggestions for the field, the [NAME_FIELD] refers to other forms field<br>
-        - the AI suggest command for fields should be filled inside the settings <br>
-the line parameter is where the content should be inserted, if negative it will be inserted counting starting the end of the note<br>
+<code>
+<pre>
+- {{_datetime}} and {{_date}} will automatically insert the date
+- the line_format is used to format the line in the note
+- you can insert tags in it like: {{NAME_FIELD|TYPE_FIELD (text, number, select, date) | COMMENT FIELD comment field. optional}}
+- In the comment field,: 
+    - adding "optional" will make the field optional
+    - adding "not_visible" will make the field value not inserted (useful for field used by ai_insert)
+    - adding "remember" will keep the last value inputed
+    - adding "history" will save answer inputed previously
+    - adding "ai_insert: summarize the field [long text]" or "ai_suggest: find from [fullname] the first name" will enable AI suggestions for the field, the [NAME_FIELD] refers to other forms field
+        - the AI suggest command for fields should be filled inside the settings
+the line parameter is where the content should be inserted, if negative it will be inserted counting starting the end of the note
 </pre></code>
 
 </p>
 <code>
-	<pre>
+	
+<pre>
 CONTENT OF /.tiro/forms.md
 ===========
     form | name=simple insert form, path=/noteToInsert.md, line_format= {{_datetime}} | name: {{name}} | age: {{age|number|comment field. optional remember ai_suggest: guess the age from [name]}}, line=2
     form | name=🎬 add youtube chanel, path=/_new/_main/📺YUTB3.md, line_format= {{chanel_name}} | @{{chanel_name}} | {{tags|select:_🍿 docus,_🗿 histoire, _🧠 psy,  _✨ quali, _⛰️ trip,  _🗳️ polit,  _🗳️ polit, _🏛️ architect, _💲econo,  _😄fun,  _🛠️diy}} | {{number_import|number}}, line=3
-	</pre>
+</pre>
 </code>
 then simply call [[forms]] [[forms]] on a note to get access to all your forms
 
@@ -162,9 +168,10 @@ you can create a custom backend api with custom endpoints in JSON really easily.
 - it should always ends with a callback function cb()<br>
 - you have access to the whole backendApi by "getBackendApi", find all the functions here
 - you also have access to the plugin backend functions with the api "getBackendApi().plugins.triggerBackendFunction"
-<a about="_blank" href="https://github.com/dotgreg/tiro-notes/blob/dev/server/src/managers/backendApi.manager.ts">here</a> <br/>
+<a target="_blank" href="https://github.com/dotgreg/tiro-notes/blob/dev/server/src/managers/backendApi.manager.ts">here</a> <br/>
 
 <code>
+
 <pre>
 CONTENT OF /.tiro/custom_backend_api/first-endpoint.md
 ========
@@ -203,10 +210,6 @@ CONTENT OF /.tiro/custom_backend_api/first-endpoint.md
                 getBackendApi().ressource.fetchFile(url, {cache:true , cb})
             }
         })
-
-
-
-
 </pre>
 </code
 
@@ -218,6 +221,7 @@ CONTENT OF /.tiro/custom_backend_api/first-endpoint.md
 - to register a new plugin backend Function, add the following inside your plugin declaration in /.tiro/plugins/myplugin.md
 
 <code>
+
 <pre>
 EXTRACT OF CONTENT OF /.tiro/plugins/MYPLUGIN.md
 ===========
@@ -229,7 +233,7 @@ EXTRACT OF CONTENT OF /.tiro/plugins/MYPLUGIN.md
         getBackendApi().ressource.fetchEval("\${baseUrl}timer/timer.backend.js")
       \`,
       plugin_infos,
-      
+
     }
 ...
 </pre>
@@ -237,20 +241,21 @@ EXTRACT OF CONTENT OF /.tiro/plugins/MYPLUGIN.md
 
 
 then that js file should return a callback (cb) function that returns an array of declared backend functions like 
-<a about="_blank" href="https://github.com/dotgreg/tiro-notes/blob/dev/plugins/timer/timer.backend.js">that file</a>
+<a target="_blank" href="https://github.com/dotgreg/tiro-notes/blob/dev/plugins/timer/timer.backend.js">that file</a>
 
 <h5> Calling the API from tiro notes </h5>
 - you can call the custom backend api as follow in tiro client (and in custom tags etc.) <br>
 - the "{custom_api_token}" will be replaced with the actual token value (only work for the function api.ressource.fetch)
 <code>
+
 <pre>
-    api.ressource.frontendFetch(
-        "/custom_backend_api?file=first-endpoint&token={custom_api_token}", 
-        res => {
-            console.log(JSON.parse(res)["result"])
-        }, 
-        {disableCache:true}
-    )
+api.ressource.frontendFetch(
+    "/custom_backend_api?file=first-endpoint&token={custom_api_token}", 
+    res => {
+        console.log(JSON.parse(res)["result"])
+    }, 
+    {disableCache:true}
+)
 </pre>
 </code>
 
@@ -262,6 +267,7 @@ then that js file should return a callback (cb) function that returns an array o
 - The title is refreshed every five minute <br>
 
 <code>
+
 <pre>
 CONTENT OF /.tiro/app-title.md
 ===========
@@ -274,6 +280,7 @@ cb("Tiro Notes")
 - more complex example using custom backend api :<br>
 
 <code>
+
 <pre>
 CONTENT OF /.tiro/app-title.md
 ===========
@@ -295,14 +302,34 @@ if (simple == 1) {
 
 `
 const cssStr = `
-h1 {
-    color: #ff0000;
+/* help-compact: popup base css sets white-space:pre, the help html is indented source ->
+   every source newline was a visible blank line ("linejump"). Restore normal flow. */
+.popup-wrapper-component .popup-wrapper {
+    height: 86%;
+    max-height: 86%;
+    max-width: 96%;
 }
-.popup-wrapper  {
-    height: 80%;
-}
-.popupContent {
+.popup-wrapper-component .popupContent {
     overflow-y: auto;
+    white-space: normal;
+}
+.popup-wrapper-component .popupContent pre {
+    white-space: pre-wrap;
+    font-size: 11px;
+    line-height: 1.35;
+    margin: 4px 0;
+    padding: 6px 8px;
+    background: #f4f4f4;
+    border-radius: 4px;
+}
+.popup-wrapper-component .popupContent h3 { margin: 10px 0 4px; font-size: 15px; }
+.popup-wrapper-component .popupContent h4 { margin: 7px 0 2px; font-size: 13px; }
+.popup-wrapper-component .popupContent h5 { margin: 6px 0 2px; font-size: 12px; }
+.popup-wrapper-component .popupContent p { margin: 3px 0; }
+.popup-wrapper-component .popupContent ul { margin: 2px 0 4px; padding-left: 18px; }
+.popup-wrapper-component .popupContent li { margin: 0; }
+@media (min-width: 700px) {
+    .popup-wrapper-component .popupContent .scut ul { columns: 2; column-gap: 26px; }
 }
 `
     getApi(api => {
