@@ -6,6 +6,7 @@ const plugin_infos = {
     icon: "https://github.com/dotgreg/tiro-notes/assets/2981891/c3bc05a4-38b6-4355-b84d-6208cbf17c11",
     description: "Your news on Tiro (Rss, Youtube) <br/> this is a long description",
     versions: [
+      {version: "1.0.13", date: "02/11/26", comment: "fix @handle feeds: resolve with Data API forHandle instead of scraping youtube.com"},
       {version: "1.0.12", date: "25/07/23", comment: "adaptation to plugin"},
       {version: "1.0.10", date: "15/07/23", comment: "column dev + redesign"},
       {version: "1.0.9", date: "31/03/23", comment: "isDev option added"},

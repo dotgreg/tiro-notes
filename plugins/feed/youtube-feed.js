@@ -1,6 +1,9 @@
-const channelUrl = (name) => {
-  name = name.substring(1)
-  return `https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=${name}&key=${window.youtubeKey}`
+// "@UCxxx" = channel id, "@name" = handle.
+// The Data API resolves both (forHandle), no HTML scraping:
+// youtube.com/@handle now answers a 302 and tiro's backend fetch does not follow it.
+const channelApiUrl = (name) => {
+  const q = name.startsWith("@UC") ? `id=${name.substring(1)}` : `forHandle=${encodeURIComponent(name)}`
+  return `https://www.googleapis.com/youtube/v3/channels?part=contentDetails&${q}&key=${window.youtubeKey}`
 }
 
 
@@ -12,9 +15,13 @@ const f = (url, cb, failed = () => { }) => {
 }
 
 const getUploadPlaylist = (feed, cb) => {
-  let url = channelUrl(feed.url)
+  let url = channelApiUrl(feed.url)
   f(url, obj => {
     let uploadPlaylist = obj.items ? obj.items[0]?.contentDetails?.relatedPlaylists?.uploads : null
+    if (!uploadPlaylist) {
+      console.log(`[YOUTUBE] no upload playlist for ${feed.url}`, obj.error || `${obj.pageInfo?.totalResults} results`)
+      window.feedFailNotif?.(feed.name, obj.error?.message || "no upload playlist")
+    }
     cb(uploadPlaylist)
   }, err => {
     console.log("[YOUTUBE] error fetching getUploadPlaylist", feed, err)
@@ -154,36 +161,6 @@ const processItems = (items) => {
   return fitems
 }
 
-const youtubeChannelToId = (channelName, cb, retries = 0) => {
-  channelName = channelName.startsWith("@") ? channelName : `@${channelName}`
-  let channelUrl = `https://www.youtube.com/${channelName}`
-  api.call("ressource.fetch", [channelUrl, { disableCache: false }], resTxt => {
-    try {
-      arr1 = resTxt.split(`href="https://www.youtube.com/channel/`)
-      arr2 = arr1[1].split(`"`)[0]
-      if (arr2.length > 10 && arr2.length < 40) {
-        console.log(`[YOUTUBE] channel id found for ${channelUrl}`, arr2)
-        window.feedFailResolved?.(channelName)
-        cb(arr2)
-      } else {
-        throw new Error(`unexpected result: "${arr2}"`)
-      }
-    } catch (e) {
-      if (retries < 5) {
-        const delay = (5 + Math.random() * 5) * 1000 // 5-10s random
-        const delayS = Math.round(delay / 1000)
-        console.warn(`[YOUTUBE] resolve failed for ${channelName}, retrying in ${delayS}s (${retries + 1}/5)`, e)
-        window.feedFailNotif?.(channelName, `retrying in ${delayS}s (${retries + 1}/5)`)
-        setTimeout(() => youtubeChannelToId(channelName, cb, retries + 1), delay)
-      } else {
-        console.error(`[YOUTUBE] could not fetch id of ${channelUrl} after 5 retries`, e)
-        window.feedFailNotif?.(channelName, "unreachable after 5 retries")
-        cb(null)
-      }
-    }
-  })
-}
-
 const fetchItems = (feed, cb) => {
   // any successful youtube fetch clears this feed from the shared failure popup
   const done = (items) => { window.feedFailResolved?.(feed.name); cb(items) }
@@ -191,23 +168,12 @@ const fetchItems = (feed, cb) => {
   // CHANNEL
   // if url starts with @, load the channel and    take the upload playlist id
   if (feed.url.startsWith("@")) {
-    const fetchPlaylistsFromChannel = () => {
-      getUploadPlaylist(feed, playlistId => {
-        if (!playlistId) return done([])
-        getItemsPlaylist(playlistId, items => {
-          done(processItems(items))
-        }, feed.limitFetchNb)
-      })
-    }
-    if (feed.url.startsWith("@UC")) {
-      fetchPlaylistsFromChannel()
-    } else {
-      youtubeChannelToId(feed.url, id => {
-        if (!id) return done([])
-        feed.url = `@${id}`
-        fetchPlaylistsFromChannel()
-      })
-    }
+    getUploadPlaylist(feed, playlistId => {
+      if (!playlistId) return done([])
+      getItemsPlaylist(playlistId, items => {
+        done(processItems(items))
+      }, feed.limitFetchNb)
+    })
   } else {
     //
     // PLAYLIST
