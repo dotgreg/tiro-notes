@@ -169,7 +169,7 @@ const fetchItems = (feed, cb) => {
   // if url starts with @, load the channel and    take the upload playlist id
   if (feed.url.startsWith("@")) {
     getUploadPlaylist(feed, playlistId => {
-      if (!playlistId) return done([])
+      if (!playlistId) return cb([]) // already notified, don't let done() clear it
       getItemsPlaylist(playlistId, items => {
         done(processItems(items))
       }, feed.limitFetchNb)

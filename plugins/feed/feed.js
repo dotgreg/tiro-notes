@@ -95,33 +95,27 @@ const feedApp = (innerTagStr, opts) => {
 		//
 		// SINGLE FAILURE POPUP
 		// all feed failures are merged into ONE notification (same id => popup is replaced, not stacked),
-		// re-emitted every 5s so it stays visible and shows the growing list
+		// it auto-hides after 10s; the failed list is kept in memory so the next failure shows the whole list
 		//
 		const failedFeeds = {}
-		let failNotifTimer = 0
 		const renderFailNotif = () => {
 				const names = Object.keys(failedFeeds)
 				if (!names.length) return false
 				api.call("ui.notification.emit", [{
 						id: "feed-failures",
 						content: `<b>${names.length} feed${names.length > 1 ? "s" : ""} failed</b><br><br>` + names.map(n => `• ${n}${failedFeeds[n] ? ` <i>(${failedFeeds[n]})</i>` : ""}`).join("<br>"),
-						options: { hideAfter: -1 }
+						options: { hideAfter: 10 }
 				}])
 				return true
 		}
 		window.feedFailNotif = (name, reason = "") => {
 				failedFeeds[name] = reason
 				renderFailNotif()
-				if (!failNotifTimer) failNotifTimer = setInterval(() => {
-						if (!renderFailNotif()) clearInterval(failNotifTimer)
-					}, 5000)
 		}
 		window.feedFailResolved = (name) => {
 				if (!(name in failedFeeds)) return // never failed => nothing to refresh
 				delete failedFeeds[name]
 				if (Object.keys(failedFeeds).length) return renderFailNotif()
-				clearInterval(failNotifTimer)
-				failNotifTimer = 0
 				api.call("ui.notification.emit", [{ id: "feed-failures", content: "All feeds fetched", options: { hideAfter: 2 } }])
 		}
 
