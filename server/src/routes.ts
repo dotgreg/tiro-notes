@@ -10,7 +10,7 @@ import { iFile, iFolder, iPlugin } from "../../shared/types.shared";
 import { getFilesPreviewLogic } from "./managers/filePreview.manager";
 import { processClientSetup, updateSetupJsonParam } from "./managers/configSetup.manager";
 import { restartTiroServer } from "./managers/serverRestart.manager";
-import { checkUserPassword, getOrCreateUserToken } from "./managers/loginToken.manager";
+import { checkUserPassword, getOrCreateUserToken, probeLoginToken } from "./managers/loginToken.manager";
 import { ServerSocketManager } from './managers/socket.manager'
 import { log } from "./managers/log.manager";
 import { getFolderPath, p } from "./managers/path.manager";
@@ -84,6 +84,22 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		}
 		endPerf()
 	}, { bypassLoginTokenCheck: true, disableDataLog: true, checkRole: "none" })
+
+	//
+	// BOOT PROBE: client asks once per page load whether its cookie token is still valid,
+	// so it can queue its requests instead of firing them unauthenticated (login popup flash).
+	//
+	serverSocket2.on('checkLoginToken', async data => {
+		const probe = probeLoginToken(data.token)
+		serverSocket2.emit('getLoginInfos', probe.code === 'SUCCESS' ? probe : {
+			code: 'WRONG_TOKEN',
+			loginInfos: {
+				viewer_enabled: backConfig.jsonConfig.users_viewer_user_enable === "true",
+				viewer_password: backConfig.jsonConfig.users_viewer_user_password,
+				demo_mode: backConfig.jsonConfig.demo_mode_enable === "true",
+			}
+		})
+	}, { bypassLoginTokenCheck: true, checkRole: "none", disableDataLog: true })
 
 
 	

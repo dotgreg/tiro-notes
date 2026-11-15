@@ -59,6 +59,8 @@ export interface iApiDictionary {
 	getSetupInfos: { code: iSetupCode, defaultFolder?: string, message?: string }
 
 	sendLoginInfos: { user: string, password: string }
+	// boot probe: is the token in the cookie still valid? answered through getLoginInfos
+	checkLoginToken: {}
 	getLoginInfos: {
 		code: 'WRONG_TOKEN' | 'WRONG_USER_PASSWORD' | 'SUCCESS',
 		token?: string

@@ -5,6 +5,7 @@ import { getMostRecentFile } from "./sort.manager"
 export const createNewNote = (p: {
     openIn: 'activeWindow' | 'floatingWindow'
     folderPath?: string
+    onCreated?: () => void
 }) => {
     console.log("createNewNote", p)
     getApi(api => {
@@ -28,6 +29,8 @@ export const createNewNote = (p: {
                 if (api.ui.windows.active.get()) api.ui.windows.active.setContent(nFile)
                 else api.tabs.openInNewTab(nFile)
             }
+            // mobile shows one view at a time (navigator/editor/preview): the caller switches to the editor
+            p.onCreated && p.onCreated()
         })
     })
 }

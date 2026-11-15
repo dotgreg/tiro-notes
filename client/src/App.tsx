@@ -481,7 +481,9 @@ export const App = () => {
   //
   //
   const createNoteFloatingFn = () => { createNewNote({ openIn: "floatingWindow" }) }
-  const createNoteFn = () => { createNewNote({ openIn: "activeWindow" }) }
+  // navigator/editor/preview are stacked views on every non-desktop device: creating a note must jump the screen to the editor
+  const jumpToEditorView = () => { if (deviceType() !== "desktop") setMobileView("editor") }
+  const createNoteFn = () => { createNewNote({ openIn: "activeWindow", onCreated: jumpToEditorView }) }
   const toggleActiveWindowView = () => {
     getApi(api => {
       api.ui.windows.active.toggleView()
@@ -627,7 +629,7 @@ export const App = () => {
                 lastNotes={filesHistory}
                 onClose={e => { setSuggestOpen(false) }}
                 onHide={e => { setSuggestShow(false) }}
-                onNoteCreate={folderPath => { createNewNote({ folderPath, openIn: "activeWindow" }) }}
+                onNoteCreate={folderPath => { createNewNote({ folderPath, openIn: "activeWindow", onCreated: jumpToEditorView }) }}
               />
             }
 
@@ -666,7 +668,8 @@ export const App = () => {
                       <NewFileButton
                         onNewFile={() => {
                           createNewNote({
-                            openIn: "activeWindow"
+                            openIn: "activeWindow",
+                            onCreated: jumpToEditorView
                           })
                         }}
                       />

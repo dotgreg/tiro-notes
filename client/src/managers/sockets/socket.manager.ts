@@ -102,6 +102,41 @@ export type ClientSocketManager<ApiDict> = {
 
 const createLogMessage = (message: string, obj?: any) => [`%c [CLIENT SOCKET 2] ${message}`, 'background: #ccc; color: red', obj ? obj : null]
 
+//
+// LOGIN GATE
+// Every emit fired while the login/token exchange is not finished gets a WRONG_TOKEN answer
+// from the backend: the request is dropped AND the login popup flashes during page load
+// (a server restart regenerates every token, so a cold load used to flood the backend with
+// unauthenticated emits). Buffer them, then replay with the fresh token.
+// The gate stays inert (open) until useLoginToken arms it, so PublicApp (no login popup) works.
+//
+const LOGIN_GATE_MAX = 300  // ponytail: cap only, a full page load fires ~30 emits
+// a backend that never answers the probe (old server version without checkLoginToken, setup mode)
+// would keep every request queued forever: the gate opens by itself, the requests go out
+// unauthenticated, the backend answers WRONG_TOKEN and the silent re-login of loginToken.hook takes over
+// 3 s: the probe is sent right after the socket handshake, so a late answer means "no answer"
+const LOGIN_GATE_SAFETY_MS = 3000
+let gateClosed = false
+let gateReplay: (endpoint: any, payload: any) => void = () => { }
+let gateSafetyTimer: any = null
+const gatedEmits: { endpoint: string, payload: any }[] = []
+// login endpoints must never be buffered, they are what opens the gate
+const gateBypass = (endpoint: string) => endpoint.startsWith('siofu') || endpoint === 'sendLoginInfos' || endpoint === 'checkLoginToken'
+
+export const armLoginGate = (replay?: (endpoint: any, payload: any) => void) => {
+	if (replay) gateReplay = replay
+	gateClosed = true
+	if (gateSafetyTimer) clearTimeout(gateSafetyTimer)
+	gateSafetyTimer = setTimeout(openLoginGate, LOGIN_GATE_SAFETY_MS)
+}
+export const openLoginGate = (replay: (endpoint: any, payload: any) => void = gateReplay) => {
+	if (gateSafetyTimer) clearTimeout(gateSafetyTimer)
+	gateSafetyTimer = null
+	gateClosed = false
+	gatedEmits.splice(0).forEach(gated => replay(gated.endpoint, gated.payload))
+}
+export const loginGatePending = () => gatedEmits.length
+
 const createFn = (endpoint, callback) => data => {
 	configClient.log.socket && console.log(...createLogMessage(`<== ON ${endpoint} `, { ...data }));
 	callback(data)
@@ -130,6 +165,10 @@ export const initClientSocketManager = <ApiDict>(rawClientSocket: SocketIOClient
 		},
 		emit: (endpoint, payloadToSend) => {
 			configClient.log.socket && console.log(...createLogMessage(`==> EMIT ${endpoint} `, { ...payloadToSend }));
+			if (gateClosed && !gateBypass(endpoint)) {
+				if (gatedEmits.length < LOGIN_GATE_MAX) gatedEmits.push({ endpoint, payload: payloadToSend })
+				return
+			}
 			rawClientSocket.emit(endpoint, payloadToSend);
 		},
 	}

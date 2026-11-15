@@ -50,3 +50,13 @@ test(`createNewNote opens a tab when there is no window open`, () => {
 	expect(api.ui.windows.active.setContent).not.toHaveBeenCalled()
 	expect(api.tabs.openInNewTab).toHaveBeenCalledWith(newFile)
 })
+
+// mobile ux: the caller must switch the screen to the editor view after the note exists
+test(`createNewNote fires onCreated after the note is loaded`, () => {
+	const api = setup('/', { i: 'w0' })
+	const onCreated = jest.fn()
+	createNewNote({ openIn: 'activeWindow', onCreated })
+	expect(onCreated).toHaveBeenCalledTimes(1)
+	expect(api.ui.windows.active.setContent).toHaveBeenCalledWith(newFile)
+	expect(createNewNote.length).toBe(1)
+})

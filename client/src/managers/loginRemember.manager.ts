@@ -7,6 +7,10 @@ import { getCookie, setCookie } from './cookie.manager'
 // per call in a no-JIT mobile WebView: generateRSAKey() is a Miller-Rabin prime search.
 //
 export const REMEMBER_COOKIE = 'tiro-login-remember'
+// Same value mirrored in localStorage: WebKit (iOS/macOS Safari) caps cookies written by
+// JavaScript to 7 days, and some browsers wipe cookies on exit. The "remember" checkbox flag
+// already lives in localStorage, so the creds go there too.
+export const REMEMBER_LS_KEY = 'tiro-login-remember-ls'
 export const REMEMBER_COOKIE_HOURS = 24 * 30
 export const LOGIN_ENC_KEY = "__HARDCODED_LOGIN_LS_PASSWORD_0129dsfaf1029__"
 
@@ -27,13 +31,23 @@ const getKey = (): Promise<CryptoKey> => keyP = keyP || (async () => {
 const toB64 = (bytes: Uint8Array) => btoa(String.fromCharCode(...bytes))
 const fromB64 = (s: string) => { const b = atob(s); const u = new Uint8Array(b.length); for (let i = 0; i < b.length; i++)u[i] = b.charCodeAt(i); return u }
 
+// cookie + localStorage: a phone that lost the cookie (WebKit 7-day cap, "clear cookies on quit")
+// still re-logins silently from the localStorage copy
+const storeValue = (value: string) => {
+	setCookie(REMEMBER_COOKIE, value, REMEMBER_COOKIE_HOURS)
+	try { localStorage.setItem(REMEMBER_LS_KEY, value) } catch (e) { }   // private mode / quota
+}
+const readValue = (): string => {
+	try { return getCookie(REMEMBER_COOKIE) || localStorage.getItem(REMEMBER_LS_KEY) || '' } catch (e) { return '' }
+}
+
 export const setRememberedCreds = async (user: string, password: string) => {
 	const json = JSON.stringify({ u: user, p: password })
 	const subtle = getSubtle()
 	if (!subtle) {
 		// ponytail: no WebCrypto outside a secure context (plain http LAN) => base64 only.
 		// Same security class as the old RSA cookie: the key ships in the public bundle anyway.
-		setCookie(REMEMBER_COOKIE, 'v1' + toB64(enc.encode(json)), REMEMBER_COOKIE_HOURS)
+		storeValue('v1' + toB64(enc.encode(json)))
 		return
 	}
 	const iv = crypto.getRandomValues(new Uint8Array(12))
@@ -41,13 +55,16 @@ export const setRememberedCreds = async (user: string, password: string) => {
 	const bytes = new Uint8Array(iv.length + cipher.length)
 	bytes.set(iv)
 	bytes.set(cipher, iv.length)
-	setCookie(REMEMBER_COOKIE, 'v2' + toB64(bytes), REMEMBER_COOKIE_HOURS)
+	storeValue('v2' + toB64(bytes))
 }
 
-export const clearRememberedCreds = () => setCookie(REMEMBER_COOKIE, '', 0)
+export const clearRememberedCreds = () => {
+	setCookie(REMEMBER_COOKIE, '', 0)
+	try { localStorage.removeItem(REMEMBER_LS_KEY) } catch (e) { }
+}
 
 export const getRememberedCreds = async (): Promise<{ user: string, password: string } | undefined> => {
-	const raw = getCookie(REMEMBER_COOKIE)
+	const raw = readValue()
 	if (!raw) return
 
 	let json = ''

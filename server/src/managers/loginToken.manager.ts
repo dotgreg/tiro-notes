@@ -61,6 +61,15 @@ export const getUserFromToken = (clientToken: string): iUser | false => {
 	return res
 }
 
+//
+// BOOT PROBE (server/src/routes.ts checkLoginToken): is the token the client sends in its
+// cookie still valid? Kept out of routes.ts so it is unit testable without loading the socket server.
+//
+export const probeLoginToken = (clientToken: string): { code: 'SUCCESS' | 'WRONG_TOKEN', token?: string } => {
+	if (backConfig?.dev?.disableLogin) return { code: 'SUCCESS', token: clientToken || '' }
+	return getUserFromToken(clientToken) ? { code: 'SUCCESS', token: clientToken } : { code: 'WRONG_TOKEN' }
+}
+
 
 //
 // ROUGH AND BASIC ROLE MANAGEMENT 

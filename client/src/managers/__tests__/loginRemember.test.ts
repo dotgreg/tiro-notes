@@ -20,4 +20,15 @@ describe('remember-me login cookie', () => {
 		expect(await getRememberedCreds()).toBeUndefined()
 		expect(document.cookie).not.toContain('Oq3kLegacy')
 	})
+	// regression (mobile): WebKit caps JavaScript-written cookies to 7 days and some browsers wipe
+	// cookies on quit. With only the cookie, "remember" silently stopped working on phones.
+	test('creds survive the browser wiping the cookie (localStorage copy)', async () => {
+		clearRememberedCreds()
+		await setRememberedCreds('bob', 'pass2')
+		document.cookie = `${REMEMBER_COOKIE}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`
+		expect(document.cookie).not.toContain(`${REMEMBER_COOKIE}=`)
+		expect(await getRememberedCreds()).toEqual({ user: 'bob', password: 'pass2' })
+		clearRememberedCreds()
+		expect(await getRememberedCreds()).toBeUndefined()
+	})
 })
