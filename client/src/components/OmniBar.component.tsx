@@ -148,6 +148,8 @@ export const OmniBar = (p: {
 	// const HtmlOption = useMemo((p as {file: iFile}) => {
 	const HtmlOption = (p:{file:iFile}) => {
 		const [hover, setHover] = useState<boolean>(false);
+		// mobile has no hover: keep the 2 actions rendered and give them a bigger tap target
+		const mobile = deviceType() === "mobile"
 		return useMemo(() => <div 
 		// return <div 
 				className={`path-option-wrapper device-${deviceType()}`}
@@ -156,7 +158,7 @@ export const OmniBar = (p: {
 			>
 				<div className="file">{p.file.name}</div>
 				<div className="folder">{p.file.folder}</div>
-				{hover && 
+				{(hover || mobile) && 
 					<div className="actions">
 						<div className="action" 
 							onClick={e => {
@@ -1432,6 +1434,18 @@ export const omnibarPopupCss = () => `
 									color: grey;
 									&:hover {
 										opacity: 1;
+									}
+								}
+							}
+							&.device-mobile {
+								padding-right: 96px;
+								.actions {
+									.action {
+										opacity: 1;
+										padding: 5px 8px;
+										.icon-2-wrapper {
+												font-size: 30px;
+										}
 									}
 								}
 							}
